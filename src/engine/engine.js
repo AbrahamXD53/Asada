@@ -13,7 +13,12 @@ gEngine.Core = (function () {
 	var initializeWebGL = function (canvasId) {
 		var canvas = document.getElementById(canvasId);
 
-		mGL = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+		mGL = canvas.getContext('webgl', { alpha: false }) || canvas.getContext('experimental-webgl', { alpha: false });
+
+		mGL.blendFunc(mGL.SRC_ALPHA, mGL.ONE_MINUS_SRC_ALPHA);
+		mGL.enable(mGL.BLEND);
+
+		mGL.pixelStorei(mGL.UNPACK_FLIP_Y_WEBGL, true);
 
 		if (mGL === null) {
 			document.write('<br><b>Error: Webgl is not supported</b>');
@@ -51,7 +56,7 @@ gEngine.Core = (function () {
 		getGL: getGL,
 		initialize: initializeEngineCore,
 		clearCanvas: clearCanvas,
-		inheritPrototype:inheritPrototype
+		inheritPrototype: inheritPrototype
 	};
 
 
@@ -65,6 +70,12 @@ gEngine.VertexBuffer = (function () {
 			-0.5, 0.5, 0.0,
 			0.5, -0.5, 0.0,
 			-0.5, -0.5, 0.0
+		],
+		textureCoordinate: [
+			1.0, 1.0,
+			0.0, 1.0,
+			1.0, 0.0,
+			0.0, 0.0
 		]
 	};
 	var mVertexBuffer = null;
@@ -162,8 +173,8 @@ gEngine.GameLoop = (function () {
 	var mPublic = {
 		start: start,
 		stop: stop,
-		onBlur:onBlur,
-		onFocus:onFocus
+		onBlur: onBlur,
+		onFocus: onFocus
 	};
 
 	return mPublic;
@@ -380,7 +391,8 @@ gEngine.ResourceMap = (function () {
 
 		retrieveAsset: retrieveAsset,
 		unloadAsset: unloadAsset,
-		isAssetLoaded: isAssetLoaded
+		isAssetLoaded: isAssetLoaded,
+		incAssetRefCount: incAssetRefCount
 	};
 	return mPublic;
 }());
@@ -403,7 +415,7 @@ gEngine.TextFileLoader = (function () {
 				}
 			}
 			req.open("GET", fileName, true);
-            req.setRequestHeader("Content-Type", "text/xml");
+			req.setRequestHeader("Content-Type", "text/xml");
 
 			req.onload = function () {
 				var fileContent = null;
@@ -446,15 +458,27 @@ gEngine.TextFileLoader = (function () {
 gEngine.DefaultResources = (function () {
 	var kSimpleVS = 'src/shaders/simpleVS.glsl',
 		kSimpleFS = 'src/shaders/simpleFS.glsl';
+	var kTextureVS = 'src/shaders/textureVS.glsl',
+		kTextureFS = 'src/shaders/textureFS.glsl';
+
+	var mTextureShader = null;
 	var mColorShader = null;
+
 	var getColorShader = function () { return mColorShader; };
+	var getTextureShader = function () { return mTextureShader; };
+
 	var createShaders = function (callbackFunction) {
 		mColorShader = new SimpleShader(kSimpleVS, kSimpleFS);
+		mTextureShader = new TextureShader(kTextureVS, kTextureFS);
 		callbackFunction();
 	};
+
 	var initialize = function (callbackFunction) {
 		gEngine.TextFileLoader.loadTextFile(kSimpleVS, gEngine.TextFileLoader.TextFileType.TextFile);
 		gEngine.TextFileLoader.loadTextFile(kSimpleFS, gEngine.TextFileLoader.TextFileType.TextFile);
+
+		gEngine.TextFileLoader.loadTextFile(kTextureVS, gEngine.TextFileLoader.TextFileType.TextFile);
+		gEngine.TextFileLoader.loadTextFile(kTextureFS, gEngine.TextFileLoader.TextFileType.TextFile);
 
 		gEngine.ResourceMap.setLoadCompleteCallback(function () {
 			createShaders(callbackFunction);
@@ -462,7 +486,8 @@ gEngine.DefaultResources = (function () {
 	};
 	var mPublic = {
 		initialize: initialize,
-		getColorShader: getColorShader
+		getColorShader: getColorShader,
+		getTextureShader: getTextureShader
 	};
 	return mPublic;
 }());
@@ -495,7 +520,6 @@ gEngine.Audio = (function () {
 			req.responseType = 'arraybuffer';
 
 			req.onload = function () {
-				console.log(req);
 				mAudioContext.decodeAudioData(req.response,
 					function (buffer) {
 						gEngine.ResourceMap.asyncLoadCompleted(clipName, buffer);
@@ -561,6 +585,81 @@ gEngine.Audio = (function () {
 		isBackgroundAudioPlaying: isBackgroundAudioPlaying,
 		pause: pause,
 		resume: resume
+	};
+	return mPublic;
+}());
+
+gEngine.Textures = (function () {
+	function TextureInfo(name, w, h, id) {
+		this.mName = name;
+		this.mWidth = w;
+		this.mHeight = h;
+		this.mGLTexID = id;
+	};
+	var loadTexture = function (textureName) {
+		if (!gEngine.ResourceMap.isAssetLoaded(textureName)) {
+			var img = new Image();
+
+			gEngine.ResourceMap.asyncLoadRequested(textureName);
+
+			img.onload = function () {
+				processLoadedImage(textureName, img);
+			};
+
+			img.src = textureName;
+		} else {
+			gEngine.ResourceMap.incAssetRefCount(textureName);
+		}
+	};
+	var unloadTexture = function (textureName) {
+		var gl = gEngine.Core.getGL();
+		var texInfo = gEngine.ResourceMap.retrieveAsset(textureName);
+		gl.deleteTexture(texInfo.mGLTexID);
+		gEngine.ResourceMap.unloadAsset(textureName);
+	};
+
+	var processLoadedImage = function (textureName, image) {
+		var gl = gEngine.Core.getGL();
+
+		var textureID = gl.createTexture();
+
+		gl.bindTexture(gl.TEXTURE_2D, textureID);
+
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+		gl.generateMipmap(gl.TEXTURE_2D);
+		gl.bindTexture(gl.TEXTURE_2D, null);
+		var texInfo = new TextureInfo(textureName,image.naturalWidth, image.naturalHeight, textureID);
+		gEngine.ResourceMap.asyncLoadCompleted(textureName, texInfo);
+	};
+
+	var activateTexture = function (textureName) {
+		var gl = gEngine.Core.getGL();
+		var texInfo = gEngine.ResourceMap.retrieveAsset(textureName);
+
+		gl.bindTexture(gl.TEXTURE_2D, texInfo.mGLTexID);
+
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+	};
+
+	var deactivateTexture = function () {
+		var gl = gEngine.Core.getGL();
+		gl.bindTexture(gl.TEXTURE_2D, null);
+	};
+
+	var getTextureInfo = function(textureName){
+		return gEngine.ResourceMap.retrieveAsset(textureName);
+	};
+
+	var mPublic = {
+		loadTexture: loadTexture,
+		unloadTexture:unloadTexture,
+		activateTexture:activateTexture,
+		deactivateTexture:deactivateTexture,
+		getTextureInfo:getTextureInfo
 	};
 	return mPublic;
 }());
