@@ -64,6 +64,7 @@ gEngine.Core = (function () {
 }());
 
 gEngine.VertexBuffer = (function () {
+	var gl = gEngine.Core.getGL();
 	var vertexInfo = {
 		position: [
 			0.5, 0.5, 0.0,
@@ -71,12 +72,12 @@ gEngine.VertexBuffer = (function () {
 			0.5, -0.5, 0.0,
 			-0.5, -0.5, 0.0
 		],
-		textureCoordinate: [
+		textureCoordinate: {data:[
 			1.0, 1.0,
 			0.0, 1.0,
 			1.0, 0.0,
 			0.0, 0.0
-		]
+		],drawType:35048 }
 	};
 	var mVertexBuffer = null;
 
@@ -463,13 +464,16 @@ gEngine.DefaultResources = (function () {
 
 	var mTextureShader = null;
 	var mColorShader = null;
+	var mSpriteShader = null;
 
 	var getColorShader = function () { return mColorShader; };
 	var getTextureShader = function () { return mTextureShader; };
+	var getSpriteShader = function () { return mSpriteShader; };
 
 	var createShaders = function (callbackFunction) {
 		mColorShader = new SimpleShader(kSimpleVS, kSimpleFS);
 		mTextureShader = new TextureShader(kTextureVS, kTextureFS);
+		mSpriteShader = new SpriteShader(kTextureVS, kTextureFS);
 		callbackFunction();
 	};
 
@@ -487,7 +491,8 @@ gEngine.DefaultResources = (function () {
 	var mPublic = {
 		initialize: initialize,
 		getColorShader: getColorShader,
-		getTextureShader: getTextureShader
+		getTextureShader: getTextureShader,
+		getSpriteShader:getSpriteShader
 	};
 	return mPublic;
 }());

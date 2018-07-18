@@ -34,10 +34,11 @@ SimpleGame.prototype.initialize = function () {
     this.squareFloor.getTransform().setScale([8, 1, 1]);
     this.squareFloor.setColor([1, 0, 0, 1]);
 
-    this.mCollector = new TextureRenderable(this.kCollector);
+    this.mCollector = new Sprite(this.kCollector);
     this.mCollector.setColor([1, 1, 1, 1]);
     this.mCollector.getTransform().setPosition([19,60,0]);
 
+    //this.mCollector.setTextureCoord(null);
     gEngine.Audio.playBackgroundAudio(this.kBgClip);
 };
 SimpleGame.prototype.update = function () {
