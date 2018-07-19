@@ -6,6 +6,7 @@ function SimpleGame() {
     this.squareFloor = null;
     this.kBgClip = 'assets/sound/the_field_of_dreams.mp3';
     this.kCollector = "assets/minion_collector.png";
+    this.mTextSysFont=null;
 }
 gEngine.Core.inheritPrototype(SimpleGame, Scene);
 
@@ -35,10 +36,24 @@ SimpleGame.prototype.initialize = function () {
     this.squareFloor.setColor([1, 0, 0, 1]);
 
     this.mCollector = new Sprite(this.kCollector);
-    this.mCollector.setColor([1, 1, 1, 1]);
+    this.mCollector.setColor([1, 1, 0,1]);
     this.mCollector.getTransform().setPosition([19,60,0]);
+    this.mCollector.getTransform().setScale([2,2,1]);
 
-    //this.mCollector.setTextureCoord(null);
+    this.mCollector2 = new Sprite(this.kCollector);
+    this.mCollector2.setColor([1, 1, 1, 1]);
+    this.mCollector2.getTransform().setPosition([25,60,0]);
+    this.mCollector2.getTransform().setScale([2,2,1]);
+
+
+    this.mTextSysFont = new FontRenderable("SYstem Font: in Red");
+    this.mTextSysFont.setColor([1,0,0,1]);
+    this.mTextSysFont.getTransform().setPosition([10,60,0]);
+    this.mTextSysFont.setTextHeight(2);
+
+    this.mCollector.setTextureCoordUV(0,.5,0,.5);
+    this.mCollector2.setTextureCoordUV(0.5,1,0,.5);
+
     gEngine.Audio.playBackgroundAudio(this.kBgClip);
 };
 SimpleGame.prototype.update = function () {
@@ -52,6 +67,7 @@ SimpleGame.prototype.update = function () {
     } else {
         this.squareFloor.setColor([0, 0, 1, 1]);
     }
+    this.mTextSysFont.getTransform().translateX(0.01);
 };
 SimpleGame.prototype.draw = function () {
     this.camera.setupViewProjection();
@@ -59,5 +75,8 @@ SimpleGame.prototype.draw = function () {
     this.squareBlue.draw(vpMatrix);
     this.squareFloor.draw(vpMatrix);
     this.square.draw(vpMatrix);
+    this.mTextSysFont.draw(vpMatrix);
     this.mCollector.draw(vpMatrix);
+    this.mCollector2.draw(vpMatrix);
 };
+

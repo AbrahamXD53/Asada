@@ -13,14 +13,13 @@ function SpriteShader(vertexPath, fragmentPath) {
 gEngine.Core.inheritPrototype(SpriteShader, TextureShader);
 
 SpriteShader.prototype.setTextureCoord = function (coord) {
-    var gl = gEngine.Core.getGL();
     this.mTextureCoord = coord;
-    twgl.setAttribInfoBufferFromArray(gl, this.mTexCoordBuffer.attribs.textureCoordinate, this.mTextureCoord);
 };
 
 SpriteShader.prototype.activateShader = function (color, transform, vpMatrix) {
     SimpleShader.prototype.activateShader.call(this, color, transform, vpMatrix);
     var gl = gEngine.Core.getGL();
+    twgl.setAttribInfoBufferFromArray(gl, this.mTexCoordBuffer.attribs.textureCoordinate, this.mTextureCoord);
     twgl.setBuffersAndAttributes(gl, this.mCompiledShader, this.mTexCoordBuffer);
 
 };

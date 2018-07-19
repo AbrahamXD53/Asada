@@ -25,5 +25,5 @@ void main(void){
     // or: simply multiply pixel color with texture color
     // vec4 result = c * uPixelColor;
 
-    gl_FragColor = c * u_color;
+    gl_FragColor = result;
 }

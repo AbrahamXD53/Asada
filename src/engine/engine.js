@@ -72,12 +72,14 @@ gEngine.VertexBuffer = (function () {
 			0.5, -0.5, 0.0,
 			-0.5, -0.5, 0.0
 		],
-		textureCoordinate: {data:[
-			1.0, 1.0,
-			0.0, 1.0,
-			1.0, 0.0,
-			0.0, 0.0
-		],drawType:35048 }
+		textureCoordinate: {
+			data: [
+				1.0, 1.0,
+				0.0, 1.0,
+				1.0, 0.0,
+				0.0, 0.0
+			], drawType: 35048
+		}
 	};
 	var mVertexBuffer = null;
 
@@ -461,19 +463,26 @@ gEngine.DefaultResources = (function () {
 		kSimpleFS = 'src/shaders/simpleFS.glsl';
 	var kTextureVS = 'src/shaders/textureVS.glsl',
 		kTextureFS = 'src/shaders/textureFS.glsl';
+	var kFontFS = 'src/shaders/fontFS.glsl';
+	
+	var kDefaultFont = "assets/fonts/system-default-font";
 
 	var mTextureShader = null;
 	var mColorShader = null;
 	var mSpriteShader = null;
+	var mFontShader = null;
 
 	var getColorShader = function () { return mColorShader; };
 	var getTextureShader = function () { return mTextureShader; };
 	var getSpriteShader = function () { return mSpriteShader; };
+	var getFontShader = function () { return mFontShader; };
+	var getDefaultFont = function () { return kDefaultFont; };
 
 	var createShaders = function (callbackFunction) {
 		mColorShader = new SimpleShader(kSimpleVS, kSimpleFS);
 		mTextureShader = new TextureShader(kTextureVS, kTextureFS);
 		mSpriteShader = new SpriteShader(kTextureVS, kTextureFS);
+		mFontShader = new SpriteShader(kTextureVS, kFontFS);
 		callbackFunction();
 	};
 
@@ -483,16 +492,34 @@ gEngine.DefaultResources = (function () {
 
 		gEngine.TextFileLoader.loadTextFile(kTextureVS, gEngine.TextFileLoader.TextFileType.TextFile);
 		gEngine.TextFileLoader.loadTextFile(kTextureFS, gEngine.TextFileLoader.TextFileType.TextFile);
+		gEngine.TextFileLoader.loadTextFile(kFontFS, gEngine.TextFileLoader.TextFileType.TextFile);
+
+		gEngine.Fonts.loadFont(kDefaultFont);
 
 		gEngine.ResourceMap.setLoadCompleteCallback(function () {
 			createShaders(callbackFunction);
 		});
 	};
+	var cleanUp = function () {
+		mColorShader.cleanUp();
+		mTextureShader.cleanUp();
+		mSpriteShader.cleanUp();
+
+		gEngine.TextFileLoader.unloadTextFile(kSimpleVS);
+		gEngine.TextFileLoader.unloadTextFile(kSimpleFS);
+
+		gEngine.TextFileLoader.unloadTextFile(kTextureVS);
+		gEngine.TextFileLoader.unloadTextFile(kTextureFS);
+		
+		gEngine.Fonts.unloadFont(kDefaultFont);
+	};
 	var mPublic = {
 		initialize: initialize,
 		getColorShader: getColorShader,
 		getTextureShader: getTextureShader,
-		getSpriteShader:getSpriteShader
+		getSpriteShader: getSpriteShader,
+		getDefaultFont:getDefaultFont,
+		getFontShader:getFontShader
 	};
 	return mPublic;
 }());
@@ -633,7 +660,7 @@ gEngine.Textures = (function () {
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 		gl.generateMipmap(gl.TEXTURE_2D);
 		gl.bindTexture(gl.TEXTURE_2D, null);
-		var texInfo = new TextureInfo(textureName,image.naturalWidth, image.naturalHeight, textureID);
+		var texInfo = new TextureInfo(textureName, image.naturalWidth, image.naturalHeight, textureID);
 		gEngine.ResourceMap.asyncLoadCompleted(textureName, texInfo);
 	};
 
@@ -655,16 +682,106 @@ gEngine.Textures = (function () {
 		gl.bindTexture(gl.TEXTURE_2D, null);
 	};
 
-	var getTextureInfo = function(textureName){
+	var getTextureInfo = function (textureName) {
 		return gEngine.ResourceMap.retrieveAsset(textureName);
 	};
 
 	var mPublic = {
 		loadTexture: loadTexture,
-		unloadTexture:unloadTexture,
-		activateTexture:activateTexture,
-		deactivateTexture:deactivateTexture,
-		getTextureInfo:getTextureInfo
+		unloadTexture: unloadTexture,
+		activateTexture: activateTexture,
+		deactivateTexture: deactivateTexture,
+		getTextureInfo: getTextureInfo
+	};
+	return mPublic;
+}());
+
+gEngine.Fonts = (function () {
+	function CharacterInfo() {
+		this.mTexCoordLeft = 0;
+		this.mTexCoordRight = 1;
+		this.mTexCoordBottom = 0;
+		this.mTexCoordTop = 0;
+
+		this.mCharWidth = 1;
+		this.mCharHeight = 1;
+		this.mCharWidthOffset = 0;
+		this.mCharHeightOffset = 0;
+
+		this.mCharAspectRatio = 1;
+	}
+
+	var loadFont = function (fontName) {
+		if (!gEngine.ResourceMap.isAssetLoaded(fontName)) {
+			var fontInfoSourceString = fontName + '.fnt';
+			var textureSourceString = fontName + '.png';
+
+			gEngine.ResourceMap.asyncLoadRequested(fontName);
+			gEngine.Textures.loadTexture(textureSourceString);
+			gEngine.TextFileLoader.loadTextFile(fontInfoSourceString, gEngine.TextFileLoader.TextFileType.XMLFile, storeLoadedFont);
+		} else {
+			gEngine.ResourceMap.incAssetRefCount(fontName);
+		}
+	};
+	var storeLoadedFont = function (fontInfoSourceString) {
+		var fontName = fontInfoSourceString.slice(0, -4);
+		var fontInfo = gEngine.ResourceMap.retrieveAsset(fontInfoSourceString);
+		fontInfo.FontImage = fontName + '.png';
+		gEngine.ResourceMap.asyncLoadCompleted(fontName, fontInfo);
+	};
+	var unloadFont = function (fontName) {
+		gEngine.ResourceMap.unloadAsset(fontName);
+		if (!gEngine.ResourceMap.isAssetLoaded(fontName)) {
+			var fontInfoSourceString = fontName + ".fnt";
+			var textureSourceString = fontName + ".png";
+			gEngine.Textures.unloadTexture(textureSourceString);
+			gEngine.TextFileLoader.unloadTextFile(fontInfoSourceString);
+		}
+	};
+	var getCharInfo = function (fontName, aChar) {
+		var returnInfo = null;
+		var fontInfo = gEngine.ResourceMap.retrieveAsset(fontName);
+		var commonPath = "font/common";
+		var commonInfo = fontInfo.evaluate(commonPath, fontInfo, null, XPathResult.ANY_TYPE, null);
+		commonInfo = commonInfo.iterateNext();
+		if (commonInfo === null) {
+			return returnInfo;
+		}
+		var charHeight = commonInfo.getAttribute("base");
+
+		var charPath = "font/chars/char[@id=" + aChar + "]";
+		var charInfo = fontInfo.evaluate(charPath, fontInfo, null, XPathResult.ANY_TYPE, null);
+		charInfo = charInfo.iterateNext();
+
+		if (charInfo === null) {
+			return returnInfo;
+		}
+
+		returnInfo = new CharacterInfo();
+		var texInfo = gEngine.Textures.getTextureInfo(fontInfo.FontImage);
+		var leftPixel = Number(charInfo.getAttribute("x"));
+		var rightPixel = leftPixel + Number(charInfo.getAttribute("width")) - 1;
+		var topPixel = (texInfo.mHeight - 1) - Number(charInfo.getAttribute("y"));
+		var bottomPixel = topPixel - Number(charInfo.getAttribute("height")) + 1;
+
+		returnInfo.mTexCoordLeft = leftPixel / (texInfo.mWidth - 1);
+		returnInfo.mTexCoordTop = topPixel / (texInfo.mHeight - 1);
+		returnInfo.mTexCoordRight = rightPixel / (texInfo.mWidth - 1);
+		returnInfo.mTexCoordBottom = bottomPixel / (texInfo.mHeight - 1);
+
+		var charWidth = charInfo.getAttribute("xadvance");
+		returnInfo.mCharWidth = charInfo.getAttribute("width") / charWidth;
+		returnInfo.mCharHeight = charInfo.getAttribute("height") / charHeight;
+		returnInfo.mCharWidthOffset = charInfo.getAttribute("xoffset") / charWidth;
+		returnInfo.mCharHeightOffset = charInfo.getAttribute("yoffset") / charHeight;
+		returnInfo.mCharAspectRatio = charWidth / charHeight;
+
+		return returnInfo;
+	}
+	var mPublic = {
+		loadFont: loadFont,
+		unloadFont: unloadFont,
+		getCharInfo: getCharInfo
 	};
 	return mPublic;
 }());
