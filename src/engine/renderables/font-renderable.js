@@ -13,6 +13,8 @@ FontRenderable.prototype.draw = function (vpMatrix) {
     var xPos = this.mTransform.getPositionX() - (charWidth / 2) + (charWidth * 0.5);
 
     var aChar, charInfo, xSize, ySize, xOffset, yOffset;
+    var rotation = this.mTransform.getRotation();
+    this.mOneChar.getTransform().setRotation(rotation);
     for (var charIndex = 0, limit = this.mText.length; charIndex < limit; charIndex++) {
         aChar = this.mText.charCodeAt(charIndex);
         charInfo = gEngine.Fonts.getCharInfo(this.mFont, aChar);
@@ -22,13 +24,13 @@ FontRenderable.prototype.draw = function (vpMatrix) {
         ySize = charHeight * charInfo.mCharHeight;
         this.mOneChar.getTransform().setScale([xSize, ySize, 1]);
 
-        xOffset = charWidth * charInfo.mCharWidthOffset * 0.5;
-        yOffset = charHeight * charInfo.mCharHeightOffset * 0.5;
+        xOffset = charWidth * charInfo.mCharWidthOffset*0.5;
+        yOffset = Math.cos(rotation)*charHeight * charInfo.mCharHeightOffset * 0.5;
         this.mOneChar.getTransform().setPosition([xPos - xOffset, yPos - yOffset,0]);
         this.mOneChar.draw(vpMatrix);
-        xPos += charWidth;
+        xPos += charWidth * Math.cos(rotation);
+        yPos += charWidth * Math.sin(rotation);
     }
-    this.mOneChar.setTextureCoordUV(0,1,0,1);
 };
 FontRenderable.prototype.setText = function (text) {
     this.mText = text;

@@ -52,13 +52,18 @@ gEngine.Core = (function () {
 		subClass.prototype = prototype;
 	};
 
+	var cleanUp = function () {
+		gEngine.VertexBuffer.cleanUp();
+		gEngine.DefaultResources.cleanUp();
+	};
+
 	var mPublic = {
 		getGL: getGL,
 		initialize: initializeEngineCore,
 		clearCanvas: clearCanvas,
-		inheritPrototype: inheritPrototype
+		inheritPrototype: inheritPrototype,
+		cleanUp: cleanUp
 	};
-
 
 	return mPublic;
 }());
@@ -90,11 +95,18 @@ gEngine.VertexBuffer = (function () {
 	var initialize = function () {
 		var gl = gEngine.Core.getGL();
 		mVertexBuffer = twgl.createBufferInfoFromArrays(gl, vertexInfo);
+		console.log(mVertexBuffer);
+	};
+	var cleanUp = function () {
+		var gl = gEngine.Core.getGL();
+		gl.deleteBuffer(mVertexBuffer.attribs.position.buffer);
+		gl.deleteBuffer(mVertexBuffer.attribs.textureCoordinate.buffer);
 	};
 
 	var mPublic = {
 		initialize: initialize,
-		getVertexBuffer: getVertexBuffer
+		getVertexBuffer: getVertexBuffer,
+		cleanUp: cleanUp
 	};
 
 	return mPublic;
@@ -130,7 +142,8 @@ gEngine.GameLoop = (function () {
 				}
 				mLagTime -= kMPF;
 			}
-			this.draw();
+			if (mIsLoopRunning)
+				this.draw();
 		} else {
 			mCurrentScene.unloadScene();
 		}
@@ -169,8 +182,8 @@ gEngine.GameLoop = (function () {
 	var stop = function () {
 		mIsLoopRunning = false;
 
-		window.removeEventListener('focus');
-		window.removeEventListener('blur');
+		//window.removeEventListener('focus');
+		//window.removeEventListener('blur');
 	}
 
 	var mPublic = {
@@ -382,7 +395,8 @@ gEngine.ResourceMap = (function () {
 			mResourceMap[rName].mRefCount -= 1;
 			if (mResourceMap[rName].mRefCount <= 0)
 				delete mResourceMap[rName];
-			return mResourceMap[rName].mRefCount;
+			else
+				return mResourceMap[rName].mRefCount;
 		}
 		return 0;
 	};
@@ -464,7 +478,7 @@ gEngine.DefaultResources = (function () {
 	var kTextureVS = 'src/shaders/textureVS.glsl',
 		kTextureFS = 'src/shaders/textureFS.glsl';
 	var kFontFS = 'src/shaders/fontFS.glsl';
-	
+
 	var kDefaultFont = "assets/fonts/system-default-font";
 
 	var mTextureShader = null;
@@ -504,13 +518,14 @@ gEngine.DefaultResources = (function () {
 		mColorShader.cleanUp();
 		mTextureShader.cleanUp();
 		mSpriteShader.cleanUp();
+		mFontShader.cleanUp();
 
 		gEngine.TextFileLoader.unloadTextFile(kSimpleVS);
 		gEngine.TextFileLoader.unloadTextFile(kSimpleFS);
 
 		gEngine.TextFileLoader.unloadTextFile(kTextureVS);
 		gEngine.TextFileLoader.unloadTextFile(kTextureFS);
-		
+
 		gEngine.Fonts.unloadFont(kDefaultFont);
 	};
 	var mPublic = {
@@ -518,8 +533,9 @@ gEngine.DefaultResources = (function () {
 		getColorShader: getColorShader,
 		getTextureShader: getTextureShader,
 		getSpriteShader: getSpriteShader,
-		getDefaultFont:getDefaultFont,
-		getFontShader:getFontShader
+		getDefaultFont: getDefaultFont,
+		getFontShader: getFontShader,
+		cleanUp: cleanUp
 	};
 	return mPublic;
 }());

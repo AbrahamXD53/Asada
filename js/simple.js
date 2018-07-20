@@ -46,10 +46,10 @@ SimpleGame.prototype.initialize = function () {
     this.mCollector2.getTransform().setScale([2,2,1]);
 
 
-    this.mTextSysFont = new FontRenderable("SYstem Font: in Red");
+    this.mTextSysFont = new FontRenderable("System Font: in Red");
     this.mTextSysFont.setColor([1,0,0,1]);
     this.mTextSysFont.getTransform().setPosition([10,60,0]);
-    this.mTextSysFont.setTextHeight(2);
+    this.mTextSysFont.setTextHeight(1);
 
     this.mCollector.setTextureCoordUV(0,.5,0,.5);
     this.mCollector2.setTextureCoordUV(0.5,1,0,.5);
@@ -59,15 +59,14 @@ SimpleGame.prototype.initialize = function () {
 SimpleGame.prototype.update = function () {
     var gamepads = gEngine.Input.getGamepads();
     if (gamepads[0]) {
-        this.mCollector.getTransform().translate([gamepads[0].axes[0] * .1, -gamepads[0].axes[1] * .1, 0])
-        this.mCollector.getTransform().setRotation(Math.atan2(gamepads[0].axes[3], gamepads[0].axes[2]));
+        this.mTextSysFont.getTransform().translate([gamepads[0].axes[0] * .1, -gamepads[0].axes[1] * .1, 0])
+        this.mTextSysFont.getTransform().setRotation(Math.atan2(-gamepads[0].axes[3], gamepads[0].axes[2]));
     }
     if (gEngine.Input.isKeyPressed(gEngine.Input.keyCodes.A)) {
         this.squareFloor.setColor([1, 0, 1, 1]);
     } else {
         this.squareFloor.setColor([0, 0, 1, 1]);
     }
-    this.mTextSysFont.getTransform().translateX(0.01);
 };
 SimpleGame.prototype.draw = function () {
     this.camera.setupViewProjection();
@@ -75,8 +74,8 @@ SimpleGame.prototype.draw = function () {
     this.squareBlue.draw(vpMatrix);
     this.squareFloor.draw(vpMatrix);
     this.square.draw(vpMatrix);
-    this.mTextSysFont.draw(vpMatrix);
     this.mCollector.draw(vpMatrix);
     this.mCollector2.draw(vpMatrix);
+    this.mTextSysFont.draw(vpMatrix);
 };
 

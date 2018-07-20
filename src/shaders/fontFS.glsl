@@ -26,4 +26,5 @@ void main(void){
     // vec4 result = c * uPixelColor;
 
     gl_FragColor = result;
+    //gl_FragColor = vec4(1,1,1,0.);
 }

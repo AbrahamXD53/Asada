@@ -12,7 +12,6 @@ gEngine.Core.inheritPrototype(Sprite, TextureRenderable);
 
 Sprite.prototype.draw = function (vpMatrix) {
     gEngine.Textures.activateTexture(this.mTexture);
-    this.setUVCoords();
     TextureRenderable.prototype.draw.call(this, vpMatrix);
 };
 
@@ -21,6 +20,7 @@ Sprite.prototype.setTextureCoordUV = function (left, right, bottom, top) {
     this.mTexRight = right;
     this.mTexBottom = bottom;
     this.mTexTop = top;
+    this.setUVCoords();
 };
 Sprite.prototype.setTextureCoordPixels = function (left, right, bottom, top) {
     var texInfo = gEngine.ResourceMap.retrieveAsset(this.mTexture);
@@ -31,6 +31,7 @@ Sprite.prototype.setTextureCoordPixels = function (left, right, bottom, top) {
     this.mTexRight = right / imageW;
     this.mTexBottom = bottom / imageH;
     this.mTexTop = top / imageH;
+    this.setUVCoords();
 };
 Sprite.prototype.setUVCoords = function () {
     this.mShader.setTextureCoord([
@@ -40,6 +41,7 @@ Sprite.prototype.setUVCoords = function () {
         this.mTexLeft, this.mTexBottom
     ]);
 };
+
 
 Sprite.TexCoordArray = Object.freeze({
     Left: 2,
