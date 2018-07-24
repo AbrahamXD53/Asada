@@ -25,5 +25,4 @@ SpriteShader.prototype.activateShader = function (color, transform, vpMatrix) {
     var gl = gEngine.Core.getGL();
     twgl.setAttribInfoBufferFromArray(gl, this.mTexCoordBuffer.attribs.textureCoordinate, this.mTextureCoord);
     twgl.setBuffersAndAttributes(gl, this.mCompiledShader, this.mTexCoordBuffer);
-
 };

@@ -1,5 +1,5 @@
 'use strict';
-function Camera(center,width,viewportArray) {
+function Camera(center, width, viewportArray) {
     this.mCenter = center;
     this.mWidth = width;
     this.mViewport = viewportArray;
@@ -10,24 +10,19 @@ function Camera(center,width,viewportArray) {
     this.mVPMatrix = twgl.m4.identity();
     this.mBgColor = [0.8, 0.8, 0.8, 1.0];
 }
-Camera.prototype.setCenter = function (xPos, yPos) {
-    this.mCenter[0] = xPos;
-    this.mCenter[1] = yPos;
-};
-Camera.prototype.setViewport = function (viewportArray) {
-    this.mViewport = viewportArray;
-};
-Camera.prototype.setBackgroundColor = function (color) {
-    this.mBgColor = color;
-};
-Camera.prototype.setWidth = function (width) {
-    this.mWidth = width;
-};
 Camera.prototype.getBackgroundColor = function () { return this.mBgColor; };
 Camera.prototype.getCenter = function () { return this.mCenter; };
 Camera.prototype.getViewport = function () { return this.mViewport; };
 Camera.prototype.getWidth = function () { return this.mWidth; };
 Camera.prototype.getVPMatrix = function () { return this.mVPMatrix; };
+
+Camera.prototype.setViewport = function (viewportArray) { this.mViewport = viewportArray; };
+Camera.prototype.setBackgroundColor = function (color) { this.mBgColor = color; };
+Camera.prototype.setWidth = function (width) { this.mWidth = width; };
+Camera.prototype.setCenter = function (xPos, yPos) {
+    this.mCenter[0] = xPos;
+    this.mCenter[1] = yPos;
+};
 Camera.prototype.setupViewProjection = function () {
     var gl = gEngine.Core.getGL();
     gl.viewport(this.mViewport[0], this.mViewport[1], this.mViewport[2], this.mViewport[3]);
@@ -43,7 +38,3 @@ Camera.prototype.setupViewProjection = function () {
     twgl.m4.inverse(this.mViewMatrix, this.mViewMatrix);
     twgl.m4.multiply(this.mProjMatrix, this.mViewMatrix, this.mVPMatrix);
 };
-
-
-
-

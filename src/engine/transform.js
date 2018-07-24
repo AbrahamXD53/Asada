@@ -48,12 +48,3 @@ Transform.prototype.getMatrix=function() {
 	twgl.m4.scale(mat, this.mScale, mat);
 	return mat;
 }
-
-
-
-
-
-
-
-
-

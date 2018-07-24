@@ -8,8 +8,6 @@ gEngine.Core = (function () {
 	var getGL = function () {
 		return mGL;
 	};
-
-
 	var initializeWebGL = function (canvasId) {
 		var canvas = document.getElementById(canvasId);
 
