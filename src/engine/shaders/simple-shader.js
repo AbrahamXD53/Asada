@@ -14,7 +14,7 @@ SimpleShader.prototype.activateShader = function (color, transform, vpMatrix) {
 	var gl = gEngine.Core.getGL();
 	gl.useProgram(this.mCompiledShader.program);
 	twgl.setBuffersAndAttributes(gl, this.mCompiledShader, gEngine.VertexBuffer.getVertexBuffer());
-	this.mUniforms = { u_color: color, u_transform: transform, u_viewTransform: vpMatrix };
+	this.mUniforms = { u_color: color,u_screenSize:[gl.canvas.width, gl.canvas.height], u_transform: transform, u_viewTransform: vpMatrix };
 	twgl.setUniforms(this.mCompiledShader, this.mUniforms);
 };
 SimpleShader.prototype.getShader = function () { return this.mCompiledShader; };

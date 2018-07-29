@@ -170,8 +170,8 @@ gEngine.GameLoop = (function () {
 			mCurrentScene.initialize();
 			startLoop();
 
-			window.addEventListener('focus', onFocus);
-			window.addEventListener('blur', onBlur);
+			//window.addEventListener('focus', onFocus);
+			//window.addEventListener('blur', onBlur);
 		});
 
 
@@ -476,6 +476,7 @@ gEngine.DefaultResources = (function () {
 	var kTextureVS = 'src/shaders/textureVS.glsl',
 		kTextureFS = 'src/shaders/textureFS.glsl';
 	var kFontFS = 'src/shaders/fontFS.glsl';
+	var kPixelSnapVS = 'src/shaders/pixelSnapVS.glsl';
 
 	var kDefaultFont = "assets/fonts/system-default-font";
 
@@ -493,7 +494,7 @@ gEngine.DefaultResources = (function () {
 	var createShaders = function (callbackFunction) {
 		mColorShader = new SimpleShader(kSimpleVS, kSimpleFS);
 		mTextureShader = new TextureShader(kTextureVS, kTextureFS);
-		mSpriteShader = new SpriteShader(kTextureVS, kTextureFS);
+		mSpriteShader = new SpriteShader( kPixelSnapVS, kTextureFS);
 		mFontShader = new SpriteShader(kTextureVS, kFontFS);
 		callbackFunction();
 	};
@@ -505,6 +506,7 @@ gEngine.DefaultResources = (function () {
 		gEngine.TextFileLoader.loadTextFile(kTextureVS, gEngine.TextFileLoader.TextFileType.TextFile);
 		gEngine.TextFileLoader.loadTextFile(kTextureFS, gEngine.TextFileLoader.TextFileType.TextFile);
 		gEngine.TextFileLoader.loadTextFile(kFontFS, gEngine.TextFileLoader.TextFileType.TextFile);
+		gEngine.TextFileLoader.loadTextFile(kPixelSnapVS, gEngine.TextFileLoader.TextFileType.TextFile);
 
 		gEngine.Fonts.loadFont(kDefaultFont);
 

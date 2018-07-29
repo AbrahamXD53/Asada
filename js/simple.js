@@ -74,6 +74,7 @@ SimpleGame.prototype.update = function () {
     } else {
         this.squareFloor.setColor([0, 0, 1, 1]);
     }
+    this.mMap.getTransform().translate([-0.01,0.01,0]);
 };
 SimpleGame.prototype.draw = function () {
     this.camera.setupViewProjection();
