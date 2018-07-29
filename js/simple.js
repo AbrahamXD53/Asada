@@ -5,15 +5,19 @@ function SimpleGame() {
     this.squareBlue = null;
     this.squareFloor = null;
     this.kBgClip = 'assets/sound/the_field_of_dreams.mp3';
-    this.kCollector = "assets/minion_collector.png";
+    this.kCollector = 'assets/minion_collector.png';
     this.mTextSysFont=null;
+    this.mMapText = 'assets/map.json';
+    this.mMapTexture = 'assets/sprites.png';
+    this.mMap = new MapRenderer(this.mMapText);
 }
 gEngine.Core.inheritPrototype(SimpleGame, Scene);
 
 SimpleGame.prototype.loadScene = function() {
     gEngine.Audio.loadAudio(this.kBgClip);
     gEngine.Textures.loadTexture(this.kCollector);
-
+    gEngine.Textures.loadTexture(this.mMapTexture);
+    this.mMap.load();
 };
 
 SimpleGame.prototype.initialize = function () {
@@ -55,6 +59,9 @@ SimpleGame.prototype.initialize = function () {
     this.mCollector2.setTextureCoordUV(0.5,1,0,.5);
 
     gEngine.Audio.playBackgroundAudio(this.kBgClip);
+
+    this.mMap.initialize();
+    this.mMap.getTransform().setPosition([20,60,0]);
 };
 SimpleGame.prototype.update = function () {
     var gamepads = gEngine.Input.getGamepads();
@@ -77,5 +84,6 @@ SimpleGame.prototype.draw = function () {
     this.mCollector.draw(vpMatrix);
     this.mCollector2.draw(vpMatrix);
     this.mTextSysFont.draw(vpMatrix);
+    this.mMap.draw(vpMatrix);
 };
 
