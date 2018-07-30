@@ -35,7 +35,7 @@ Sprite.prototype.setTextureCoordPixels = function (left, right, bottom, top) {
 };
 Sprite.prototype.setUVCoords = function () {
     this.mShader.setTextureCoord([
-        this.mTexRight, this.mTexTop, // x,y of top-right
+        this.mTexRight, this.mTexTop,
         this.mTexLeft, this.mTexTop,
         this.mTexRight, this.mTexBottom,
         this.mTexLeft, this.mTexBottom

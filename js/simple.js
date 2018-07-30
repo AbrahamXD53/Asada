@@ -1,6 +1,6 @@
 'use strict';
 function SimpleGame() {
-    this.camera = new Camera([20, 60], 20, [0, 0, 640, 480]);
+    this.camera = new Camera([20, 60], 40, [0, 0, 640, 480]);
     this.square = null;
     this.squareBlue = null;
     this.squareFloor = null;
@@ -62,6 +62,7 @@ SimpleGame.prototype.initialize = function () {
 
     this.mMap.initialize();
     this.mMap.getTransform().setPosition([20,60,0]);
+    //this.mMap.getTransform().setScale([.3,.3,1]);
 };
 SimpleGame.prototype.update = function () {
     var gamepads = gEngine.Input.getGamepads();
@@ -74,17 +75,17 @@ SimpleGame.prototype.update = function () {
     } else {
         this.squareFloor.setColor([0, 0, 1, 1]);
     }
-    this.mMap.getTransform().translate([-0.01,0.01,0]);
+    //this.mMap.getTransform().translate([-0.01,0.01,0]);
 };
 SimpleGame.prototype.draw = function () {
     this.camera.setupViewProjection();
     var vpMatrix = this.camera.getVPMatrix();
+    this.mMap.draw(vpMatrix);
     this.squareBlue.draw(vpMatrix);
     this.squareFloor.draw(vpMatrix);
     this.square.draw(vpMatrix);
     this.mCollector.draw(vpMatrix);
     this.mCollector2.draw(vpMatrix);
     this.mTextSysFont.draw(vpMatrix);
-    this.mMap.draw(vpMatrix);
 };
 

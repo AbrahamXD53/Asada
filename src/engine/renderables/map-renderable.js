@@ -15,7 +15,7 @@ function Tileset(texture, data) {
     this.mWidth = data.imagewidth / data.tilewidth;
     this.mInverseWidth = 1.0 / data.tilewidth;
     this.mInverseHeight = 1.0 / data.tileheight;
-    this.mOffset = 0;
+    this.mOffset = 0.001;
 
 }
 Tileset.prototype.getCoords = function (id) {
@@ -42,15 +42,26 @@ function MapLayer(data, tilesets) {
     this.mData = data;
     console.log(this.mData);
     this.mTile = new Sprite(this.mTilesets[0].getTexture());
+
+    this.mTile.setColor([1,1,1,this.mData.opacity]);
 }
 
 MapLayer.prototype.draw = function (parent, transform) {
     let parentPos = parent.getPosition();
+    let parentScale = parent.getScale();
 
+    let offsets = [
+        this.mData.width * parentScale[0] * 0.5,
+        this.mData.height * parentScale[1] * 0.5
+    ];
+    this.mTile.getTransform().setScale(parentScale);
     for (let indey = this.mData.height-1; indey >= 0; indey--)
         for (let index = this.mData.width * indey; index < (this.mData.width * indey) + this.mData.width; index++) {
             if (this.mData.data[index] > 0) {
-                this.mTile.getTransform().setPosition([parentPos[0]+(1.0*index%50), parentPos[1]-(1.0*indey), 0]);
+                this.mTile.getTransform().setPosition([
+                    parentPos[0]+(parentScale[0]*(index%this.mData.width))-offsets[0],
+                    parentPos[1]-(parentScale[1]*indey)+offsets[1],0
+                ]);
 
                 let coords = this.mTilesets[0].getCoords(this.mData.data[index]);
                 this.mTile.setTextureCoordUV(coords[0], coords[1], coords[2], coords[3]);
