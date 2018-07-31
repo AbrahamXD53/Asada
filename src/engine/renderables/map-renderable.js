@@ -40,9 +40,7 @@ Tileset.prototype.getTexture = function () {
 function MapLayer(data, tilesets) {
     this.mTilesets = tilesets;
     this.mData = data;
-    console.log(this.mData);
     this.mTile = new Sprite(this.mTilesets[0].getTexture());
-
     this.mTile.setColor([1,1,1,this.mData.opacity]);
 }
 
@@ -94,7 +92,6 @@ MapRenderer.prototype.load = function () {
 MapRenderer.prototype.initialize = function () {
     if (this.mData) {
         for (let i in this.mData.layers) {
-            console.log(this.mTextures);
             let layer = new MapLayer(this.mData.layers[i], this.mTilesets);
             this.mLayers.push(layer);
         }

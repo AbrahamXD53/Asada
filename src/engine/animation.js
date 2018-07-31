@@ -110,8 +110,6 @@ function AnimationController(description){
     this.mDefaultAnimation = description.defaultAnimation;
     this.mCurrentAnimation = this.mDefaultAnimation;
     this.mTransitions = description.transitions;
-
-    console.log(this.mAnimations);
 }
 
 AnimationController.prototype.update = function(delta)

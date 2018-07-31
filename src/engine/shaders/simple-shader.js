@@ -8,7 +8,6 @@ function SimpleShader(vertexId, fragmentId) {
 	this.mUniforms = { u_color: null, u_transform: null, u_viewTransform: null };
 	if (!this.mCompiledShader)
 		console.log('shader compilation error');
-		console.log(this.mCompiledShader);
 }
 SimpleShader.prototype.activateShader = function (color, transform, vpMatrix) {
 	var gl = gEngine.Core.getGL();

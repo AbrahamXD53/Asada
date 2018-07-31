@@ -93,7 +93,6 @@ gEngine.VertexBuffer = (function () {
 	var initialize = function () {
 		var gl = gEngine.Core.getGL();
 		mVertexBuffer = twgl.createBufferInfoFromArrays(gl, vertexInfo);
-		console.log(mVertexBuffer);
 	};
 	var cleanUp = function () {
 		var gl = gEngine.Core.getGL();
@@ -549,11 +548,12 @@ gEngine.Audio = (function () {
 			var audioContext = window.AudioContext || window.webkitAudioContext;
 			mAudioContext = new AudioContext();
 		}
-		catch (e) { console.log("Web Audio is not supported"); }
+		catch (e) { 
+			console.log("Web Audio is not supported"); 
+		}
 	};
 
 	var loadAudio = function (clipName) {
-		console.log(clipName);
 		if (!gEngine.ResourceMap.isAssetLoaded(clipName)) {
 			gEngine.ResourceMap.asyncLoadRequested(clipName);
 

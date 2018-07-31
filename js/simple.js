@@ -68,7 +68,7 @@ SimpleGame.prototype.initialize = function () {
 
     this.mMap.initialize();
     this.mMap.getTransform().setPosition([20,60,0]);
-    //this.mMap.getTransform().setScale([.3,.3,1]);
+    this.mMap.getTransform().setScale([.8,.8,1]);
 };
 SimpleGame.prototype.update = function () {
     var gamepads = gEngine.Input.getGamepads();
