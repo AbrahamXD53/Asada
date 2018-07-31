@@ -44,10 +44,16 @@ SimpleGame.prototype.initialize = function () {
     this.mCollector.getTransform().setPosition([19,60,0]);
     this.mCollector.getTransform().setScale([2,2,1]);
 
-    this.mCollector2 = new Sprite(this.kCollector);
+    this.mCollector2 = new AnimatedSprite(this.kCollector,{
+        animations:[
+            new AnimationDescription({start:0, count:16,time:100,loops:-1})
+        ],
+        defaultAnimation:0,
+        params:null
+    });
     this.mCollector2.setColor([1, 1, 1, 1]);
     this.mCollector2.getTransform().setPosition([25,60,0]);
-    this.mCollector2.getTransform().setScale([2,2,1]);
+    this.mCollector2.getTransform().setScale([8,8,1]);
 
 
     this.mTextSysFont = new FontRenderable("System Font: in Red");
@@ -56,7 +62,7 @@ SimpleGame.prototype.initialize = function () {
     this.mTextSysFont.setTextHeight(1);
 
     this.mCollector.setTextureCoordUV(0,.5,0,.5);
-    this.mCollector2.setTextureCoordUV(0.5,1,0,.5);
+    //this.mCollector2.setTextureCoordUV(0.5,1,0,.5);
 
     gEngine.Audio.playBackgroundAudio(this.kBgClip);
 
@@ -75,6 +81,7 @@ SimpleGame.prototype.update = function () {
     } else {
         this.squareFloor.setColor([0, 0, 1, 1]);
     }
+    this.mCollector2.updateAnimation(40);
     //this.mMap.getTransform().translate([-0.01,0.01,0]);
 };
 SimpleGame.prototype.draw = function () {
