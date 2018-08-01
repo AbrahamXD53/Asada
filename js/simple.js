@@ -6,6 +6,7 @@ function SimpleGame() {
     this.squareFloor = null;
     this.kBgClip = 'assets/sound/the_field_of_dreams.mp3';
     this.kCollector = 'assets/minion_collector.png';
+    this.kMinion = 'assets/minion_sprite.png';
     this.mTextSysFont=null;
     this.mMapText = 'assets/map.json';
     this.mMapTexture = 'assets/sprites.png';
@@ -16,6 +17,7 @@ gEngine.Core.inheritPrototype(SimpleGame, Scene);
 SimpleGame.prototype.loadScene = function() {
     gEngine.Audio.loadAudio(this.kBgClip);
     gEngine.Textures.loadTexture(this.kCollector);
+    gEngine.Textures.loadTexture(this.kMinion);
     gEngine.Textures.loadTexture(this.mMapTexture);
     this.mMap.load();
 };
@@ -44,24 +46,24 @@ SimpleGame.prototype.initialize = function () {
     this.mCollector.getTransform().setPosition([19,60,0]);
     this.mCollector.getTransform().setScale([2,2,1]);
 
-    this.mCollector2 = new AnimatedSprite(this.kCollector,{
-        frame:{width:128,height:128,count:4},        
+    this.mCollector2 = new AnimatedSprite(this.kMinion,{
+        frame:{width:204,height:170,count:15},        
         animations:[
-            new AnimationDescription({frames:[0,2],time:300,loops:-1}),
-            new AnimationDescription({start:2, count:2,time:300,loops:-1})
+            new AnimationDescription({frames:[12],time:300,loops:-1}),
+            new AnimationDescription({frames:[12,10,9,8,7,6,7,8,9,10,12],time:300,loops:-1})
         ],
         defaultAnimation:0,
-        params:{X:25},
+        params:{X:0},
         transitions:[
             [
                 new AnimationTransition(1,[
-                    new AnimationCondition('X',AnimationOperator.MoreThan,31)
+                    new AnimationCondition('X',AnimationOperator.MoreThan,1)
                 ]),
                 
             ],
             [
                 new AnimationTransition(0,[
-                    new AnimationCondition('X',AnimationOperator.LessThan,31)
+                    new AnimationCondition('X',AnimationOperator.LessThan,1)
                 ])
             ]
         ]
@@ -90,16 +92,23 @@ SimpleGame.prototype.update = function () {
         this.mTextSysFont.getTransform().translate([gamepads[0].axes[0] * .1, -gamepads[0].axes[1] * .1, 0])
         this.mTextSysFont.getTransform().setRotation(Math.atan2(-gamepads[0].axes[3], gamepads[0].axes[2]));
     }
+    
     if (gEngine.Input.isKeyPressed(gEngine.Input.keyCodes.A)) {
-        this.squareFloor.setColor([1, 0, 1, 1]);
-        this.mCollector2.getTransform().translate([0.1,0,0]);
-    } else {
-        this.squareFloor.setColor([0, 0, 1, 1]);
-    }
-    if (gEngine.Input.isKeyPressed(gEngine.Input.keyCodes.D)) {
         this.mCollector2.getTransform().translate([-0.1,0,0]);
+        this.mCollector2.setParamValue('X',2);        
+        this.mCollector2.getTransform().setScale([8,8,1]);
     }
-    this.mCollector2.setParamValue('X',this.mCollector2.getTransform().getPositionX());
+    else{
+        if (gEngine.Input.isKeyPressed(gEngine.Input.keyCodes.D)) {
+            this.squareFloor.setColor([1, 0, 1, 1]);
+            this.mCollector2.getTransform().translate([0.1,0,0]);
+            this.mCollector2.setParamValue('X',2);
+            this.mCollector2.getTransform().setScale([-8,8,1]);
+        } else {
+            this.squareFloor.setColor([0, 0, 1, 1]);
+            this.mCollector2.setParamValue('X',0);  
+        }              
+    }
     
     this.mCollector2.updateAnimation(40);
     //this.mMap.getTransform().translate([-0.01,0.01,0]);

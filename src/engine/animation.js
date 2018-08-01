@@ -128,7 +128,7 @@ AnimationController.prototype.update = function (delta) {
             } else {
                 for (let and = 0; and < transitions[or].mConditions.length; and++) 
                 {
-                    if(!this.mParams[transitions[or].mConditions[and].mName]){
+                    if(this.mParams[transitions[or].mConditions[and].mName]==undefined){
                         console.warn('No animation param called ' + transitions[or].mConditions[and].mName);
                     }else{
                         if (!transitions[or].mConditions[and].test(this.mParams[transitions[or].mConditions[and].mName])) {
