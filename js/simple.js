@@ -45,11 +45,26 @@ SimpleGame.prototype.initialize = function () {
     this.mCollector.getTransform().setScale([2,2,1]);
 
     this.mCollector2 = new AnimatedSprite(this.kCollector,{
+        frame:{width:128,height:128,count:4},        
         animations:[
-            new AnimationDescription({start:0, count:16,time:100,loops:-1})
+            new AnimationDescription({frames:[0,2],time:300,loops:-1}),
+            new AnimationDescription({start:2, count:2,time:300,loops:-1})
         ],
         defaultAnimation:0,
-        params:null
+        params:{X:25},
+        transitions:[
+            [
+                new AnimationTransition(1,[
+                    new AnimationCondition('X',AnimationOperator.MoreThan,31)
+                ]),
+                
+            ],
+            [
+                new AnimationTransition(0,[
+                    new AnimationCondition('X',AnimationOperator.LessThan,31)
+                ])
+            ]
+        ]
     });
     this.mCollector2.setColor([1, 1, 1, 1]);
     this.mCollector2.getTransform().setPosition([25,60,0]);
@@ -62,7 +77,6 @@ SimpleGame.prototype.initialize = function () {
     this.mTextSysFont.setTextHeight(1);
 
     this.mCollector.setTextureCoordUV(0,.5,0,.5);
-    //this.mCollector2.setTextureCoordUV(0.5,1,0,.5);
 
     gEngine.Audio.playBackgroundAudio(this.kBgClip);
 
@@ -78,9 +92,15 @@ SimpleGame.prototype.update = function () {
     }
     if (gEngine.Input.isKeyPressed(gEngine.Input.keyCodes.A)) {
         this.squareFloor.setColor([1, 0, 1, 1]);
+        this.mCollector2.getTransform().translate([0.1,0,0]);
     } else {
         this.squareFloor.setColor([0, 0, 1, 1]);
     }
+    if (gEngine.Input.isKeyPressed(gEngine.Input.keyCodes.D)) {
+        this.mCollector2.getTransform().translate([-0.1,0,0]);
+    }
+    this.mCollector2.setParamValue('X',this.mCollector2.getTransform().getPositionX());
+    
     this.mCollector2.updateAnimation(40);
     //this.mMap.getTransform().translate([-0.01,0.01,0]);
 };

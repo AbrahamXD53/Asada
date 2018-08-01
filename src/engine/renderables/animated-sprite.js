@@ -4,10 +4,18 @@ function AnimatedSprite(texture,options){
     this.mAnimationController = new AnimationController({
         params:options.params,
         animations:options.animations,
-        defaultAnimation:options.defaultAnimation
+        defaultAnimation:options.defaultAnimation,
+        transitions:options.transitions,
     });
     let textureInfo =  gEngine.Textures.getTextureInfo(texture);
-    this.mFrames = new FrameDescriptor({width:64,height:64,numFrames:16,imageWidth:textureInfo.mWidth,imageHeight:textureInfo.mHeight});
+    this.mFrames = new FrameDescriptor({
+        frames:options.frames,
+        width:options.frame.width,
+        height:options.frame.height,
+        numFrames:options.frame.count,
+        imageWidth:textureInfo.mWidth,
+        imageHeight:textureInfo.mHeight
+    });
     this.mPrevFrame = -1;
 }
 gEngine.Core.inheritPrototype(AnimatedSprite,Sprite);
@@ -21,4 +29,8 @@ AnimatedSprite.prototype.updateAnimation=function(delta){
         this.mPrevFrame= frame;
         this.setTextureCoordPixels(frame[0],frame[2],frame[1],frame[3]);
     }
+};
+
+AnimatedSprite.prototype.setParamValue= function(name,val){
+    this.mAnimationController.setParamValue(name,val);
 };
