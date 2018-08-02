@@ -50,20 +50,20 @@ SimpleGame.prototype.initialize = function () {
         frame:{width:204,height:170,count:15},        
         animations:[
             new AnimationDescription({frames:[12],time:300,loops:-1}),
-            new AnimationDescription({frames:[12,10,9,8,7,6,7,8,9,10,12],time:300,loops:-1})
+            new AnimationDescription({frames:[12,10,9,8,7,6,7,8,9,10,12],time:200,loops:-1})
         ],
         defaultAnimation:0,
         params:{X:0},
         transitions:[
             [
-                new AnimationTransition(1,[
-                    new AnimationCondition('X',AnimationOperator.MoreThan,1)
+                new Transition(1,[
+                    new Condition('X',AnimationOperator.MoreThan,1)
                 ]),
                 
             ],
             [
-                new AnimationTransition(0,[
-                    new AnimationCondition('X',AnimationOperator.LessThan,1)
+                new Transition(0,[
+                    new Condition('X',AnimationOperator.LessThan,1)
                 ])
             ]
         ]

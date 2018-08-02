@@ -85,13 +85,13 @@ function AnimationParam(name, type) {
 }
 
 
-function AnimationCondition(name, operator, value) {
+function Condition(name, operator, value) {
     this.mName = name;
     this.mOperador = operator;
     this.mValue = value;
 }
 
-AnimationCondition.prototype.test = function (val) 
+Condition.prototype.test = function (val) 
 {
     switch (this.mOperador) {
         case AnimationOperator.Equals:
@@ -103,12 +103,12 @@ AnimationCondition.prototype.test = function (val)
     }
 };
 
-function AnimationTransition(dest, conditions) {
+function Transition(dest, conditions) {
     this.mDest = dest;
     this.mConditions = conditions;
 }
 
-function AnimationController(description) {
+function Controller(description) {
     this.mParams = description.params || [];
     this.mAnimations = description.animations;
     this.mDefaultAnimation = description.defaultAnimation || 0;
