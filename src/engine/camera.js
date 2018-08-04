@@ -22,10 +22,16 @@ CameraState.prototype.configInterpolation = function (stiffness, duration) {
     this.mWidth.configInterpolation(stiffness, duration);
 }
 
-function Camera(center, width, viewportArray) {
+function Camera(center, width, viewportArray, bound) {
     this.mCameraState = new CameraState(center, width);
     this.mCameraShake = null;
-    this.mViewport = viewportArray;
+    this.mViewport = [];
+    this.mViewportBound = 0;
+    if (bound !== undefined) {
+        this.mViewportBound = bound;
+    }
+    this.mScissorBound = [];
+    this.setViewPort(viewportArray, this.mViewportBound);
     this.mFarPlane = 1000;
     this.mNearPlane = 0;
     this.mViewMatrix = twgl.m4.identity();
@@ -33,6 +39,42 @@ function Camera(center, width, viewportArray) {
     this.mVPMatrix = twgl.m4.identity();
     this.mBgColor = [0.6, 0.7, 0.9, 1.0];
 }
+
+Camera.prototype.getBackgroundColor = function () { return this.mBgColor; };
+Camera.prototype.getCenter = function () { return this.mCameraState.getCenter(); };
+Camera.prototype.getWidth = function () { return this.mCameraState.getWidth(); };
+Camera.prototype.getHeight = function () { return this.mCameraState.getWidth() * this.mViewport[3] / this.mViewport[2]; };
+Camera.prototype.getVPMatrix = function () { return this.mVPMatrix; };
+Camera.prototype.getViewport = function () {
+    return [
+        this.mScissorBound[0],
+        this.mScissorBound[1],
+        this.mScissorBound[2],
+        this.mScissorBound[3]
+    ]
+};
+
+Camera.prototype.setBackgroundColor = function (color) { this.mBgColor = color; };
+Camera.prototype.setWidth = function (width) { this.mCameraState.setWidth(width); };
+Camera.prototype.setCenter = function (xPos, yPos) {
+    this.mCameraState.setCenter([xPos, yPos, 0]);
+};
+
+Camera.prototype.setViewPort = function (viewportArray, bound) {
+    console.log(viewportArray);
+    if (bound === undefined) {
+        bound = this.mViewportBound;
+    }
+    this.mViewport[0] = viewportArray[0] + bound;
+    this.mViewport[1] = viewportArray[1] + bound;
+    this.mViewport[2] = viewportArray[2] - (2 * bound);
+    this.mViewport[3] = viewportArray[3] - (2 * bound);
+    this.mScissorBound[0] = viewportArray[0];
+    this.mScissorBound[1] = viewportArray[1];
+    this.mScissorBound[2] = viewportArray[2];
+    this.mScissorBound[3] = viewportArray[3];
+};
+
 Camera.prototype.shake = function (xDelta, yDelta, shakeFrequency, duration) {
     this.mCameraShake = new CameraShake(this.mCameraState, xDelta, yDelta, shakeFrequency, duration);
 };
@@ -48,29 +90,54 @@ Camera.prototype.update = function () {
     this.mCameraState.updateCameraState();
 };
 
+Camera.prototype.mouseDCX = function () {
+    return gEngine.Input.getMousePosX() - this.mViewport[0];
+};
+Camera.prototype.mouseDCY = function () {
+    return gEngine.Input.getMousePosY() - this.mViewport[1];
+};
+
+Camera.prototype.mouseDC = function () {
+    return [
+        gEngine.Input.getMousePosX() - this.mViewport[0],
+        gEngine.Input.getMousePosY() - this.mViewport[1]
+    ];
+};
+
+Camera.prototype.mouseWCX = function () {
+    let minWCX = this.getCenter()[0] - this.getWidth() / 2;
+    return minWCX + (this.mouseDCX() * (this.getWidth() / this.mViewport[2]));
+};
+
+Camera.prototype.mouseWCY = function () {
+    let minWCY = this.getCenter()[1] - this.getHeight() / 2;
+    return minWCY + (this.mouseDCY() * (this.getHeight() / this.mViewport[3]));
+};
+
+Camera.prototype.mouseWC = function () {
+    let minWCY = this.getCenter()[1] - this.getHeight() / 2;
+    let minWCX = this.getCenter()[0] - this.getWidth() / 2;
+    return [
+        minWCX + (this.mouseDCX() * (this.getWidth() / this.mViewport[2])),
+        minWCY + (this.mouseDCY() * (this.getHeight() / this.mViewport[3]))
+    ];
+};
+
+Camera.prototype.isMouseInViewport = function () {
+    let coord = this.mouseDC();
+    return ((coord[0] >= 0) && (coord[0] < this.mViewport[2]) &&
+        (coord[1] >= 0) && (coord[1] < this.mViewport[3]));
+};
+
 Camera.prototype.configInterpolation = function (stiffness, duration) {
     this.mCameraState.configInterpolation(stiffness, duration);
 };
 
-Camera.prototype.getBackgroundColor = function () { return this.mBgColor; };
-Camera.prototype.getCenter = function () { return this.mCameraState.getCenter(); };
-Camera.prototype.getViewport = function () { return this.mViewport; };
-Camera.prototype.getWidth = function () { return this.mCameraState.getWidth(); };
-Camera.prototype.getHeight = function () { return this.mCameraState.getWidth() * this.mViewport[3] / this.mViewport[2]; };
-
-Camera.prototype.getVPMatrix = function () { return this.mVPMatrix; };
-
-Camera.prototype.setViewport = function (viewportArray) { this.mViewport = viewportArray; };
-Camera.prototype.setBackgroundColor = function (color) { this.mBgColor = color; };
-Camera.prototype.setWidth = function (width) { this.mCameraState.setWidth(width); };
-Camera.prototype.setCenter = function (xPos, yPos) {
-    this.mCameraState.setCenter([xPos, yPos, 0]);
-};
 Camera.prototype.setupViewProjection = function () {
     var gl = gEngine.Core.getGL();
 
     gl.viewport(this.mViewport[0], this.mViewport[1], this.mViewport[2], this.mViewport[3]);
-    gl.scissor(this.mViewport[0], this.mViewport[1], this.mViewport[2], this.mViewport[3]);
+    gl.scissor(this.mScissorBound[0], this.mScissorBound[1], this.mScissorBound[2], this.mScissorBound[3]);
     gl.clearColor(this.mBgColor[0], this.mBgColor[1], this.mBgColor[2], this.mBgColor[3]);
 
     gl.enable(gl.SCISSOR_TEST);

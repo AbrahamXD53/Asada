@@ -233,13 +233,25 @@ gEngine.Input = (function () {
 		LastKeyCode: 222
 	};
 
-
-	var gamepads = [];
-
 	var mKeyPreviousState = [];
 	var mIsKeyPressed = [];
 	var mIsKeyClicked = [];
 	var mIsKeyUp = [];
+
+	var kMouseButtons = {
+		Left: 0,
+		Middle: 1,
+		Right: 2
+	};
+
+	var mCanvas = null;
+	var mButtonPreviousState = [];
+	var mIsButtonPressed = [];
+	var mIsButtonClicked = [];
+	var mMousePosX = -1;
+	var mMousePosY = -1;
+
+	var gamepads = [];
 
 	var onKeyDown = function (event) {
 		mIsKeyPressed[event.keyCode] = true;
@@ -249,6 +261,42 @@ gEngine.Input = (function () {
 		mIsKeyPressed[event.keyCode] = false;
 		mIsKeyUp[event.keyCode] = true;
 	};
+
+	var onMouseMove = function (event) {
+		var inside = false;
+		var bBox = mCanvas.getBoundingClientRect();
+		var x = Math.round((event.clientX - bBox.left) * (mCanvas.width / bBox.width));
+		var y = Math.round((event.clientY - bBox.top) * (mCanvas.width / bBox.width));
+		if ((x >= 0) && (x < mCanvas.width) && (y >= 0) && (y < mCanvas.height)) {
+			mMousePosX = x;
+			mMousePosY = mCanvas.height - 1 - y;
+			inside = true;
+		}
+		return inside;
+	};
+
+	var onMouseDown = function (event) {
+		if (onMouseMove(event))
+			mIsButtonPressed[event.button] = true;
+	};
+
+	var onMouseUp = function (event) {
+		onMouseMove(event);
+		mIsButtonPressed[event.button] = false;
+	};
+
+	var isButtonPressed = function (button) {
+		return mIsButtonPressed[button];
+	};
+
+	var isButtonClicked = function (button) {
+		return mIsButtonClicked[button];
+	};
+
+	var getMousePosX = function () { return mMousePosX; };
+	var getMousePosY = function () { return mMousePosY; };
+
+	var getMousePos = function(){ return [mMousePosX,mMousePosY,0]; };
 
 	var onTouchStart = function (event) {
 
@@ -284,10 +332,21 @@ gEngine.Input = (function () {
 			mIsKeyUp[kKeyCodes[i]] = true;
 		}
 
+		for (let i = 0; i < 3; i++) {
+			mButtonPreviousState[i] = false;
+			mIsButtonPressed[i] = false;
+			mIsButtonClicked[i] = false;
+		}
+		window.addEventListener('mousedown', onMouseDown);
+		window.addEventListener('mouseup', onMouseUp);
+		window.addEventListener('mousemove', onMouseMove);
+
 		window.addEventListener('keyup', onKeyUp);
 		window.addEventListener('keydown', onKeyDown);
 
 		var gl = gEngine.Core.getGL();
+
+		mCanvas = gl.canvas;
 		gl.canvas.addEventListener('touchstart', onTouchStart, false);
 		gl.canvas.addEventListener('touchend', onTouchEnd, false);
 		gl.canvas.addEventListener('touchcancel', onTouchCancel, false);
@@ -304,6 +363,10 @@ gEngine.Input = (function () {
 		for (let i in kKeyCodes) {
 			mIsKeyClicked[kKeyCodes[i]] = (!mKeyPreviousState[kKeyCodes[i]]) && mIsKeyPressed[kKeyCodes[i]];
 			mKeyPreviousState[kKeyCodes[i]] = mIsKeyPressed[kKeyCodes[i]];
+		}
+		for (let i = 0; i < 3; i++) {
+			mIsButtonClicked[i] = (!mButtonPreviousState[i]) && mIsButtonPressed[i];
+			mButtonPreviousState[i] = mIsButtonPressed[i];
 		}
 		gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
 	};
@@ -331,6 +394,12 @@ gEngine.Input = (function () {
 		isKeyClicked: isKeyClicked,
 		isKeyUp: isKeyUp,
 		keyCodes: kKeyCodes,
+		mouseButtons:kMouseButtons,
+		isButtonClicked:isButtonClicked,
+		isButtonPressed:isButtonPressed,
+		getMousePos:getMousePos,
+		getMousePosX:getMousePosX,
+		getMousePosY:getMousePosY,
 		getGamepads: getGamepads
 	};
 	return mPublic;

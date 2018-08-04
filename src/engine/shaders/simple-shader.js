@@ -9,11 +9,13 @@ function SimpleShader(vertexId, fragmentId) {
 	if (!this.mCompiledShader)
 		console.log('shader compilation error');
 }
-SimpleShader.prototype.activateShader = function (color, transform, vpMatrix) {
+SimpleShader.prototype.activateShader = function (color, transform, camera) {
 	var gl = gEngine.Core.getGL();
 	gl.useProgram(this.mCompiledShader.program);
 	twgl.setBuffersAndAttributes(gl, this.mCompiledShader, gEngine.VertexBuffer.getVertexBuffer());
-	this.mUniforms = { u_color: color,u_screenSize:[gl.canvas.width, gl.canvas.height], u_transform: transform, u_viewTransform: vpMatrix };
+	let screen = [camera.getWidth(),camera.getHeight()];
+	
+	this.mUniforms = { u_color: color,u_screenSize:screen, u_transform: transform, u_viewTransform: camera.getVPMatrix() };
 	twgl.setUniforms(this.mCompiledShader, this.mUniforms);
 };
 SimpleShader.prototype.getShader = function () { return this.mCompiledShader; };
