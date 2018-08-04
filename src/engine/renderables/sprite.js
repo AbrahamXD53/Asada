@@ -12,7 +12,7 @@ gEngine.Core.inheritPrototype(Sprite, TextureRenderable);
 
 Sprite.prototype.draw = function (vpMatrix) {
     this.setUVCoords();
-    gEngine.Textures.activateTexture(this.mTexture);
+    //gEngine.Textures.activateTexture(this.mTexture);
     TextureRenderable.prototype.draw.call(this, vpMatrix);
 };
 

@@ -47,6 +47,7 @@ function AnimationDescription(description) {
     this.mCurrentLoops = 0;
 
     this.mState = AnimationState.Playing;
+    this.mSpeed = description.speed || 1;
 }
 AnimationDescription.prototype.reset = function () {
     this.mCurrentLoops = 0;
@@ -58,7 +59,7 @@ AnimationDescription.prototype.reset = function () {
 AnimationDescription.prototype.update = function (delta) {
 
     if (this.mCurrentLoops < this.mLoops || this.mLoops < 0) {
-        this.mCurrentTime += delta;
+        this.mCurrentTime += delta * this.mSpeed;
         if (this.mCurrentTime >= this.mTime) {
             this.mCurrentTime = 0;
             this.mCurrentFrame += this.mDirection;
@@ -108,7 +109,7 @@ function Transition(dest, conditions) {
     this.mConditions = conditions;
 }
 
-function Controller(description) {
+function AnimationController(description) {
     this.mParams = description.params || [];
     this.mAnimations = description.animations;
     this.mDefaultAnimation = description.defaultAnimation || 0;

@@ -109,9 +109,12 @@ SimpleGame.prototype.update = function () {
             this.mCollector2.setParamValue('X',0);  
         }              
     }
-    
+    if (gEngine.Input.isKeyClicked(gEngine.Input.keyCodes.F)) {
+        this.camera.shake(-2, -2, 20, 30);
+    }
     this.mCollector2.updateAnimation(40);
     //this.mMap.getTransform().translate([-0.01,0.01,0]);
+    this.camera.update();
 };
 SimpleGame.prototype.draw = function () {
     this.camera.setupViewProjection();

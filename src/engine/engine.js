@@ -233,8 +233,7 @@ gEngine.Input = (function () {
 		LastKeyCode: 222
 	};
 
-	var mLastPool = 0;
-	var kUpdateTime = 1000;
+
 	var gamepads = [];
 
 	var mKeyPreviousState = [];
@@ -278,12 +277,13 @@ gEngine.Input = (function () {
 	};
 
 	var initialize = function () {
-		for (var i = 0; i < kKeyCodes.LastKeyCode; i++) {
+		for (let i in kKeyCodes) {
 			mIsKeyPressed[kKeyCodes[i]] = false;
 			mKeyPreviousState[kKeyCodes[i]] = false;
 			mIsKeyClicked[kKeyCodes[i]] = false;
 			mIsKeyUp[kKeyCodes[i]] = true;
 		}
+
 		window.addEventListener('keyup', onKeyUp);
 		window.addEventListener('keydown', onKeyDown);
 
@@ -297,11 +297,11 @@ gEngine.Input = (function () {
 		window.addEventListener('gamepaddisconnected', onGamepadDisconnected, false);
 
 		gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
-		mLastPool = Date.now();
+
 	};
 
 	var update = function () {
-		for (var i = 0; i < kKeyCodes.LastKeyCode; i++) {
+		for (let i in kKeyCodes) {
 			mIsKeyClicked[kKeyCodes[i]] = (!mKeyPreviousState[kKeyCodes[i]]) && mIsKeyPressed[kKeyCodes[i]];
 			mKeyPreviousState[kKeyCodes[i]] = mIsKeyPressed[kKeyCodes[i]];
 		}
@@ -493,7 +493,7 @@ gEngine.DefaultResources = (function () {
 	var createShaders = function (callbackFunction) {
 		mColorShader = new SimpleShader(kSimpleVS, kSimpleFS);
 		mTextureShader = new TextureShader(kTextureVS, kTextureFS);
-		mSpriteShader = new SpriteShader( kPixelSnapVS, kTextureFS);
+		mSpriteShader = new SpriteShader(kPixelSnapVS, kTextureFS);
 		mFontShader = new SpriteShader(kTextureVS, kFontFS);
 		callbackFunction();
 	};
@@ -548,8 +548,8 @@ gEngine.Audio = (function () {
 			var audioContext = window.AudioContext || window.webkitAudioContext;
 			mAudioContext = new AudioContext();
 		}
-		catch (e) { 
-			console.log("Web Audio is not supported"); 
+		catch (e) {
+			console.log("Web Audio is not supported");
 		}
 	};
 
@@ -691,7 +691,7 @@ gEngine.Textures = (function () {
 
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-		
+
 		//gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		//gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 	};
