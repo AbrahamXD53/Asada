@@ -1,25 +1,62 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
-	<meta charset="utf-8" />
-	<title>Document</title>
+
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+
+    <title>Asada Engine</title>
+    <style>
+		#GLCanvas{
+			width: 100%;
+			min-width: 100%;
+			max-width: 100%;
+			height: 100%;
+			min-height: 100%;
+			max-height: 100%;
+		}
+		.container{
+			width: 100%;
+			height: 100%;
+		}
+		body,html{
+			margin: 0;
+			padding: 0;
+			height: 100%;
+            width: 100%;
+            overflow: hidden;
+		}
+	</style>
 </head>
 
-<body onload="gameLoaded()">
-	<div>
-		<canvas id="canvas" width="640" height="480"></canvas>
-	</div>
-	<script src="lib/twgl-full.js"></script>
-	<script src="lib/matter.js"></script>
-	
-	<script src="src/engine/engine.js"></script>
-	<script src="src/engine/simpleshader.js"></script>
-	<script src="src/engine/transform.js"></script>
-	<script src="src/engine/renderable.js"></script>
-	<script src="src/engine/camera.js"></script>
-	<script src="src/engine/scene.js"></script>
+<body>
+    <canvas id="GLCanvas">
+        You can't render this :c
+    </canvas>
+    <script src="lib/twgl-full.js"></script>
+    <script src="lib/matter.js"></script>
+
+    <script src="src/engine/engine.js"></script>
+    <script src="src/engine/utils/interpolate.js"></script>
+    <script src="src/engine/utils/shake.js"></script>
+    <script src="src/engine/shaders/simple-shader.js"></script>
+    <script src="src/engine/shaders/texture-shader.js"></script>
+    <script src="src/engine/shaders/sprite-shader.js"></script>
+    <script src="src/engine/transform.js"></script>
+    <script src="src/engine/animation.js"></script>
+
+    <script src="src/engine/renderables/renderable.js"></script>
+    <script src="src/engine/renderables/texture-renderable.js"></script>
+    <script src="src/engine/renderables/sprite.js"></script>
+    <script src="src/engine/renderables/animated-sprite.js"></script>
+    <script src="src/engine/renderables/font-renderable.js"></script>
+    <script src="src/engine/renderables/map-renderable.js"></script>
+    <script src="src/engine/camera.js"></script>
+    <script src="src/engine/scene.js"></script>
+
 
 </body>
 
