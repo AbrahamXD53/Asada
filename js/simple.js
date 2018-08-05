@@ -111,13 +111,16 @@ SimpleGame.prototype.update = function () {
         }
     }
 
-    if (this.camera2.isMouseInViewport()) {
-        this.mCollector.getTransform().setPositionX(this.camera2.mouseWCX());
-        this.mCollector.getTransform().setPositionY(this.camera2.mouseWCY());
+    if (this.camera.isMouseInViewport()) {
+        this.mCollector.getTransform().setPositionX(this.camera.mouseWCX());
+        this.mCollector.getTransform().setPositionY(this.camera.mouseWCY());
     }
 
     if (gEngine.Input.isKeyClicked(gEngine.Input.keyCodes.F)) {
         this.camera.shake(-2, -2, 20, 30);
+    }
+    if (gEngine.Input.isKeyClicked(gEngine.Input.keyCodes.G)) {
+        this.camera2.shake(-2, -2, 20, 30);
     }
     this.mCollector2.updateAnimation(40);
     //this.mMap.getTransform().translate([-0.01,0.01,0]);
@@ -134,7 +137,7 @@ SimpleGame.prototype.draw = function () {
     this.mCollector2.draw(this.camera);
     this.mTextSysFont.draw(this.camera);
     this.camera2.setupViewProjection();
-    //this.mMap.draw(this.camera2);
+    this.mMap.draw(this.camera2);
     //this.squareBlue.draw(this.camera2);
     //this.squareFloor.draw(this.camera2);
     this.square.draw(this.camera2);

@@ -12,7 +12,11 @@ gEngine.Core = (function () {
 		var canvas = document.getElementById(canvasId);
 
 		mGL = canvas.getContext('webgl', { alpha: false }) || canvas.getContext('experimental-webgl', { alpha: false });
+		var width = mGL.canvas.clientWidth;
+		var height = mGL.canvas.clientHeight;
 
+		mGL.canvas.width = width;
+		mGL.canvas.height = height;
 		mGL.blendFunc(mGL.SRC_ALPHA, mGL.ONE_MINUS_SRC_ALPHA);
 		mGL.enable(mGL.BLEND);
 
@@ -296,7 +300,7 @@ gEngine.Input = (function () {
 	var getMousePosX = function () { return mMousePosX; };
 	var getMousePosY = function () { return mMousePosY; };
 
-	var getMousePos = function(){ return [mMousePosX,mMousePosY,0]; };
+	var getMousePos = function () { return [mMousePosX, mMousePosY, 0]; };
 
 	var onTouchStart = function (event) {
 
@@ -394,12 +398,12 @@ gEngine.Input = (function () {
 		isKeyClicked: isKeyClicked,
 		isKeyUp: isKeyUp,
 		keyCodes: kKeyCodes,
-		mouseButtons:kMouseButtons,
-		isButtonClicked:isButtonClicked,
-		isButtonPressed:isButtonPressed,
-		getMousePos:getMousePos,
-		getMousePosX:getMousePosX,
-		getMousePosY:getMousePosY,
+		mouseButtons: kMouseButtons,
+		isButtonClicked: isButtonClicked,
+		isButtonPressed: isButtonPressed,
+		getMousePos: getMousePos,
+		getMousePosX: getMousePosX,
+		getMousePosY: getMousePosY,
 		getGamepads: getGamepads
 	};
 	return mPublic;
