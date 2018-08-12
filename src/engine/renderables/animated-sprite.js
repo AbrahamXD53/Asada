@@ -27,7 +27,7 @@ AnimatedSprite.prototype.updateAnimation=function(delta){
     let frame = this.mFrames.getFrame(animation);
     if(frame!=this.mPrevFrame){
         this.mPrevFrame= frame;
-        this.setTextureCoordPixels(frame[0],frame[2],frame[1],frame[3]);
+        this.setTextureCoordPixels(frame[0],frame[2],frame[3],frame[1]);
     }
 };
 

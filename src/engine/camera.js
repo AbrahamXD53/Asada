@@ -31,7 +31,7 @@ function Camera(center, width, viewportArray, bound) {
         this.mViewportBound = bound;
     }
     this.mScissorBound = [];
-    this.setViewPort(viewportArray, this.mViewportBound);
+    this.setViewPort(viewportArray || [0,0,1,1], this.mViewportBound);
     this.mFarPlane = 1000;
     this.mNearPlane = 0;
     this.mViewMatrix = twgl.m4.identity();
@@ -47,10 +47,18 @@ Camera.prototype.getHeight = function () { return this.mCameraState.getWidth() *
 Camera.prototype.getVPMatrix = function () { return this.mVPMatrix; };
 Camera.prototype.getViewport = function () {
     return [
-        this.mScissorBound[0],
-        this.mScissorBound[1],
-        this.mScissorBound[2],
-        this.mScissorBound[3]
+        this.mViewport[0],
+        this.mViewport[1],
+        this.mViewport[2],
+        this.mViewport[3]
+    ]
+};
+Camera.prototype.getViewportScale = function () {
+    return [
+        this.mViewport[0],
+        this.mViewport[1],
+        this.mViewport[2]*this.getWidth(),
+        this.mViewport[3]*this.getHeight()
     ]
 };
 
@@ -61,19 +69,32 @@ Camera.prototype.setCenter = function (xPos, yPos) {
 };
 
 Camera.prototype.setViewPort = function (viewportArray, bound) {
-    console.log(viewportArray);
+    let gl = gEngine.Core.getGL();
     if (bound === undefined) {
         bound = this.mViewportBound;
     }
-    this.mViewport[0] = viewportArray[0] + bound;
-    this.mViewport[1] = viewportArray[1] + bound;
-    this.mViewport[2] = viewportArray[2] - (2 * bound);
-    this.mViewport[3] = viewportArray[3] - (2 * bound);
-    this.mScissorBound[0] = viewportArray[0];
-    this.mScissorBound[1] = viewportArray[1];
-    this.mScissorBound[2] = viewportArray[2];
-    this.mScissorBound[3] = viewportArray[3];
+    this.mViewPortFactor = viewportArray;
+    this.mViewport[0] = (gl.canvas.width * this.mViewPortFactor[0]) + bound;
+    this.mViewport[1] = (gl.canvas.height * this.mViewPortFactor[1]) + bound;
+    this.mViewport[2] = (gl.canvas.width * this.mViewPortFactor[2]) - (2 * bound);
+    this.mViewport[3] = (gl.canvas.height * this.mViewPortFactor[3]) - (2 * bound);
+    this.mScissorBound[0] = gl.canvas.width * this.mViewPortFactor[0];
+    this.mScissorBound[1] = gl.canvas.height * this.mViewPortFactor[1];
+    this.mScissorBound[2] = gl.canvas.width * this.mViewPortFactor[2];
+    this.mScissorBound[3] = gl.canvas.height * this.mViewPortFactor[3];
 };
+
+Camera.prototype.refreshViewport = function(){
+    let gl = gEngine.Core.getGL();
+    this.mViewport[0] = (gl.canvas.width * this.mViewPortFactor[0]) + this.mViewportBound;
+    this.mViewport[1] = (gl.canvas.height * this.mViewPortFactor[1]) + this.mViewportBound;
+    this.mViewport[2] = (gl.canvas.width * this.mViewPortFactor[2]) - (2 * this.mViewportBound);
+    this.mViewport[3] = (gl.canvas.height * this.mViewPortFactor[3]) - (2 * this.mViewportBound);
+    this.mScissorBound[0] = gl.canvas.width * this.mViewPortFactor[0];
+    this.mScissorBound[1] = gl.canvas.height * this.mViewPortFactor[1];
+    this.mScissorBound[2] = gl.canvas.width * this.mViewPortFactor[2];
+    this.mScissorBound[3] = gl.canvas.height * this.mViewPortFactor[3];
+}
 
 Camera.prototype.shake = function (xDelta, yDelta, shakeFrequency, duration) {
     this.mCameraShake = new CameraShake(this.mCameraState, xDelta, yDelta, shakeFrequency, duration);

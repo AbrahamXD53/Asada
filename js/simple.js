@@ -1,7 +1,6 @@
 'use strict';
 function SimpleGame() {
-    this.camera = new Camera([20, 60], 40, [20, 0, 320, 480]);
-    this.camera2 = new Camera([20, 60], 20, [320, 100, 200, 200]);
+    
     this.square = null;
     this.squareBlue = null;
     this.squareFloor = null;
@@ -24,7 +23,8 @@ SimpleGame.prototype.loadScene = function () {
 };
 
 SimpleGame.prototype.initialize = function () {
-
+    this.camera = new Camera([20, 60], 40);
+    this.camera2 = new Camera([20, 60], 20, [.5, 0, .5, 1]);
     this.square = new Renderable();
     this.square.getTransform().setRotation(Math.PI / 4);
     this.square.getTransform().setPosition(twgl.v3.create(20, 60));
@@ -48,10 +48,10 @@ SimpleGame.prototype.initialize = function () {
     this.mCollector.getTransform().setScale([2, 2, 1]);
 
     this.mCollector2 = new AnimatedSprite(this.kMinion, {
-        frame: { width: 204, height: 170, count: 15 },
+        frame: { width: 204, height: 160, count: 10 },
         animations: [
-            new AnimationDescription({ frames: [12], time: 300, loops: -1 }),
-            new AnimationDescription({ frames: [12, 10, 9, 8, 7, 6, 7, 8, 9, 10, 12], time: 200, loops: -1 })
+            new AnimationDescription({ frames: [0], time: 300, loops: -1 }),
+            new AnimationDescription({ start:1,count:9, time: 200, loops: -1 })
         ],
         defaultAnimation: 0,
         params: { X: 0 },
@@ -79,7 +79,7 @@ SimpleGame.prototype.initialize = function () {
     this.mTextSysFont.getTransform().setPosition([10, 60, 0]);
     this.mTextSysFont.setTextHeight(1);
 
-    this.mCollector.setTextureCoordUV(0, .5, 0, .5);
+    //this.mCollector.setTextureCoordUV(0, .5, 0, .5);
 
     gEngine.Audio.playBackgroundAudio(this.kBgClip);
 
@@ -127,7 +127,10 @@ SimpleGame.prototype.update = function () {
     this.camera.update();
     this.camera2.update();
 };
-SimpleGame.prototype.draw = function () {
+SimpleGame.prototype.draw = function () 
+{
+    this.camera.refreshViewport();
+    //this.camera2.refreshViewport();
     this.camera.setupViewProjection();
     this.mMap.draw(this.camera);
     this.squareBlue.draw(this.camera);
@@ -136,13 +139,13 @@ SimpleGame.prototype.draw = function () {
     this.mCollector.draw(this.camera);
     this.mCollector2.draw(this.camera);
     this.mTextSysFont.draw(this.camera);
-    this.camera2.setupViewProjection();
-    this.mMap.draw(this.camera2);
+    //this.camera2.setupViewProjection();
+    //this.mMap.draw(this.camera2);
     //this.squareBlue.draw(this.camera2);
     //this.squareFloor.draw(this.camera2);
-    this.square.draw(this.camera2);
-    this.mCollector.draw(this.camera2);
-    this.mCollector2.draw(this.camera2);
+    //this.square.draw(this.camera2);
+    //this.mCollector.draw(this.camera2);
+    //this.mCollector2.draw(this.camera2);
     //this.mTextSysFont.draw(this.camera2);
 };
 

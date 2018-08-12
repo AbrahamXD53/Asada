@@ -8,6 +8,15 @@ gEngine.Core = (function () {
 	var getGL = function () {
 		return mGL;
 	};
+
+	var onResize=function(){
+		var width = mGL.canvas.clientWidth;
+		var height = mGL.canvas.clientHeight;
+
+		mGL.canvas.width = width;
+		mGL.canvas.height = height;
+	}
+
 	var initializeWebGL = function (canvasId) {
 		var canvas = document.getElementById(canvasId);
 
@@ -20,12 +29,14 @@ gEngine.Core = (function () {
 		mGL.blendFunc(mGL.SRC_ALPHA, mGL.ONE_MINUS_SRC_ALPHA);
 		mGL.enable(mGL.BLEND);
 
-		mGL.pixelStorei(mGL.UNPACK_FLIP_Y_WEBGL, true);
+		//mGL.pixelStorei(mGL.UNPACK_FLIP_Y_WEBGL, true);
 
 		if (mGL === null) {
 			document.write('<br><b>Error: Webgl is not supported</b>');
 			return;
 		}
+
+		window.addEventListener('resize',onResize);
 		gEngine.Core.clearCanvas([0, 0, 0, 1.0]);
 	};
 
@@ -81,10 +92,10 @@ gEngine.VertexBuffer = (function () {
 		],
 		textureCoordinate: {
 			data: [
-				1.0, 1.0,
-				0.0, 1.0,
 				1.0, 0.0,
-				0.0, 0.0
+				0.0, 0.0,
+				1.0, 1.0,
+				0.0, 1.0
 			], drawType: 35048
 		}
 	};
@@ -853,8 +864,8 @@ gEngine.Fonts = (function () {
 		var texInfo = gEngine.Textures.getTextureInfo(fontInfo.FontImage);
 		var leftPixel = Number(charInfo.getAttribute("x"));
 		var rightPixel = leftPixel + Number(charInfo.getAttribute("width")) - 1;
-		var topPixel = (texInfo.mHeight - 1) - Number(charInfo.getAttribute("y"));
-		var bottomPixel = topPixel - Number(charInfo.getAttribute("height")) + 1;
+		var topPixel = Number(charInfo.getAttribute("y"));
+		var bottomPixel = topPixel + Number(charInfo.getAttribute("height"));
 
 		returnInfo.mTexCoordLeft = leftPixel / (texInfo.mWidth - 1);
 		returnInfo.mTexCoordTop = topPixel / (texInfo.mHeight - 1);

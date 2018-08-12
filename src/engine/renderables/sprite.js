@@ -5,8 +5,8 @@ function Sprite(texture) {
 
     this.mTexLeft = 0.0; 
     this.mTexRight = 1.0;
-    this.mTexTop = 1.0;
-    this.mTexBottom = 0.0;
+    this.mTexTop = 0.0;
+    this.mTexBottom = 1.0;
 };
 gEngine.Core.inheritPrototype(Sprite, TextureRenderable);
 

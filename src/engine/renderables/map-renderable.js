@@ -22,7 +22,7 @@ Tileset.prototype.getCoords = function (id) {
     if (id > 0) {
         if (id < this.mTileCount) {
             let x = (id - 1) % this.mWidth;
-            let y = (this.mHeight-1) - Math.floor((id - 1) / this.mWidth );
+            let y = Math.floor((id - 1) / this.mWidth );
             return [
                 (x * this.mInverseWidth) + this.mOffset,
                 ((x + 1) * this.mInverseWidth) - this.mOffset,
@@ -62,7 +62,7 @@ MapLayer.prototype.draw = function (parent, transform) {
                 ]);
 
                 let coords = this.mTilesets[0].getCoords(this.mData.data[index]);
-                this.mTile.setTextureCoordUV(coords[0], coords[1], coords[2], coords[3]);
+                this.mTile.setTextureCoordUV(coords[0], coords[1], coords[3], coords[2]);
 
                 this.mTile.draw(transform);
             }

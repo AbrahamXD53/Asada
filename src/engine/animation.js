@@ -18,11 +18,12 @@ function FrameDescriptor(description) {
     } else {
         this.mFrames = [];
         for (let y = 0, frame = 0; y < description.imageHeight && frame < description.numFrames; y += description.height) {
-            for (let x = 0; x < description.imageWidth && frame < description.numFrames; x += description.width, frame++) {
+            for (let x = 0; x < description.imageWidth - description.width  && frame < description.numFrames; x += description.width, frame++) {
                 this.mFrames.push([x, y, x + description.width, y + description.height]);
             }
         }
     }
+    console.log(this.mFrames);
 }
 FrameDescriptor.prototype.getFrame = function (index) {
     return this.mFrames[index];
