@@ -13,8 +13,8 @@ SimpleShader.prototype.activateShader = function (color, transform, camera) {
 	var gl = gEngine.Core.getGL();
 	gl.useProgram(this.mCompiledShader.program);
 	twgl.setBuffersAndAttributes(gl, this.mCompiledShader, gEngine.VertexBuffer.getVertexBuffer());
-	let screen = [camera.getViewport()[2],camera.getViewport()[3]];
-	this.mUniforms = { u_color: color,u_screenSize:screen, u_transform: transform, u_viewTransform: camera.getVPMatrix() };
+	let screen = camera.getViewport();
+	this.mUniforms = { u_color: color,u_screenSize:[screen[2],screen[3]], u_transform: transform, u_viewTransform: camera.getVPMatrix() };
 	twgl.setUniforms(this.mCompiledShader, this.mUniforms);
 };
 SimpleShader.prototype.getShader = function () { return this.mCompiledShader; };

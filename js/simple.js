@@ -87,8 +87,19 @@ SimpleGame.prototype.initialize = function () {
     this.mMap.getTransform().setPosition([20, 60, 0]);
     this.mMap.getTransform().setScale([.8, .8, 1]);
 };
-SimpleGame.prototype.update = function () {
-    var gamepads = gEngine.Input.getGamepads();
+SimpleGame.prototype.update = function () 
+{
+
+    var touches = gEngine.Input.getTouches();
+    if(gEngine.Input.getTouchCount()>0)
+    {
+        let coords= this.camera.screenToSpace([touches[0].clientX,touches[0].clientY]);
+        coords[2]=0;
+        this.mCollector.getTransform().setPosition(coords);
+
+    }
+    /*var gamepads = gEngine.Input.getGamepads();
+    
     if (gamepads[0]) {
         this.mTextSysFont.getTransform().translate([gamepads[0].axes[0] * .1, -gamepads[0].axes[1] * .1, 0])
         this.mTextSysFont.getTransform().setRotation(Math.atan2(-gamepads[0].axes[3], gamepads[0].axes[2]));
@@ -125,14 +136,14 @@ SimpleGame.prototype.update = function () {
     this.mCollector2.updateAnimation(40);
     //this.mMap.getTransform().translate([-0.01,0.01,0]);
     this.camera.update();
-    this.camera2.update();
+    this.camera2.update();*/
 };
 SimpleGame.prototype.draw = function () 
 {
-    this.camera.refreshViewport();
+    //this.camera.refreshViewport();
     //this.camera2.refreshViewport();
     this.camera.setupViewProjection();
-    this.mMap.draw(this.camera);
+    //this.mMap.draw(this.camera);
     this.squareBlue.draw(this.camera);
     this.squareFloor.draw(this.camera);
     this.square.draw(this.camera);

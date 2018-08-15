@@ -9,7 +9,7 @@ gEngine.Core = (function () {
 		return mGL;
 	};
 
-	var onResize=function(){
+	var onResize = function () {
 		var width = mGL.canvas.clientWidth;
 		var height = mGL.canvas.clientHeight;
 
@@ -36,7 +36,7 @@ gEngine.Core = (function () {
 			return;
 		}
 
-		window.addEventListener('resize',onResize);
+		window.addEventListener('resize', onResize);
 		gEngine.Core.clearCanvas([0, 0, 0, 1.0]);
 	};
 
@@ -313,20 +313,63 @@ gEngine.Input = (function () {
 
 	var getMousePos = function () { return [mMousePosX, mMousePosY, 0]; };
 
-	var onTouchStart = function (event) {
+	var mTouches = [];
 
+	var activeTouches = 0;
+
+	var onTouchStart = function (event) {
+		console.log('touch start');
+		event.preventDefault();
+		
+		var touches = event.changedTouches;
+
+		for (var i = 0; i < touches.length; i++) {
+			activeTouches+=1;
+			mTouches[touches[i].identifier]=touches[i];
+			mTouches[touches[i].identifier].phase = 'start';
+		}
 	};
 
 	var onTouchEnd = function (event) {
+		event.preventDefault();
+		var touches = event.changedTouches;
 
+		for (var i = 0; i < touches.length; i++) {
+			activeTouches-=1;
+			mTouches[touches[i].identifier]=touches[i];
+			mTouches[touches[i].identifier].phase = 'end';
+		}
 	};
 
 	var onTouchCancel = function (event) {
+		event.preventDefault();
+		var touches = event.changedTouches;
 
+		for (var i = 0; i < touches.length; i++) {
+			activeTouches-=1;
+			mTouches[touches[i].identifier]=touches[i];
+			mTouches[touches[i].identifier].phase = 'cancel';
+		}
 	};
 
 	var onTouchMove = function (event) {
+		event.preventDefault();
+		var touches = event.changedTouches;
 
+		for (var i = 0; i < touches.length; i++) {
+			mTouches[touches[i].identifier]=touches[i];
+			mTouches[touches[i].identifier].phase = 'move';
+		}
+	};
+
+	var getTouches= function(){
+		return mTouches;
+	};
+	var getTouchCount= function(){
+		return activeTouches;
+	};
+	var getTouch=function(id){
+		return mTouches[id] || null;
 	};
 
 	var onGamepadConnected = function (event) {
@@ -415,7 +458,10 @@ gEngine.Input = (function () {
 		getMousePos: getMousePos,
 		getMousePosX: getMousePosX,
 		getMousePosY: getMousePosY,
-		getGamepads: getGamepads
+		getGamepads: getGamepads,
+		getTouches:getTouches,
+		getTouchCount:getTouchCount,
+		getTouch:getTouch
 	};
 	return mPublic;
 }());

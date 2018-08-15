@@ -2,10 +2,10 @@
 function SpriteShader(vertexPath, fragmentPath) {
     var gl = gEngine.Core.getGL();
     this.mTextureCoord = [
-        1.0, 1.0,
-        0.0, 1.0,
         1.0, 0.0,
-        0.0, 0.0
+        0.0, 0.0,
+        1.0, 1.0,
+        0.0, 1.0
     ];
     this.mTexCoordBuffer = twgl.createBufferInfoFromArrays(gl, { textureCoordinate: { data: this.mTextureCoord, numComponents: 2, drawType: gl.DYNAMIC_DRAW } });
     TextureShader.call(this, vertexPath, fragmentPath);

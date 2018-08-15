@@ -47,18 +47,18 @@ Camera.prototype.getHeight = function () { return this.mCameraState.getWidth() *
 Camera.prototype.getVPMatrix = function () { return this.mVPMatrix; };
 Camera.prototype.getViewport = function () {
     return [
-        this.mViewport[0],
-        this.mViewport[1],
-        this.mViewport[2],
-        this.mViewport[3]
+        this.mScissorBound[0],
+        this.mScissorBound[1],
+        this.mScissorBound[2],
+        this.mScissorBound[3]
     ]
 };
 Camera.prototype.getViewportScale = function () {
     return [
-        this.mViewport[0],
-        this.mViewport[1],
-        this.mViewport[2]*this.getWidth(),
-        this.mViewport[3]*this.getHeight()
+        this.mScissorBound[0],
+        this.mScissorBound[1],
+        this.mScissorBound[2],
+        this.mScissorBound[3]
     ]
 };
 
@@ -82,6 +82,7 @@ Camera.prototype.setViewPort = function (viewportArray, bound) {
     this.mScissorBound[1] = gl.canvas.height * this.mViewPortFactor[1];
     this.mScissorBound[2] = gl.canvas.width * this.mViewPortFactor[2];
     this.mScissorBound[3] = gl.canvas.height * this.mViewPortFactor[3];
+    console.log(this.mViewport,this.mScissorBound);
 };
 
 Camera.prototype.refreshViewport = function(){
@@ -94,7 +95,7 @@ Camera.prototype.refreshViewport = function(){
     this.mScissorBound[1] = gl.canvas.height * this.mViewPortFactor[1];
     this.mScissorBound[2] = gl.canvas.width * this.mViewPortFactor[2];
     this.mScissorBound[3] = gl.canvas.height * this.mViewPortFactor[3];
-}
+};
 
 Camera.prototype.shake = function (xDelta, yDelta, shakeFrequency, duration) {
     this.mCameraShake = new CameraShake(this.mCameraState, xDelta, yDelta, shakeFrequency, duration);
@@ -134,7 +135,14 @@ Camera.prototype.mouseWCY = function () {
     let minWCY = this.getCenter()[1] - this.getHeight() / 2;
     return minWCY + (this.mouseDCY() * (this.getHeight() / this.mViewport[3]));
 };
-
+Camera.prototype.screenToSpace = function(screen){
+    let minWCY = this.getCenter()[1] - this.getHeight() / 2;
+    let minWCX = this.getCenter()[0] - this.getWidth() / 2;
+    return [
+        minWCX + ((screen[0]-this.mViewport[0])* (this.getWidth() / this.mViewport[2])),
+        minWCY + ((this.mViewport[3]-screen[1]-this.mViewport[1]) * (this.getHeight() / this.mViewport[3]))
+    ];
+};
 Camera.prototype.mouseWC = function () {
     let minWCY = this.getCenter()[1] - this.getHeight() / 2;
     let minWCX = this.getCenter()[0] - this.getWidth() / 2;
@@ -158,6 +166,8 @@ Camera.prototype.setupViewProjection = function () {
     var gl = gEngine.Core.getGL();
 
     gl.viewport(this.mViewport[0], this.mViewport[1], this.mViewport[2], this.mViewport[3]);
+    gl.clearColor(0,0,0,0);
+    
     gl.scissor(this.mScissorBound[0], this.mScissorBound[1], this.mScissorBound[2], this.mScissorBound[3]);
     gl.clearColor(this.mBgColor[0], this.mBgColor[1], this.mBgColor[2], this.mBgColor[3]);
 
