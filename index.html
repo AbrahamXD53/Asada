@@ -10,32 +10,62 @@
 
     <title>Asada Engine</title>
     <style>
-		#GLCanvas{
-			width: 100%;
-			min-width: 100%;
-			max-width: 100%;
-			height: 100%;
-			min-height: 100%;
-			max-height: 100%;
-		}
-		.container{
-			width: 100%;
-			height: 100%;
-		}
-		body,html{
-			margin: 0;
-			padding: 0;
-			height: 100%;
+        #GLCanvas {
+            width: 100%;
+            min-width: 100%;
+            max-width: 100%;
+            height: 100%;
+            min-height: 100%;
+            max-height: 100%;
+            z-index: 0;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
             width: 100%;
             overflow: hidden;
-		}
-	</style>
+        }
+
+        .loader {
+            background-color: black;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            position: fixed;
+            top: 0;
+            left: 0;
+            color: beige;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .light-text{
+            color: beige;
+            display: flex;
+            font-size: 30px;                 
+        }
+    </style>
 </head>
 
 <body>
+    <div class="loader" id="loader">
+        <div class="light-text">
+            Initializing, please wait          
+        </div>
+    </div>
+
     <canvas id="GLCanvas">
         You can't render this :c
     </canvas>
+
     <script src="lib/twgl-full.js"></script>
     <script src="lib/matter.js"></script>
 

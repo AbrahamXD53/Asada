@@ -46,11 +46,14 @@ gEngine.Core = (function () {
 		gEngine.Input.initialize();
 		gEngine.Audio.initialize();
 
-		gEngine.DefaultResources.initialize(function () { startScene(myGame); });
+		myGame.loadScene.call(myGame);
+		
+		gEngine.DefaultResources.initialize(function () {
+			startScene(myGame);
+		});
 	};
 
 	var startScene = function (myGame) {
-		myGame.loadScene.call(myGame); // Called in this way to keep correct context
 		gEngine.GameLoop.start(myGame); // start the game loop after initialization
 	};
 
@@ -182,10 +185,10 @@ gEngine.GameLoop = (function () {
 
 		gEngine.ResourceMap.setLoadCompleteCallback(function () {
 			mCurrentScene.initialize();
-			startLoop();
 
-			//window.addEventListener('focus', onFocus);
-			//window.addEventListener('blur', onBlur);
+			window.addEventListener('focus', onFocus);
+			window.addEventListener('blur', onBlur);
+			startLoop();
 		});
 
 
@@ -194,8 +197,8 @@ gEngine.GameLoop = (function () {
 	var stop = function () {
 		mIsLoopRunning = false;
 
-		//window.removeEventListener('focus');
-		//window.removeEventListener('blur');
+		window.removeEventListener('focus');
+		window.removeEventListener('blur');
 	}
 
 	var mPublic = {
@@ -320,12 +323,12 @@ gEngine.Input = (function () {
 	var onTouchStart = function (event) {
 		console.log('touch start');
 		event.preventDefault();
-		
+
 		var touches = event.changedTouches;
 
 		for (var i = 0; i < touches.length; i++) {
-			activeTouches+=1;
-			mTouches[touches[i].identifier]=touches[i];
+			activeTouches += 1;
+			mTouches[touches[i].identifier] = touches[i];
 			mTouches[touches[i].identifier].phase = 'start';
 		}
 	};
@@ -335,8 +338,8 @@ gEngine.Input = (function () {
 		var touches = event.changedTouches;
 
 		for (var i = 0; i < touches.length; i++) {
-			activeTouches-=1;
-			mTouches[touches[i].identifier]=touches[i];
+			activeTouches -= 1;
+			mTouches[touches[i].identifier] = touches[i];
 			mTouches[touches[i].identifier].phase = 'end';
 		}
 	};
@@ -346,8 +349,8 @@ gEngine.Input = (function () {
 		var touches = event.changedTouches;
 
 		for (var i = 0; i < touches.length; i++) {
-			activeTouches-=1;
-			mTouches[touches[i].identifier]=touches[i];
+			activeTouches -= 1;
+			mTouches[touches[i].identifier] = touches[i];
 			mTouches[touches[i].identifier].phase = 'cancel';
 		}
 	};
@@ -357,18 +360,18 @@ gEngine.Input = (function () {
 		var touches = event.changedTouches;
 
 		for (var i = 0; i < touches.length; i++) {
-			mTouches[touches[i].identifier]=touches[i];
+			mTouches[touches[i].identifier] = touches[i];
 			mTouches[touches[i].identifier].phase = 'move';
 		}
 	};
 
-	var getTouches= function(){
+	var getTouches = function () {
 		return mTouches;
 	};
-	var getTouchCount= function(){
+	var getTouchCount = function () {
 		return activeTouches;
 	};
-	var getTouch=function(id){
+	var getTouch = function (id) {
 		return mTouches[id] || null;
 	};
 
@@ -459,9 +462,9 @@ gEngine.Input = (function () {
 		getMousePosX: getMousePosX,
 		getMousePosY: getMousePosY,
 		getGamepads: getGamepads,
-		getTouches:getTouches,
-		getTouchCount:getTouchCount,
-		getTouch:getTouch
+		getTouches: getTouches,
+		getTouchCount: getTouchCount,
+		getTouch: getTouch
 	};
 	return mPublic;
 }());
@@ -476,9 +479,22 @@ gEngine.ResourceMap = (function () {
 	var mResourceMap = {};
 	var mNumOutstandingLoads = 0;
 	var mLoadCompleteCallback = null;
+	var mLoadedResources = 0;
+	var mRequestedResources = 0;
 
-	var checkForAllLoadCompleted = function () {
-		if ((mNumOutstandingLoads === 0) && (mLoadCompleteCallback !== null)) {
+	var mCallbackLoader = null;
+
+	var registerLoader = function(callbackLoader){
+		mCallbackLoader=callbackLoader;
+	};
+
+
+	var checkForAllLoadCompleted = function () 
+	{
+		let progress = Math.floor((mLoadedResources / mRequestedResources) * 100);
+		if(mCallbackLoader!==null)
+			mCallbackLoader(progress)
+		if ((mLoadedResources === mRequestedResources) && (mLoadCompleteCallback !== null)) {
 			var funcToCall = mLoadCompleteCallback;
 			mLoadCompleteCallback = null;
 			funcToCall();
@@ -492,14 +508,15 @@ gEngine.ResourceMap = (function () {
 
 	var asyncLoadRequested = function (rName) {
 		mResourceMap[rName] = new MapEntry(rName);
-		++mNumOutstandingLoads;
+		++mRequestedResources;
+
 	};
 
 	var asyncLoadCompleted = function (rName, loadedAsset) {
 		if (!isAssetLoaded(rName))
 			console.log(rName + ': not in map!');
 		mResourceMap[rName].mAsset = loadedAsset;
-		--mNumOutstandingLoads;
+		mLoadedResources++;
 		checkForAllLoadCompleted();
 	};
 
@@ -536,7 +553,8 @@ gEngine.ResourceMap = (function () {
 		retrieveAsset: retrieveAsset,
 		unloadAsset: unloadAsset,
 		isAssetLoaded: isAssetLoaded,
-		incAssetRefCount: incAssetRefCount
+		incAssetRefCount: incAssetRefCount,
+		registerLoader:registerLoader
 	};
 	return mPublic;
 }());

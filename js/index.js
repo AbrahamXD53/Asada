@@ -2,8 +2,9 @@ var app = {
     // Application Constructor
     initialize: function () {
         document.addEventListener('DOMContentLoaded', this.onDeviceReady.bind(this), false);
-        document.addEventListener("pause", this.onPause.bind(this), false);
-        document.addEventListener("resume", this.onResume.bind(this), false);
+        document.addEventListener('pause', this.onPause.bind(this), false);
+        document.addEventListener('resume', this.onResume.bind(this), false);
+        this.loader=document.getElementById('loader');
     },
 
     // deviceready Event Handler
@@ -13,7 +14,17 @@ var app = {
     onDeviceReady: function () {
         console.log('device read');
         var game = new SimpleGame();
+        gEngine.ResourceMap.registerLoader(this.onProgressLoading.bind(this));
         gEngine.Core.initialize('GLCanvas', game);
+    },
+    loader:undefined,
+
+    onProgressLoading:function(progress){
+        if(this.loader){
+            this.loader.children[0].innerText = 'Loading: '+progress+'%';
+            if(progress>=100)
+                this.loader.style.display= 'none';
+        }
     },
 
     onResume: function () {

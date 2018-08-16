@@ -15,7 +15,7 @@ function Tileset(texture, data) {
     this.mWidth = data.imagewidth / data.tilewidth;
     this.mInverseWidth = 1.0 / data.tilewidth;
     this.mInverseHeight = 1.0 / data.tileheight;
-    this.mOffset = 0.001;
+    this.mOffset = 0.003;
 
 }
 Tileset.prototype.getCoords = function (id) {
@@ -38,35 +38,50 @@ Tileset.prototype.getTexture = function () {
 };
 
 function MapLayer(data, tilesets) {
+    this.mShader = gEngine.DefaultResources.getSpriteShader();
     this.mTilesets = tilesets;
     this.mData = data;
-    this.mTile = new Sprite(this.mTilesets[0].getTexture());
-    this.mTile.setColor([1,1,1,this.mData.opacity]);
-}
-
-MapLayer.prototype.draw = function (parent, transform) {
-    let parentPos = parent.getPosition();
-    let parentScale = parent.getScale();
-
-    let offsets = [
-        this.mData.width * parentScale[0] * 0.5,
-        this.mData.height * parentScale[1] * 0.5
-    ];
-    this.mTile.getTransform().setScale(parentScale);
-    for (let indey = this.mData.height-1; indey >= 0; indey--)
-        for (let index = this.mData.width * indey; index < (this.mData.width * indey) + this.mData.width; index++) {
-            if (this.mData.data[index] > 0) {
-                this.mTile.getTransform().setPosition([
-                    parentPos[0]+(parentScale[0]*(index%this.mData.width))-offsets[0],
-                    parentPos[1]-(parentScale[1]*indey)+offsets[1],0
-                ]);
-
+    this.mBufferInfo=null;
+    this.mArrays = {
+        position: { numComponents: 3, data: [] },
+        indices: { numComponents: 3, data: [] },
+        textureCoordinate: { numComponents: 2, data: [] }
+    };
+    var initialX=-this.mData.width/2;
+    var initialY=this.mData.height/2;
+    for (let y = 0,realIndex=0; y <this.mData.height; y++)
+        for (let index = this.mData.width * y,x=0; x<this.mData.width; index++,x++) {
+            if (this.mData.data[index] > 0) 
+            {
+                this.mArrays.position.data.push(
+                    initialX + x, initialY - (y + 1), 0.0,
+                    initialX + x, initialY - y, 0.0,
+                    initialX + (x + 1), initialY - y, 0.0,
+                    initialX + (x + 1), initialY - (y + 1), 0.0);
+                
+                this.mArrays.indices.data.push(realIndex + 3, realIndex + 2, realIndex + 1, realIndex + 3, realIndex + 1, realIndex);
                 let coords = this.mTilesets[0].getCoords(this.mData.data[index]);
-                this.mTile.setTextureCoordUV(coords[0], coords[1], coords[3], coords[2]);
-
-                this.mTile.draw(transform);
+                this.mArrays.textureCoordinate.data.push(coords[0],coords[3],coords[0],coords[2],coords[1],coords[2],coords[1],coords[3]);
+                realIndex += 4;
             }
         }
+    var gl = gEngine.Core.getGL();
+    this.mBufferInfo = twgl.createBufferInfoFromArrays(gl, this.mArrays);
+};
+
+MapLayer.prototype.draw = function (transform, vpMatrix) {
+    var gl = gEngine.Core.getGL();
+    
+    this.mShader.activateShader([1,1,1,this.mData.opacity],transform,vpMatrix);
+    //gl.useProgram(this.mShader.getShader().program);
+    twgl.setBuffersAndAttributes(gl, this.mShader.getShader(), this.mBufferInfo);
+    //let screen = vpMatrix.getViewport();
+    gEngine.Textures.activateTexture(this.mTilesets[0].mTexture);    
+    
+	//var mUniforms = { u_color: [1,1,1,],u_screenSize:[screen[2],screen[3]], u_transform: transform, u_viewTransform: vpMatrix.getVPMatrix() };
+	//twgl.setUniforms(this.mShader.getShader(), mUniforms);
+
+    twgl.drawBufferInfo(gl, this.mBufferInfo);
 };
 
 function MapRenderer(filePath) {
@@ -100,7 +115,7 @@ MapRenderer.prototype.initialize = function () {
 
 MapRenderer.prototype.draw = function (vpMatrix) {
     for (let index = 0; index < this.mLayers.length; index++) {
-        this.mLayers[index].draw(this.mTransform, vpMatrix);
+        this.mLayers[index].draw(this.mTransform.getMatrix(), vpMatrix);
     }
 };
 

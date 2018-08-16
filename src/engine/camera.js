@@ -47,10 +47,10 @@ Camera.prototype.getHeight = function () { return this.mCameraState.getWidth() *
 Camera.prototype.getVPMatrix = function () { return this.mVPMatrix; };
 Camera.prototype.getViewport = function () {
     return [
-        this.mScissorBound[0],
-        this.mScissorBound[1],
-        this.mScissorBound[2],
-        this.mScissorBound[3]
+        this.mViewport[0],
+        this.mViewport[1],
+        this.mViewport[2],
+        this.mViewport[3]
     ]
 };
 Camera.prototype.getViewportScale = function () {
@@ -82,7 +82,6 @@ Camera.prototype.setViewPort = function (viewportArray, bound) {
     this.mScissorBound[1] = gl.canvas.height * this.mViewPortFactor[1];
     this.mScissorBound[2] = gl.canvas.width * this.mViewPortFactor[2];
     this.mScissorBound[3] = gl.canvas.height * this.mViewPortFactor[3];
-    console.log(this.mViewport,this.mScissorBound);
 };
 
 Camera.prototype.refreshViewport = function(){
