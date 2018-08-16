@@ -11,6 +11,7 @@ function SimpleGame() {
     this.mMapText = 'assets/map.json';
     this.mMapTexture = 'assets/sprites.png';
     this.mMap = new MapRenderer(this.mMapText);
+    this.mTouchPos = document.getElementById('touch-position');
 }
 gEngine.Core.inheritPrototype(SimpleGame, Scene);
 
@@ -99,6 +100,7 @@ SimpleGame.prototype.update = function ()
         let coords= this.camera.screenToSpace([touches[0].clientX,touches[0].clientY]);
         coords[2]=0;
         this.mCollector.getTransform().setPosition(coords);
+        this.mTouchPos.innerText = 'Touch Position: '+ [ Math.floor( touches[0].clientX),Math.floor(touches[0].clientY)];
 
     }
     var gamepads = gEngine.Input.getGamepads();
@@ -128,6 +130,8 @@ SimpleGame.prototype.update = function ()
     if (this.camera.isMouseInViewport()) {
         this.mCollector.getTransform().setPositionX(this.camera.mouseWCX());
         this.mCollector.getTransform().setPositionY(this.camera.mouseWCY());
+
+        this.mTouchPos.innerText = 'Mouse Position: '+gEngine.Input.getMousePos();
     }
 
     if (gEngine.Input.isKeyClicked(gEngine.Input.keyCodes.F)) {
@@ -158,8 +162,8 @@ SimpleGame.prototype.draw = function ()
     //this.squareBlue.draw(this.camera2);
     //this.squareFloor.draw(this.camera2);
     //this.square.draw(this.camera2);
-    //this.mCollector.draw(this.camera2);
-    //this.mCollector2.draw(this.camera2);
+    this.mCollector.draw(this.camera2);
+    this.mCollector2.draw(this.camera2);
     //this.mTextSysFont.draw(this.camera2);
 };
 

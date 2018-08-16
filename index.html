@@ -52,6 +52,23 @@
             display: flex;
             font-size: 30px;                 
         }
+        .ui {
+            background-color: transparent;
+            width: 100%;
+            height: 100%;
+            z-index: 9;
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events:none;
+        }
+        #touch-position{
+            margin: 10px;
+            font-size: 30px;
+            display: block;
+            text-shadow: -2px 2px rgba(0,0,0,0.6);
+            color: white;
+        }
     </style>
 </head>
 
@@ -61,7 +78,9 @@
             Initializing, please wait          
         </div>
     </div>
-
+    <div class="ui" id="ui">
+        <span id="touch-position">Touch Position: </span>
+    </div>
     <canvas id="GLCanvas">
         You can't render this :c
     </canvas>
