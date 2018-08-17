@@ -47,7 +47,7 @@ gEngine.Core = (function () {
 		gEngine.Audio.initialize();
 
 		myGame.loadScene.call(myGame);
-		
+
 		gEngine.DefaultResources.initialize(function () {
 			startScene(myGame);
 		});
@@ -484,15 +484,14 @@ gEngine.ResourceMap = (function () {
 
 	var mCallbackLoader = null;
 
-	var registerLoader = function(callbackLoader){
-		mCallbackLoader=callbackLoader;
+	var registerLoader = function (callbackLoader) {
+		mCallbackLoader = callbackLoader;
 	};
 
 
-	var checkForAllLoadCompleted = function () 
-	{
+	var checkForAllLoadCompleted = function () {
 		let progress = Math.floor((mLoadedResources / mRequestedResources) * 100);
-		if(mCallbackLoader!==null)
+		if (mCallbackLoader !== null)
 			mCallbackLoader(progress)
 		if ((mLoadedResources === mRequestedResources) && (mLoadCompleteCallback !== null)) {
 			var funcToCall = mLoadCompleteCallback;
@@ -554,7 +553,7 @@ gEngine.ResourceMap = (function () {
 		unloadAsset: unloadAsset,
 		isAssetLoaded: isAssetLoaded,
 		incAssetRefCount: incAssetRefCount,
-		registerLoader:registerLoader
+		registerLoader: registerLoader
 	};
 	return mPublic;
 }());
@@ -627,6 +626,9 @@ gEngine.DefaultResources = (function () {
 
 	var kDefaultFont = "assets/fonts/system-default-font";
 
+	var mGlobalAmbientColor = [0.5, 0.5, 0.5, 1];
+	var mGlobalAmbientIntensity = 1;
+
 	var mTextureShader = null;
 	var mColorShader = null;
 	var mSpriteShader = null;
@@ -637,6 +639,12 @@ gEngine.DefaultResources = (function () {
 	var getSpriteShader = function () { return mSpriteShader; };
 	var getFontShader = function () { return mFontShader; };
 	var getDefaultFont = function () { return kDefaultFont; };
+	var getGlobalAmbientColor = function () { return mGlobalAmbientColor; };
+	var getGlobalAmbientIntensity = function () { return mGlobalAmbientIntensity; };
+	var setGlobalAmbientIntensity = function (v) { mGlobalAmbientIntensity = v; };
+	var setGlobalAmbientColor = function (v) {
+		mGlobalAmbientColor = [v[0], v[1], v[2], v[3]];
+	};
 
 	var createShaders = function (callbackFunction) {
 		mColorShader = new SimpleShader(kSimpleVS, kSimpleFS);
@@ -682,7 +690,11 @@ gEngine.DefaultResources = (function () {
 		getSpriteShader: getSpriteShader,
 		getDefaultFont: getDefaultFont,
 		getFontShader: getFontShader,
-		cleanUp: cleanUp
+		cleanUp: cleanUp,
+		getGlobalAmbientColor: getGlobalAmbientColor,
+		setGlobalAmbientColor: setGlobalAmbientColor,
+		getGlobalAmbientIntensity: getGlobalAmbientIntensity,
+		setGlobalAmbientIntensity: setGlobalAmbientIntensity
 	};
 	return mPublic;
 }());

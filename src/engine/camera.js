@@ -37,7 +37,7 @@ function Camera(center, width, viewportArray, bound) {
     this.mViewMatrix = twgl.m4.identity();
     this.mProjMatrix = twgl.m4.identity();
     this.mVPMatrix = twgl.m4.identity();
-    this.mBgColor = [0.6, 0.7, 0.9, 1.0];
+    this.mBgColor = [0.0, 0.0, 0.0, 1.0];
 }
 
 Camera.prototype.getBackgroundColor = function () { return this.mBgColor; };
