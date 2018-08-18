@@ -23,7 +23,6 @@ function FrameDescriptor(description) {
             }
         }
     }
-    console.log(this.mFrames);
 }
 FrameDescriptor.prototype.getFrame = function (index) {
     return this.mFrames[index];
