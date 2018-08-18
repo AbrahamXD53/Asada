@@ -12,6 +12,9 @@ function SimpleGame() {
     this.mMapTexture = 'assets/sprites.png';
     this.mMap = new MapRenderer(this.mMapText);
     this.mTouchPos = document.getElementById('touch-position');
+
+    this.mTheLight = null;
+    
 }
 gEngine.Core.inheritPrototype(SimpleGame, Scene);
 
@@ -26,7 +29,16 @@ SimpleGame.prototype.loadScene = function () {
 SimpleGame.prototype.initialize = function () {
     this.camera = new Camera([0, 0], 40);
     this.camera2 = new Camera([0, 0], 10, [.5, 0, .5, 1]);
+    
+    this.mTheLight = new Light();
+    this.mTheLight.setRadius(8);
+    this.mTheLight.setPositionZ(2);
+    this.mTheLight.setPositionX(0);
+    this.mTheLight.setPositionY(0);  // Position above LMinion
+    this.mTheLight.setColor([0.6, 0.6, 0.6, 1]);
+
     this.square = new Renderable();
+
     this.square.getTransform().setRotation(Math.PI / 4);
     this.square.getTransform().setPosition(twgl.v3.create(0, 0));
 
@@ -43,12 +55,14 @@ SimpleGame.prototype.initialize = function () {
     this.squareFloor.getTransform().setScale([8, 1, 1]);
     this.squareFloor.setColor([1, 0, 0, 1]);
 
-    this.mCollector = new Sprite(this.kCollector);
+    this.mCollector = new AnimatedSprite(this.kCollector);
     this.mCollector.setColor([1, 1, 0, 1]);
     this.mCollector.getTransform().setPosition([9, 0, 0]);
     this.mCollector.getTransform().setScale([2, 2, 1]);
+    //this.mCollector.setLight(this.mTheLight);
+   
 
-    this.mCollector2 = new AnimatedSprite(this.kMinion, {
+    this.mCollector2 = new LightRenderable(this.kMinion, {
         frame: { width: 204, height: 160, count: 10 },
         animations: [
             new AnimationDescription({ frames: [0], time: 300, loops: -1 }),
@@ -73,7 +87,7 @@ SimpleGame.prototype.initialize = function () {
     this.mCollector2.setColor([1, 1, 1, 1]);
     this.mCollector2.getTransform().setPosition([5, 0, 0]);
     this.mCollector2.getTransform().setScale([8, 8, 1]);
-
+    this.mCollector2.setLight(this.mTheLight);
 
     this.mTextSysFont = new FontRenderable("System Font: in Red");
     this.mTextSysFont.setColor([1, 0, 0, 1]);
@@ -87,6 +101,7 @@ SimpleGame.prototype.initialize = function () {
     this.mMap.initialize();
     this.mMap.getTransform().setPosition([0, 0, 0]);
     this.mMap.getTransform().setScale([0.8, 0.8, 1]);
+    this.mMap.setLight(this.mTheLight);
     // this.mMap.getTransform().setRotation(0.02);
 };
 var aux = 0;
@@ -154,8 +169,8 @@ SimpleGame.prototype.draw = function ()
     this.squareBlue.draw(this.camera);
     this.squareFloor.draw(this.camera);
     this.square.draw(this.camera);
-    this.mCollector.draw(this.camera);
     this.mCollector2.draw(this.camera);
+    this.mCollector.draw(this.camera);
     this.mTextSysFont.draw(this.camera);
     this.camera2.setupViewProjection();
     this.mMap.draw(this.camera2);

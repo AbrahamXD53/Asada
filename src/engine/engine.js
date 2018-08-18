@@ -623,34 +623,37 @@ gEngine.DefaultResources = (function () {
 		kTextureFS = 'src/shaders/textureFS.glsl';
 	var kFontFS = 'src/shaders/fontFS.glsl';
 	var kPixelSnapVS = 'src/shaders/pixelSnapVS.glsl';
+	var kLightFS = 'src/shaders/lightFS.glsl';
 
 	var kDefaultFont = "assets/fonts/system-default-font";
 
-	var mGlobalAmbientColor = [0.5, 0.5, 0.5, 1];
+	var mGlobalAmbientColor = [0.1, 0.1, 0.1, 1];
 	var mGlobalAmbientIntensity = 1;
 
 	var mTextureShader = null;
 	var mColorShader = null;
 	var mSpriteShader = null;
 	var mFontShader = null;
+	var mLightShader = null;
 
 	var getColorShader = function () { return mColorShader; };
 	var getTextureShader = function () { return mTextureShader; };
 	var getSpriteShader = function () { return mSpriteShader; };
 	var getFontShader = function () { return mFontShader; };
 	var getDefaultFont = function () { return kDefaultFont; };
+	var getLightShader =  function(){return mLightShader; };
 	var getGlobalAmbientColor = function () { return mGlobalAmbientColor; };
 	var getGlobalAmbientIntensity = function () { return mGlobalAmbientIntensity; };
+	
 	var setGlobalAmbientIntensity = function (v) { mGlobalAmbientIntensity = v; };
-	var setGlobalAmbientColor = function (v) {
-		mGlobalAmbientColor = [v[0], v[1], v[2], v[3]];
-	};
+	var setGlobalAmbientColor = function (v) {	mGlobalAmbientColor = [v[0], v[1], v[2], v[3]];	};
 
 	var createShaders = function (callbackFunction) {
 		mColorShader = new SimpleShader(kSimpleVS, kSimpleFS);
 		mTextureShader = new TextureShader(kTextureVS, kTextureFS);
 		mSpriteShader = new SpriteShader(kPixelSnapVS, kTextureFS);
 		mFontShader = new SpriteShader(kTextureVS, kFontFS);
+		mLightShader = new LightShader(kPixelSnapVS,kLightFS);
 		callbackFunction();
 	};
 
@@ -662,6 +665,7 @@ gEngine.DefaultResources = (function () {
 		gEngine.TextFileLoader.loadTextFile(kTextureFS, gEngine.TextFileLoader.TextFileType.TextFile);
 		gEngine.TextFileLoader.loadTextFile(kFontFS, gEngine.TextFileLoader.TextFileType.TextFile);
 		gEngine.TextFileLoader.loadTextFile(kPixelSnapVS, gEngine.TextFileLoader.TextFileType.TextFile);
+		gEngine.TextFileLoader.loadTextFile(kLightFS, gEngine.TextFileLoader.TextFileType.TextFile);
 
 		gEngine.Fonts.loadFont(kDefaultFont);
 
@@ -674,12 +678,15 @@ gEngine.DefaultResources = (function () {
 		mTextureShader.cleanUp();
 		mSpriteShader.cleanUp();
 		mFontShader.cleanUp();
+		mLightShader.cleanUp();
 
 		gEngine.TextFileLoader.unloadTextFile(kSimpleVS);
 		gEngine.TextFileLoader.unloadTextFile(kSimpleFS);
 
 		gEngine.TextFileLoader.unloadTextFile(kTextureVS);
 		gEngine.TextFileLoader.unloadTextFile(kTextureFS);
+		gEngine.TextFileLoader.unloadTextFile(kPixelSnapVS);
+		gEngine.TextFileLoader.unloadTextFile(kLightFS);
 
 		gEngine.Fonts.unloadFont(kDefaultFont);
 	};
@@ -694,7 +701,8 @@ gEngine.DefaultResources = (function () {
 		getGlobalAmbientColor: getGlobalAmbientColor,
 		setGlobalAmbientColor: setGlobalAmbientColor,
 		getGlobalAmbientIntensity: getGlobalAmbientIntensity,
-		setGlobalAmbientIntensity: setGlobalAmbientIntensity
+		setGlobalAmbientIntensity: setGlobalAmbientIntensity,
+		getLightShader:getLightShader
 	};
 	return mPublic;
 }());

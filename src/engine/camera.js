@@ -1,4 +1,10 @@
 'use strict';
+function PerRenderCache(){
+    this.mWorldToPixelRatio= 1;
+    this.mCameraOriginX=1;
+    this.mCameraOriginY=1;
+}
+
 function CameraState(center, width) {
     this.kCycles = 300;
     this.kRate = 1.0;
@@ -25,6 +31,7 @@ CameraState.prototype.configInterpolation = function (stiffness, duration) {
 function Camera(center, width, viewportArray, bound) {
     this.mCameraState = new CameraState(center, width);
     this.mCameraShake = null;
+    this.mRenderCache = new PerRenderCache();
     this.mViewport = [];
     this.mViewportBound = 0;
     if (bound !== undefined) {
@@ -163,6 +170,9 @@ Camera.prototype.configInterpolation = function (stiffness, duration) {
 
 Camera.prototype.setupViewProjection = function () {
     var gl = gEngine.Core.getGL();
+    this.mRenderCache.mWorldToPixelRatio=this.mViewport[2]/this.getWidth();
+    this.mRenderCache.mCameraOriginX = this.getCenter()[0] - (this.getWidth()/2);
+    this.mRenderCache.mCameraOriginY = this.getCenter()[1] - (this.getHeight()/2);
 
     gl.viewport(this.mViewport[0], this.mViewport[1], this.mViewport[2], this.mViewport[3]);
     gl.clearColor(0,0,0,0);
@@ -188,6 +198,19 @@ Camera.prototype.setupViewProjection = function () {
     twgl.m4.inverse(this.mViewMatrix, this.mViewMatrix);
     twgl.m4.multiply(this.mProjMatrix, this.mViewMatrix, this.mVPMatrix);
 };
+
+Camera.prototype.fakeZInPixelSpace = function(z){
+    return z*this.mRenderCache.mWorldToPixelRatio;
+};
+
+Camera.prototype.worldToPixel = function(p){
+    let x = this.mViewport[0] + ((p[0]-this.mRenderCache.mCameraOriginX)* this.mRenderCache.mWorldToPixelRatio) + 0.5;
+    let y = this.mViewport[1] + ((p[1]-this.mRenderCache.mCameraOriginY)* this.mRenderCache.mWorldToPixelRatio) + 0.5;
+    let z = this.fakeZInPixelSpace(p[2]);
+    return [x,y,z];
+};
+
+Camera.prototype.sizeToPixel = function(s){ return (s * this.mRenderCache.mWorldToPixelRatio) + 0.5; };
 
 function CameraShake(state, xDelta, yDelta, shakeFrequency, shakeDuration) {
     this.mOrgCenter = twgl.v3.copy(state.getCenter());

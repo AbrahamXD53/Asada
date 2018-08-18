@@ -38,7 +38,7 @@ Tileset.prototype.getTexture = function () {
 };
 
 function MapLayer(data, tilesets) {
-    this.mShader = gEngine.DefaultResources.getSpriteShader();
+    this.mShader = gEngine.DefaultResources.getLightShader();
     this.mTilesets = tilesets;
     this.mData = data;
     this.mBufferInfo=null;
@@ -69,8 +69,9 @@ function MapLayer(data, tilesets) {
     this.mBufferInfo = twgl.createBufferInfoFromArrays(gl, this.mArrays);
 };
 
-MapLayer.prototype.draw = function (transform, vpMatrix) {
+MapLayer.prototype.draw = function (transform, vpMatrix,light) {
     var gl = gEngine.Core.getGL();
+    this.mShader.setLight(light);
     
     this.mShader.activateShader([1,1,1,this.mData.opacity],transform,vpMatrix);
     //gl.useProgram(this.mShader.getShader().program);
@@ -90,6 +91,8 @@ function MapRenderer(filePath) {
     this.mData = [];
     this.mTilesets = [];
     this.mTransform = new Transform();
+    this.mLight = null;
+    
 }
 MapRenderer.prototype.load = function () {
     gEngine.TextFileLoader.loadTextFile(this.mMapName, gEngine.TextFileLoader.TextFileType.TextFile, function (asset) {
@@ -115,8 +118,11 @@ MapRenderer.prototype.initialize = function () {
 
 MapRenderer.prototype.draw = function (vpMatrix) {
     for (let index = 0; index < this.mLayers.length; index++) {
-        this.mLayers[index].draw(this.mTransform.getMatrix(), vpMatrix);
+        this.mLayers[index].draw(this.mTransform.getMatrix(), vpMatrix,this.mLight);
     }
 };
 
 MapRenderer.prototype.getTransform = function () { return this.mTransform; };
+
+MapRenderer.prototype.getLight = function(){ return this.mLight; };
+MapRenderer.prototype.setLight = function(l){ this.mLight = l; };

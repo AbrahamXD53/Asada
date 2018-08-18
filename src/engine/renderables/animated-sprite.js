@@ -1,21 +1,28 @@
 'use strict';
-function AnimatedSprite(texture,options){
+function AnimatedSprite(texture,options={}){
     Sprite.call(this,texture);
     this.mAnimationController = new AnimationController({
         params:options.params,
-        animations:options.animations,
+        animations:options.animations || [new AnimationDescription({frames: [0], time: 300, loops: -1})],
         defaultAnimation:options.defaultAnimation,
         transitions:options.transitions,
     });
     let textureInfo =  gEngine.Textures.getTextureInfo(texture);
-    this.mFrames = new FrameDescriptor({
-        frames:options.frames,
-        width:options.frame.width,
-        height:options.frame.height,
-        numFrames:options.frame.count,
-        imageWidth:textureInfo.mWidth,
-        imageHeight:textureInfo.mHeight
-    });
+    if(options.frames || options.frame){
+        this.mFrames = new FrameDescriptor({
+            frames:options.frames,
+            width:options.frame.width,
+            height:options.frame.height,
+            numFrames:options.frame.count,
+            imageWidth:textureInfo.mWidth,
+            imageHeight:textureInfo.mHeight
+        });
+    }
+    else{
+        this.mFrames = new FrameDescriptor({
+            frames: { width: textureInfo.mWidth, height: textureInfo.mHeight, count: 1 }
+        });
+    }
     this.mPrevFrame = -1;
 }
 gEngine.Core.inheritPrototype(AnimatedSprite,Sprite);

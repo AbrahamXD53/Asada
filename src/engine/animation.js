@@ -112,7 +112,7 @@ function Transition(dest, conditions) {
 
 function AnimationController(description) {
     this.mParams = description.params || [];
-    this.mAnimations = description.animations;
+    this.mAnimations = description.animations || [];
     this.mDefaultAnimation = description.defaultAnimation || 0;
     this.mCurrentAnimation = this.mDefaultAnimation;
     this.mTransitions = description.transitions || [];
@@ -147,8 +147,8 @@ AnimationController.prototype.update = function (delta) {
             }
         }
     }
-    this.mAnimations[this.mCurrentAnimation].update(delta);
-
+    if(this.mAnimations[this.mCurrentAnimation])
+        this.mAnimations[this.mCurrentAnimation].update(delta);
 };
 
 AnimationController.prototype.getFrame = function () {
