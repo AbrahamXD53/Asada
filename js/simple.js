@@ -33,8 +33,15 @@ SimpleGame.prototype.initialize = function () {
     this.mTheLight = new Light();
     this.mTheLight.setPositionZ(2);
     this.mTheLight.setPositionX(0);
-    this.mTheLight.setPositionY(0);  // Position above LMinion
+    this.mTheLight.setPositionY(5);  // Position above LMinion
     this.mTheLight.setColor([0.6, 0.6, 0.6, 1]);
+
+    this.mTheLight2 = new Light();
+    this.mTheLight2.setPositionZ(2);
+    this.mTheLight2.setPositionX(-10);
+    this.mTheLight2.setPositionY(5);  // Position above LMinion
+    this.mTheLight2.setColor([0.0, 0.0, 0.9, 1]);
+
 
     this.square = new GameObject();
 
@@ -73,6 +80,7 @@ SimpleGame.prototype.initialize = function () {
     this.mCollector.transform.setScale([4, 4, 1]);
 
     this.mCollector.renderer.addLight(this.mTheLight);
+    this.mCollector.renderer.addLight(this.mTheLight2);
    
 
     this.mCollector2 = new GameObject();
@@ -103,6 +111,7 @@ SimpleGame.prototype.initialize = function () {
     this.mCollector2.transform.setPosition([5, 0, 0]);
     this.mCollector2.transform.setScale([8, 8, 1]);
     this.mCollector2.renderer.addLight(this.mTheLight);
+    this.mCollector2.renderer.addLight(this.mTheLight2);
 
     this.mTextSysFont = new FontRenderable("System Font: in Red");
     this.mTextSysFont.setColor([1, 0, 0, 1]);
@@ -116,6 +125,7 @@ SimpleGame.prototype.initialize = function () {
     this.mMap.getTransform().setScale([0.8, 0.8, 1]);
     this.mMap.setShader(gEngine.DefaultResources.getLightShader());
     this.mMap.addLight(this.mTheLight);
+    this.mMap.addLight(this.mTheLight2);
 };
 var aux = 0;
 SimpleGame.prototype.update = function () 

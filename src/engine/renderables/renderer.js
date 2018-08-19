@@ -102,7 +102,6 @@ LightRenderer.prototype.addLight = function (l) {
     console.log(this.mLights);
 };
 
-
 function Tileset(texture, data) {
     this.mTexture = texture;
     this.mColumns = data.columns;

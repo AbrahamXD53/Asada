@@ -30,7 +30,7 @@ vec4 LightEffect(Light lgt) {
         else {
             float n = dist - lgt.Near;
             float d = lgt.Far - lgt.Near;
-            atten = smoothstep(0.0, 1.0, 1.0-(n*n)/(d*d)); // blended attenuation
+            atten = smoothstep(0.0, 1.0, 1.0-(n*n)/(d*d)); 
         }
     }
     result = atten * lgt.Intensity * lgt.Color;
@@ -49,8 +49,5 @@ void main(void){
         }
     }
     lgtResults *= textureMapColor;
-    // tint the textured area, and leave transparent area as defined by the texture
-    //vec3 r = vec3(lgtResults) * (1.0-u_color.a) + vec3(u_color) * u_color.a;
-    //vec4 result = vec4(r, lgtResults.a);
     gl_FragColor = lgtResults * u_color;
 }

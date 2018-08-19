@@ -4,7 +4,7 @@ function Light() {
     this.mColor = [1.0, 1.0, 1.0, 1.0];
     this.mPosition = [0, 0, 5];
     this.mNear = 5;
-    this.mFar = 10;
+    this.mFar = 12;
     this.mIntensity = 1;
     this.mIsOn = true;
 }
@@ -31,21 +31,7 @@ Light.prototype.getNear = function () { return this.mNear; };
 Light.prototype.getColor = function () { return this.mColor; };
 Light.prototype.getPosition = function () { return this.mPosition; };
 Light.prototype.getLightStatus = function () { return this.mIsOn; };
-Light.prototype.getShaderInfo = function(camera){
-    if(this.mIsOn){
-        let p = camera.worldToPixel(this.mPosition);
-        
-        return {
-            Position:[p[0],p[1],p[2],1.0],
-            Color:this.mColor,
-            Near:camera.sizeToPixel(this.mNear),
-            Far:camera.sizeToPixel(this.mFar),
-            Intensity:this.mIntensity,
-            IsOn:true,
-        };
-    }
-    return {IsOn:false};
-};
+
 
 function LightSet() {
     this.mSet = [];
