@@ -8,5 +8,5 @@ uniform float u_globalAmbientIntensity;
 varying vec2 texCoord;
 
 void main(void){
-    gl_FragColor= texture2D(u_texture, texCoord.xy)*u_color*u_globalAmbientColor*u_globalAmbientIntensity;
+    gl_FragColor= texture2D(u_texture, texCoord.xy)*u_color*u_globalAmbientIntensity;
 }

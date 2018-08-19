@@ -8,10 +8,10 @@ function GameObject() {
     this.mChildren = null;
 }
 
-GameObject.prototype.update = function () {
+GameObject.prototype.update = function (delta=1) {
     for (let c in this.mComponents) {
         if (this.mComponents[c].update)
-            this.mComponents[c].update();
+            this.mComponents[c].update(delta);
     }
 };
 

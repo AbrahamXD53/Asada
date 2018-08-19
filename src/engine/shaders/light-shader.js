@@ -1,26 +1,34 @@
 'use strict';
 
-function LightShader(vertex,fragment){
-    SpriteShader.call(this,vertex,fragment);
+function LightShader(vertex, fragment) {
+    SpriteShader.call(this, vertex, fragment);
 
-    this.mLight = null;
+    this.mLights = null;
+    this.kGLSLuLightArraySize = 4;
 }
-gEngine.Core.inheritPrototype(LightShader,SpriteShader);
+gEngine.Core.inheritPrototype(LightShader, SpriteShader);
 
-LightShader.prototype.setLight = function(l){ this.mLight=l; };
+LightShader.prototype.setLights = function (l) {
+    this.mLights = l;
+};
 
-LightShader.prototype.activateShader = function(color,transform,vpMatrix){
-    SpriteShader.prototype.activateShader.call(this,color,transform,vpMatrix);
-    if(this.mLight==null){
-        this.mUniforms.u_lightOn = false;
-    }else{
-        this.mUniforms.u_lightOn = this.mLight.getLightStatus();
-        if(this.mUniforms.u_lightOn){
-            let p = vpMatrix.worldToPixel(this.mLight.getPosition());
-            this.mUniforms.u_lightPosition = [p[0],p[1],p[2],1];
-            this.mUniforms.u_lightRadius =  vpMatrix.sizeToPixel(this.mLight.getRadius());
-            this.mUniforms.u_lightColor =  this.mLight.getColor();
+LightShader.prototype.getLightOff = function () {
+    return { IsOn: false };
+}
+LightShader.prototype.activateShader = function (color, transform, vpMatrix) {
+    SpriteShader.prototype.activateShader.call(this, color, transform, vpMatrix);
+    let lights = [];
+    var numLight = 0;
+    if (this.mLights !== null) {
+        while (numLight < this.mLights.length) {
+            lights[numLight] = this.mLights[numLight].getShaderInfo(vpMatrix);
+            numLight++;
         }
     }
-    twgl.setUniforms(this.mCompiledShader, this.mUniforms);    
+    while (numLight < this.kGLSLuLightArraySize) {
+        lights[numLight] = this.getLightOff();
+        numLight++;
+    }
+    this.mUniforms.u_lights = lights;
+    twgl.setUniforms(this.mCompiledShader, this.mUniforms);
 }

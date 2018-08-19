@@ -1,20 +1,22 @@
 'use strict';
 let ComponetType = Object.freeze({
-    transform:'Transform',
-    renderer:'Renderer'
+    transform: 'Transform',
+    renderer: 'Renderer'
 });
 function Renderer() {
-	this.mShader = gEngine.DefaultResources.getColorShader();
+    this.mShader = gEngine.DefaultResources.getColorShader();
     this.mColor = [1.0, 1.0, 1.0, 1.0];
-    this.mParent=null;
+    this.mParent = null;
 }
-Renderer.prototype.setParent = function(parent){this.mParent  = parent };
+Renderer.prototype.setParent = function (parent) { this.mParent = parent };
 Renderer.prototype.draw = function (vpMatrix) {
-	var gl = gEngine.Core.getGL();
-	this.mShader.activateShader(this.mColor, this.mParent.transform.getMatrix(), vpMatrix);
-	twgl.drawBufferInfo(gl, gEngine.VertexBuffer.getVertexBuffer(), gl.TRIANGLE_STRIP);
+    var gl = gEngine.Core.getGL();
+    this.mShader.activateShader(this.mColor, this.mParent.transform.getMatrix(), vpMatrix);
+    twgl.drawBufferInfo(gl, gEngine.VertexBuffer.getVertexBuffer(), gl.TRIANGLE_STRIP);
 };
 Renderer.prototype.setShader = function (shader) { this.mShader = shader; };
+Renderer.prototype.getLightAt = function () { };
+Renderer.prototype.addLight = function () { };
 Renderer.prototype.setColor = function (color) { this.mColor = color; };
 Renderer.prototype.getColor = function () { return this.mColor; };
 
@@ -27,14 +29,14 @@ gEngine.Core.inheritPrototype(TextureRenderer, Renderer);
 
 TextureRenderer.prototype.draw = function (vpMatrix) {
     gEngine.Textures.activateTexture(this.mTexture);
-    Renderer.prototype.draw.call(this,vpMatrix);
+    Renderer.prototype.draw.call(this, vpMatrix);
 };
 TextureRenderer.prototype.getTexture = function () { return this.mTexture; };
 TextureRenderer.prototype.setTexture = function (texture) { this.mTexture = texture; };
 function SpriteRenderer(texture) {
     TextureRenderer.call(this, texture);
     Renderer.prototype.setShader.call(this, gEngine.DefaultResources.getSpriteShader());
-    this.mTexLeft = 0.0; 
+    this.mTexLeft = 0.0;
     this.mTexRight = 1.0;
     this.mTexTop = 0.0;
     this.mTexBottom = 1.0;
@@ -43,7 +45,7 @@ gEngine.Core.inheritPrototype(SpriteRenderer, TextureRenderer);
 
 SpriteRenderer.prototype.draw = function (vpMatrix) {
     this.setUVCoords();
-    TextureRenderer.prototype.draw.call(this,vpMatrix);
+    TextureRenderer.prototype.draw.call(this, vpMatrix);
 };
 
 SpriteRenderer.prototype.setTextureCoordUV = function (left, right, bottom, top) {
@@ -79,22 +81,27 @@ SpriteRenderer.TexCoord = Object.freeze({
     Bottom: 5
 });
 
-function LightRenderer(texture){
-    SpriteRenderer.call(this,texture);
+function LightRenderer(texture) {
+    SpriteRenderer.call(this, texture);
     Renderer.prototype.setShader.call(this,
         gEngine.DefaultResources.getLightShader()
     );
-    this.mLight = null;
+    this.mLights = [];
 }
-gEngine.Core.inheritPrototype(LightRenderer,SpriteRenderer);
+gEngine.Core.inheritPrototype(LightRenderer, SpriteRenderer);
 
-LightRenderer.prototype.draw = function(camera){
-    this.mShader.setLight(this.mLight);
-    SpriteRenderer.prototype.draw.call(this,camera);
+LightRenderer.prototype.draw = function (camera) {
+    this.mShader.setLights(this.mLights);
+    SpriteRenderer.prototype.draw.call(this, camera);
+};
+LightRenderer.prototype.getLightAt = function (index) {
+    return this.mLights[index];
+};
+LightRenderer.prototype.addLight = function (l) {
+    this.mLights.push(l);
+    console.log(this.mLights);
 };
 
-LightRenderer.prototype.getLight = function(){ return this.mLight; };
-LightRenderer.prototype.setLight = function(l){ this.mLight = l; };
 
 function Tileset(texture, data) {
     this.mTexture = texture;
@@ -118,7 +125,7 @@ Tileset.prototype.getCoords = function (id) {
     if (id > 0) {
         if (id < this.mTileCount) {
             let x = (id - 1) % this.mWidth;
-            let y = Math.floor((id - 1) / this.mWidth );
+            let y = Math.floor((id - 1) / this.mWidth);
             return [
                 (x * this.mInverseWidth) + this.mOffset,
                 ((x + 1) * this.mInverseWidth) - this.mOffset,
@@ -133,32 +140,31 @@ Tileset.prototype.getTexture = function () {
     return this.mTexture;
 };
 
-function MapLayer(data, tilesets,shader) {
+function MapLayer(data, tilesets, shader) {
     this.mShader = shader || gEngine.DefaultResources.getSpriteShader();
     this.mTilesets = tilesets;
     this.mData = data;
-	this.mBufferInfo=null;
-	this.mTint = [1,1,1,this.mData.opacity];
+    this.mBufferInfo = null;
+    this.mTint = [1, 1, 1, this.mData.opacity];
     this.mArrays = {
         position: { numComponents: 3, data: [] },
         indices: { numComponents: 3, data: [] },
         textureCoordinate: { numComponents: 2, data: [] }
     };
-    var initialX=-this.mData.width/2;
-    var initialY=this.mData.height/2;
-    for (let y = 0,realIndex=0; y <this.mData.height; y++)
-        for (let index = this.mData.width * y,x=0; x<this.mData.width; index++,x++) {
-            if (this.mData.data[index] > 0) 
-            {
+    var initialX = -this.mData.width / 2;
+    var initialY = this.mData.height / 2;
+    for (let y = 0, realIndex = 0; y < this.mData.height; y++)
+        for (let index = this.mData.width * y, x = 0; x < this.mData.width; index++ , x++) {
+            if (this.mData.data[index] > 0) {
                 this.mArrays.position.data.push(
                     initialX + x, initialY - (y + 1), 0.0,
                     initialX + x, initialY - y, 0.0,
                     initialX + (x + 1), initialY - y, 0.0,
                     initialX + (x + 1), initialY - (y + 1), 0.0);
-                
+
                 this.mArrays.indices.data.push(realIndex + 3, realIndex + 2, realIndex + 1, realIndex + 3, realIndex + 1, realIndex);
                 let coords = this.mTilesets[0].getCoords(this.mData.data[index]);
-                this.mArrays.textureCoordinate.data.push(coords[0],coords[3],coords[0],coords[2],coords[1],coords[2],coords[1],coords[3]);
+                this.mArrays.textureCoordinate.data.push(coords[0], coords[3], coords[0], coords[2], coords[1], coords[2], coords[1], coords[3]);
                 realIndex += 4;
             }
         }
@@ -166,17 +172,17 @@ function MapLayer(data, tilesets,shader) {
     this.mBufferInfo = twgl.createBufferInfoFromArrays(gl, this.mArrays);
 };
 
-MapLayer.prototype.setShader = function(s){
-	this.mShader=s;	
+MapLayer.prototype.setShader = function (s) {
+    this.mShader = s;
 };
 
-MapLayer.prototype.draw = function (transform, vpMatrix,light) {
-	let gl = gEngine.Core.getGL();
-	if(this.mShader.setLight)
-    	this.mShader.setLight(light);    
-    this.mShader.activateShader(this.mTint,transform,vpMatrix);
+MapLayer.prototype.draw = function (transform, vpMatrix, lights) {
+    let gl = gEngine.Core.getGL();
+    if (this.mShader.setLights)
+        this.mShader.setLights(lights);
+    this.mShader.activateShader(this.mTint, transform, vpMatrix);
     twgl.setBuffersAndAttributes(gl, this.mShader.getShader(), this.mBufferInfo);
-    gEngine.Textures.activateTexture(this.mTilesets[0].mTexture);    
+    gEngine.Textures.activateTexture(this.mTilesets[0].mTexture);
     twgl.drawBufferInfo(gl, this.mBufferInfo);
 };
 
@@ -186,9 +192,9 @@ function MapRenderer(filePath) {
     this.mData = [];
     this.mTilesets = [];
     this.mTransform = new Transform();
-	this.mLight = null;
-	this.mShader = gEngine.DefaultResources.getSpriteShader();
-    
+    this.mLights = [];
+    this.mShader = gEngine.DefaultResources.getSpriteShader();
+
 }
 MapRenderer.prototype.load = function () {
     gEngine.TextFileLoader.loadTextFile(this.mMapName, gEngine.TextFileLoader.TextFileType.TextFile, function (asset) {
@@ -206,7 +212,7 @@ MapRenderer.prototype.load = function () {
 MapRenderer.prototype.initialize = function () {
     if (this.mData) {
         for (let i in this.mData.layers) {
-            let layer = new MapLayer(this.mData.layers[i], this.mTilesets,this.mShader);
+            let layer = new MapLayer(this.mData.layers[i], this.mTilesets, this.mShader);
             this.mLayers.push(layer);
         }
     }
@@ -214,29 +220,33 @@ MapRenderer.prototype.initialize = function () {
 
 MapRenderer.prototype.draw = function (vpMatrix) {
     for (let index = 0; index < this.mLayers.length; index++) {
-        this.mLayers[index].draw(this.mTransform.getMatrix(), vpMatrix,this.mLight);
+        this.mLayers[index].draw(this.mTransform.getMatrix(), vpMatrix, this.mLights);
     }
 };
 
-MapRenderer.prototype.setShader =function(s){
-	for (let index = 0; index < this.mLayers.length; index++) {
+MapRenderer.prototype.setShader = function (s) {
+    for (let index = 0; index < this.mLayers.length; index++) {
         this.mLayers[index].setShader(s);
     }
 };
 
-MapRenderer.prototype.getLayer =function(l){
-	return this.mLayers[l];
+MapRenderer.prototype.getLayer = function (l) {
+    return this.mLayers[l];
 };
 
 MapRenderer.prototype.getTransform = function () { return this.mTransform; };
 
-MapRenderer.prototype.getLight = function(){ return this.mLight; };
-MapRenderer.prototype.setLight = function(l){ this.mLight = l; };
+MapRenderer.prototype.getLightAt = function (index) {
+    return this.mLights[index];
+};
+MapRenderer.prototype.addLight = function (l) {
+    this.mLights.push(l);
+};
 
 function FontRenderable(aString) {
     this.mFont = gEngine.DefaultResources.getDefaultFont();
     this.mOneChar = new GameObject();
-    this.mOneChar.setComponent(ComponetType.renderer,new SpriteRenderer(this.mFont + '.png'));
+    this.mOneChar.setComponent(ComponetType.renderer, new SpriteRenderer(this.mFont + '.png'));
     this.mOneChar.renderer.setShader(gEngine.DefaultResources.getFontShader());
     this.mTransform = new Transform();
     this.mText = aString;
@@ -254,14 +264,14 @@ FontRenderable.prototype.draw = function (vpMatrix) {
         aChar = this.mText.charCodeAt(charIndex);
         charInfo = gEngine.Fonts.getCharInfo(this.mFont, aChar);
 
-        this.mOneChar.renderer.setTextureCoordUV(charInfo.mTexCoordLeft,charInfo.mTexCoordRight,charInfo.mTexCoordBottom, charInfo.mTexCoordTop);
+        this.mOneChar.renderer.setTextureCoordUV(charInfo.mTexCoordLeft, charInfo.mTexCoordRight, charInfo.mTexCoordBottom, charInfo.mTexCoordTop);
         xSize = charWidth * charInfo.mCharWidth;
         ySize = charHeight * charInfo.mCharHeight;
         this.mOneChar.transform.setScale([xSize, ySize, 1]);
 
-        xOffset = charWidth * charInfo.mCharWidthOffset*0.5;
-        yOffset = Math.cos(rotation)*charHeight * charInfo.mCharHeightOffset * 0.5;
-        this.mOneChar.transform.setPosition([xPos - xOffset, yPos - yOffset,0]);
+        xOffset = charWidth * charInfo.mCharWidthOffset * 0.5;
+        yOffset = Math.cos(rotation) * charHeight * charInfo.mCharHeightOffset * 0.5;
+        this.mOneChar.transform.setPosition([xPos - xOffset, yPos - yOffset, 0]);
         this.mOneChar.draw(vpMatrix);
         xPos += charWidth * Math.cos(rotation);
         yPos += charWidth * Math.sin(rotation);
