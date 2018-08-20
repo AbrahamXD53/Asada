@@ -20,7 +20,7 @@ uniform Light u_lights[kGLSLuLightArraySize];
 varying vec2 texCoord;
 
 
-vec4 LightEffect(Light lgt) {
+vec3 LightEffect(Light lgt) {
     vec4 result = vec4(0);
     float atten = 0.0;
     float dist = length(lgt.Position.xyz - gl_FragCoord.xyz);
@@ -34,17 +34,17 @@ vec4 LightEffect(Light lgt) {
         }
     }
     result = atten * lgt.Intensity * lgt.Color;
-    return result;
+    return result.rgb;
 }
 
 void main(void){
-    vec4 textureMapColor = texture2D(u_texture, vec2(texCoord.xy));
+    vec4 textureMapColor = texture2D(u_texture, vec2(texCoord));
     vec4 lgtResults = u_globalAmbientColor * u_globalAmbientIntensity;
     if (textureMapColor.a > 0.0) 
     {
         for (int i=0; i<kGLSLuLightArraySize; i++) {
             if (u_lights[i].IsOn) {
-                lgtResults += LightEffect(u_lights[i]);
+                lgtResults.rgb += LightEffect(u_lights[i]);
             }
         }
     }
