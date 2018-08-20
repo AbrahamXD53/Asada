@@ -45,6 +45,7 @@ gEngine.Core = (function () {
 		gEngine.VertexBuffer.initialize();
 		gEngine.Input.initialize();
 		gEngine.Audio.initialize();
+		gEngine.Physics.initialize();
 
 		myGame.loadScene.call(myGame);
 
@@ -151,9 +152,9 @@ gEngine.GameLoop = (function () {
 
 			while ((mLagTime >= kMPF) && mIsLoopRunning) {
 				if (mIsFocused) {
-
+					gEngine.Physics.update(mElapsedTime/100);
 					gEngine.Input.update();
-					this.update();
+					this.update(mElapsedTime/100);
 				}
 				mLagTime -= kMPF;
 			}
@@ -186,8 +187,8 @@ gEngine.GameLoop = (function () {
 		gEngine.ResourceMap.setLoadCompleteCallback(function () {
 			mCurrentScene.initialize();
 
-			window.addEventListener('focus', onFocus);
-			window.addEventListener('blur', onBlur);
+			// window.addEventListener('focus', onFocus);
+			// window.addEventListener('blur', onBlur);
 			startLoop();
 		});
 
@@ -197,8 +198,8 @@ gEngine.GameLoop = (function () {
 	var stop = function () {
 		mIsLoopRunning = false;
 
-		window.removeEventListener('focus');
-		window.removeEventListener('blur');
+		// window.removeEventListener('focus');
+		// window.removeEventListener('blur');
 	}
 
 	var mPublic = {
@@ -641,19 +642,19 @@ gEngine.DefaultResources = (function () {
 	var getSpriteShader = function () { return mSpriteShader; };
 	var getFontShader = function () { return mFontShader; };
 	var getDefaultFont = function () { return kDefaultFont; };
-	var getLightShader =  function(){return mLightShader; };
+	var getLightShader = function () { return mLightShader; };
 	var getGlobalAmbientColor = function () { return mGlobalAmbientColor; };
 	var getGlobalAmbientIntensity = function () { return mGlobalAmbientIntensity; };
-	
+
 	var setGlobalAmbientIntensity = function (v) { mGlobalAmbientIntensity = v; };
-	var setGlobalAmbientColor = function (v) {	mGlobalAmbientColor = [v[0], v[1], v[2], v[3]];	};
+	var setGlobalAmbientColor = function (v) { mGlobalAmbientColor = [v[0], v[1], v[2], v[3]]; };
 
 	var createShaders = function (callbackFunction) {
 		mColorShader = new SimpleShader(kSimpleVS, kSimpleFS);
 		mTextureShader = new TextureShader(kTextureVS, kTextureFS);
 		mSpriteShader = new SpriteShader(kPixelSnapVS, kTextureFS);
 		mFontShader = new SpriteShader(kTextureVS, kFontFS);
-		mLightShader = new LightShader(kPixelSnapVS,kLightFS);
+		mLightShader = new LightShader(kPixelSnapVS, kLightFS);
 		callbackFunction();
 	};
 
@@ -702,7 +703,7 @@ gEngine.DefaultResources = (function () {
 		setGlobalAmbientColor: setGlobalAmbientColor,
 		getGlobalAmbientIntensity: getGlobalAmbientIntensity,
 		setGlobalAmbientIntensity: setGlobalAmbientIntensity,
-		getLightShader:getLightShader
+		getLightShader: getLightShader
 	};
 	return mPublic;
 }());
@@ -970,5 +971,38 @@ gEngine.Fonts = (function () {
 		unloadFont: unloadFont,
 		getCharInfo: getCharInfo
 	};
+	return mPublic;
+}());
+
+gEngine.Physics = (function () {
+	var engine = null;
+
+	var initialize = function(){
+		engine = Matter.Engine.create();
+		engine.world.gravity={scale:1,x:0,y:-1};
+	};
+	var getEngine = function(){
+		return engine;
+	};
+	var getWorld = function(){
+		return engine.world;
+	};
+
+	var update = function(delta=1){
+		Matter.Engine.update(engine,delta);
+	};
+
+	var cleanUp = function(){
+
+	};
+
+	var mPublic = {
+		initialize:initialize,
+		update:update,
+		getEngine:getEngine,
+		getWorld:getWorld,
+		cleanUp:cleanUp
+	};
+
 	return mPublic;
 }());

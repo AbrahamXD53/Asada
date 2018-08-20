@@ -33,34 +33,51 @@ SimpleGame.prototype.initialize = function () {
     this.mTheLight = new Light();
     this.mTheLight.setPositionZ(2);
     this.mTheLight.setPositionX(0);
+    this.mTheLight.setNear(6);
+    this.mTheLight.setFar(7);
     this.mTheLight.setPositionY(5);  // Position above LMinion
-    this.mTheLight.setColor([0.6, 0.6, 0.6, 1]);
+    this.mTheLight.setColor([0, 0, 1, 1]);
 
     this.mTheLight2 = new Light();
     this.mTheLight2.setPositionZ(2);
     this.mTheLight2.setPositionX(-10);
-    this.mTheLight2.setPositionY(5);  // Position above LMinion
-    this.mTheLight2.setColor([0.0, 0.0, 0.9, 1]);
+    this.mTheLight2.setPositionY(-1);  // Position above LMinion
+    this.mTheLight2.setNear(8);
+    this.mTheLight2.setFar(10);
+    this.mTheLight2.setColor([1.0, 0.0, 0, 1]);
 
+    this.mTheLight3 = new Light();
+    this.mTheLight3.setPositionZ(2);
+    this.mTheLight3.setPositionX(0);
+    this.mTheLight3.setPositionY(-5);  // Position above LMinion
+    this.mTheLight3.setNear(8);
+    this.mTheLight3.setFar(10);
+    this.mTheLight3.setColor([0.0, 1.0, 0, 1]);
 
     this.square = new GameObject();
 
     this.square.transform.setRotation(Math.PI / 4);
     this.square.getComponent(ComponetType.transform).setScale([2,2,2]);
-    this.square.getComponent(ComponetType.transform).setPosition(twgl.v3.create(0, 0));
+    this.square.getComponent(ComponetType.transform).setPosition(twgl.v3.create(-5, 0));
 
     this.square.getComponent(ComponetType.renderer).setColor([1, 1, 0, 1]);
+    this.square.addComponent(new Physics());
+    this.square.getAllComponents();
 
     this.squareBlue = new GameObject();
-    this.squareBlue.transform.setRotation(Math.PI / 4);
-    this.squareBlue.transform.setPosition(twgl.v3.create(0, 1));
+    //this.squareBlue.transform.setRotation(Math.PI / 4);
+    this.squareBlue.getComponent(ComponetType.transform).setScale([1,2,2]);
+    
+    this.squareBlue.transform.setPosition(twgl.v3.create(-5.5, 2.5));
 
-    this.squareBlue.renderer.setColor([0, 0, 1, 1]);
+    this.squareBlue.renderer.setColor([1, 1, 1, 1]);
+    this.squareBlue.addComponent(new Physics());
 
     this.squareFloor = new GameObject();
-    this.squareFloor.transform.setPosition(twgl.v3.create(0, 5, 0));
+    this.squareFloor.transform.setPosition(twgl.v3.create(-7, -5, 0));
     this.squareFloor.transform.setScale([8, 1, 1]);
     this.squareFloor.renderer.setColor([1, 0, 0, 1]);
+    this.squareFloor.addComponent(new Physics({isStatic:true}));
 
     this.mCollector = new GameObject();
     this.mCollector.setComponent('Renderer',new LightRenderer(this.kMinion));
@@ -75,12 +92,12 @@ SimpleGame.prototype.initialize = function () {
         transitions: [
         ]
     }));
-    this.mCollector.renderer.setColor([1, 1, 0, 1]);
     this.mCollector.transform.setPosition([9, 0, 0]);
     this.mCollector.transform.setScale([4, 4, 1]);
 
     this.mCollector.renderer.addLight(this.mTheLight);
     this.mCollector.renderer.addLight(this.mTheLight2);
+    this.mCollector.renderer.addLight(this.mTheLight3);
    
 
     this.mCollector2 = new GameObject();
@@ -112,6 +129,7 @@ SimpleGame.prototype.initialize = function () {
     this.mCollector2.transform.setScale([8, 8, 1]);
     this.mCollector2.renderer.addLight(this.mTheLight);
     this.mCollector2.renderer.addLight(this.mTheLight2);
+    this.mCollector2.renderer.addLight(this.mTheLight3);
 
     this.mTextSysFont = new FontRenderable("System Font: in Red");
     this.mTextSysFont.setColor([1, 0, 0, 1]);
@@ -126,9 +144,10 @@ SimpleGame.prototype.initialize = function () {
     this.mMap.setShader(gEngine.DefaultResources.getLightShader());
     this.mMap.addLight(this.mTheLight);
     this.mMap.addLight(this.mTheLight2);
+    this.mMap.addLight(this.mTheLight3);
 };
 var aux = 0;
-SimpleGame.prototype.update = function () 
+SimpleGame.prototype.update = function (delta=1) 
 {
 
     aux+=1;
@@ -177,16 +196,19 @@ SimpleGame.prototype.update = function ()
     if (gEngine.Input.isKeyClicked(gEngine.Input.keyCodes.G)) {
         this.camera2.shake(-2, -2, 20, 30);
     }
-    this.mCollector2.update(20);
-    this.mCollector.update();
+    this.mCollector2.update(delta);
+    this.mCollector.update(delta);
     //this.mMap.getTransform().scale([Math.cos(aux/200)*.01,Math.cos(aux/200)*.01,0]);
     this.camera.update();
     this.camera2.update();
+    this.squareFloor.update(delta);
+    this.square.update(delta);
+    this.squareBlue.update(delta);
 };
 SimpleGame.prototype.draw = function () 
 {
     this.camera.refreshViewport();
-    this.camera2.refreshViewport();
+    //this.camera2.refreshViewport();
     this.camera.setupViewProjection();
     this.mMap.draw(this.camera);
     this.squareBlue.draw(this.camera);
@@ -195,13 +217,13 @@ SimpleGame.prototype.draw = function ()
     this.mCollector2.draw(this.camera);
     this.mCollector.draw(this.camera);
     this.mTextSysFont.draw(this.camera);
-    this.camera2.setupViewProjection();
-    this.mMap.draw(this.camera2);
+    //this.camera2.setupViewProjection();
+    //this.mMap.draw(this.camera2);
     // this.squareBlue.draw(this.camera2);
     // this.squareFloor.draw(this.camera2);
     // this.square.draw(this.camera2);
-    this.mCollector.draw(this.camera2);
-    this.mCollector2.draw(this.camera2);
+    //this.mCollector.draw(this.camera2);
+    //this.mCollector2.draw(this.camera2);
     // this.mTextSysFont.draw(this.camera2);
 };
 

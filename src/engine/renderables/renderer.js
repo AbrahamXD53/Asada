@@ -99,7 +99,6 @@ LightRenderer.prototype.getLightAt = function (index) {
 };
 LightRenderer.prototype.addLight = function (l) {
     this.mLights.push(l);
-    console.log(this.mLights);
 };
 
 function Tileset(texture, data) {
@@ -240,6 +239,10 @@ MapRenderer.prototype.getLightAt = function (index) {
 };
 MapRenderer.prototype.addLight = function (l) {
     this.mLights.push(l);
+};
+
+MapRenderer.prototype.cleanUp= function(){
+    //TODO: clear buffers
 };
 
 function FontRenderable(aString) {
