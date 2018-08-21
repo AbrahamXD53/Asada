@@ -152,9 +152,9 @@ gEngine.GameLoop = (function () {
 
 			while ((mLagTime >= kMPF) && mIsLoopRunning) {
 				if (mIsFocused) {
-					gEngine.Physics.update(mElapsedTime/100);
+					gEngine.Physics.update(kMPF/100);
 					gEngine.Input.update();
-					this.update(mElapsedTime/100);
+					this.update(kMPF/100);
 				}
 				mLagTime -= kMPF;
 			}
@@ -187,8 +187,8 @@ gEngine.GameLoop = (function () {
 		gEngine.ResourceMap.setLoadCompleteCallback(function () {
 			mCurrentScene.initialize();
 
-			// window.addEventListener('focus', onFocus);
-			// window.addEventListener('blur', onBlur);
+			window.addEventListener('focus', onFocus);
+			window.addEventListener('blur', onBlur);
 			startLoop();
 		});
 
@@ -198,8 +198,8 @@ gEngine.GameLoop = (function () {
 	var stop = function () {
 		mIsLoopRunning = false;
 
-		// window.removeEventListener('focus');
-		// window.removeEventListener('blur');
+		window.removeEventListener('focus');
+		window.removeEventListener('blur');
 	}
 
 	var mPublic = {
@@ -322,7 +322,6 @@ gEngine.Input = (function () {
 	var activeTouches = 0;
 
 	var onTouchStart = function (event) {
-		console.log('touch start');
 		event.preventDefault();
 
 		var touches = event.changedTouches;
@@ -977,10 +976,28 @@ gEngine.Fonts = (function () {
 gEngine.Physics = (function () {
 	var engine = null;
 
+	
+
+	var onCollisionStart=function(event){
+		console.log(event);
+	};
+
+	var onCollisionActive=function(event){
+		
+	};
+
+	var onCollisionEnd=function(event){
+		
+	};
+
 	var initialize = function(){
 		engine = Matter.Engine.create();
-		engine.world.gravity={scale:1,x:0,y:-1};
+		engine.world.gravity.scale=-1;
+		Matter.Events.on(engine,'collisionStart',onCollisionStart);
+		Matter.Events.on(engine,'collisionEnd',onCollisionEnd);
+		Matter.Events.on(engine,'collisionActive',onCollisionActive);
 	};
+
 	var getEngine = function(){
 		return engine;
 	};
@@ -991,6 +1008,7 @@ gEngine.Physics = (function () {
 	var update = function(delta=1){
 		Matter.Engine.update(engine,delta);
 	};
+
 
 	var cleanUp = function(){
 

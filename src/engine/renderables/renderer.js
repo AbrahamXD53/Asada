@@ -1,8 +1,4 @@
 'use strict';
-let ComponetType = Object.freeze({
-    transform: 'Transform',
-    renderer: 'Renderer'
-});
 function Renderer() {
     this.mShader = gEngine.DefaultResources.getColorShader();
     this.mColor = [1.0, 1.0, 1.0, 1.0];

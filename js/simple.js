@@ -34,7 +34,7 @@ SimpleGame.prototype.initialize = function () {
     this.mTheLight.setPositionZ(2);
     this.mTheLight.setPositionX(0);
     this.mTheLight.setNear(8);
-    this.mTheLight.setFar(8);
+    this.mTheLight.setFar(9);
     this.mTheLight.setPositionY(5);  // Position above LMinion
     this.mTheLight.setColor([0, 0, 1, 1]);
 
@@ -43,7 +43,7 @@ SimpleGame.prototype.initialize = function () {
     this.mTheLight2.setPositionX(-10);
     this.mTheLight2.setPositionY(-1);  // Position above LMinion
     this.mTheLight2.setNear(8);
-    this.mTheLight2.setFar(8);
+    this.mTheLight2.setFar(9);
     this.mTheLight2.setColor([1.0, 0.0, 0, 1]);
 
     this.mTheLight3 = new Light();
@@ -51,27 +51,30 @@ SimpleGame.prototype.initialize = function () {
     this.mTheLight3.setPositionX(0);
     this.mTheLight3.setPositionY(-5);  // Position above LMinion
     this.mTheLight3.setNear(8);
-    this.mTheLight3.setFar(8);
+    this.mTheLight3.setFar(9);
     this.mTheLight3.setColor([0.0, 1.0, 0, 1]);
 
     this.square = new GameObject();
 
-    this.square.transform.setRotation(Math.PI / 4);
+    //this.square.transform.setRotation(Math.PI / 4);
     this.square.getComponent(ComponetType.transform).setScale([2,2,2]);
     this.square.getComponent(ComponetType.transform).setPosition(twgl.v3.create(-5, 0));
+    this.square.setComponent('Renderer',new LightRenderer(this.kCollector));
+    this.square.transform.setRotationDeg(45);
 
     this.square.getComponent(ComponetType.renderer).setColor([1, 1, 0, 1]);
     this.square.addComponent(new Physics());
     this.square.getAllComponents();
 
     this.squareBlue = new GameObject();
-    //this.squareBlue.transform.setRotation(Math.PI / 4);
     this.squareBlue.getComponent(ComponetType.transform).setScale([1,2,2]);
     
-    this.squareBlue.transform.setPosition(twgl.v3.create(-5.5, 2.5));
+    this.squareBlue.transform.setPosition(twgl.v3.create(-5.9, 2.5));
+    this.squareBlue.transform.setRotationDeg(45);
 
     this.squareBlue.renderer.setColor([1, 1, 1, 1]);
     this.squareBlue.addComponent(new Physics());
+    //this.squareBlue.physics.getBody().angle = 1.57/2.0;
 
     this.squareFloor = new GameObject();
     this.squareFloor.transform.setPosition(twgl.v3.create(-7, -5, 0));
@@ -204,6 +207,8 @@ SimpleGame.prototype.update = function (delta=1)
     this.squareFloor.update(delta);
     this.square.update(delta);
     this.squareBlue.update(delta);
+
+    //console.log(this.squareBlue.physics.getBody().angle);
 };
 SimpleGame.prototype.draw = function () 
 {
