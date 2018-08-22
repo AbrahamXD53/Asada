@@ -120,14 +120,14 @@ function AnimationController(description) {
 AnimationController.prototype.update = function (delta) {
     if (this.mTransitions[this.mCurrentAnimation]) {
         let transitions = this.mTransitions[this.mCurrentAnimation];
-        for (let or = 0, valid = true; or < transitions.length; or++) {
+        for (let or = 0,transLen=transitions.length, valid = true; or < transLen; or++) {
             if (!transitions[or].mConditions) {
                 if (this.mAnimations[this.mCurrentAnimation].mState != AnimationState.Ended) {
                     valid = false;
                     break;
                 }
             } else {
-                for (let and = 0; and < transitions[or].mConditions.length; and++) 
+                for (let and = 0,condLen=transitions[or].mConditions.length; and < condLen; and++) 
                 {
                     if(this.mParams[transitions[or].mConditions[and].mName]==undefined){
                         console.warn('No animation param called ' + transitions[or].mConditions[and].mName);

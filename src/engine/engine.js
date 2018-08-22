@@ -152,9 +152,9 @@ gEngine.GameLoop = (function () {
 
 			while ((mLagTime >= kMPF) && mIsLoopRunning) {
 				if (mIsFocused) {
-					gEngine.Physics.update(kMPF/100);
+					gEngine.Physics.update(kMPF / 100);
 					gEngine.Input.update();
-					this.update(kMPF/100);
+					this.update(kMPF / 100);
 				}
 				mLagTime -= kMPF;
 			}
@@ -627,7 +627,7 @@ gEngine.DefaultResources = (function () {
 
 	var kDefaultFont = "assets/fonts/system-default-font";
 
-	var mGlobalAmbientColor = [0.1, 0.1, 0.1, 1];
+	var mGlobalAmbientColor = [0.7, 0.7, 0.7, 1];
 	var mGlobalAmbientIntensity = 1;
 
 	var mTextureShader = null;
@@ -976,50 +976,47 @@ gEngine.Fonts = (function () {
 gEngine.Physics = (function () {
 	var engine = null;
 
-	
 
-	var onCollisionStart=function(event){
+	var onCollisionStart = function (event) {
 		console.log(event);
 	};
 
-	var onCollisionActive=function(event){
-		
+	var onCollisionActive = function (event) {
+
 	};
 
-	var onCollisionEnd=function(event){
-		
+	var onCollisionEnd = function (event) {
+
 	};
 
-	var initialize = function(){
+	var initialize = function () {
+		Matter.use('matter-collision-events');
 		engine = Matter.Engine.create();
-		engine.world.gravity.scale=-1;
-		Matter.Events.on(engine,'collisionStart',onCollisionStart);
-		Matter.Events.on(engine,'collisionEnd',onCollisionEnd);
-		Matter.Events.on(engine,'collisionActive',onCollisionActive);
+		engine.world.gravity.scale = -1;
 	};
 
-	var getEngine = function(){
+	var getEngine = function () {
 		return engine;
 	};
-	var getWorld = function(){
+	var getWorld = function () {
 		return engine.world;
 	};
 
-	var update = function(delta=1){
-		Matter.Engine.update(engine,delta);
+	var update = function (delta = 1) {
+		Matter.Engine.update(engine, delta);
 	};
 
 
-	var cleanUp = function(){
+	var cleanUp = function () {
 
 	};
 
 	var mPublic = {
-		initialize:initialize,
-		update:update,
-		getEngine:getEngine,
-		getWorld:getWorld,
-		cleanUp:cleanUp
+		initialize: initialize,
+		update: update,
+		getEngine: getEngine,
+		getWorld: getWorld,
+		cleanUp: cleanUp
 	};
 
 	return mPublic;

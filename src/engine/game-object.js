@@ -51,6 +51,13 @@ GameObject.prototype.setComponent = function (componentType, value) {
     }
 };
 
+GameObject.prototype.onCollisionStart=function(event){
+    this.renderer.setColor([1,0,0,1]);
+};
+GameObject.prototype.onCollisionEnd=function(event){
+    this.renderer.setColor([1,1,1,1]);
+};
+
 
 function Physics(options) {
     this.mBody = null;
@@ -66,6 +73,8 @@ Physics.prototype.setParent = function (p) {
     Matter.Body.rotate(this.mBody,transform.getRotation(),{x:0.0,y:0.0});
     Matter.Body.setPosition(this.mBody,{x:transform.getPositionX(),y:transform.getPositionY()});
     this.mBody.render=this.mParent.renderer;
+    this.mBody.onCollide(this.mParent.onCollisionStart.bind(this.mParent));
+    this.mBody.onCollideEnd(this.mParent.onCollisionEnd.bind(this.mParent));
     Matter.World.add(gEngine.Physics.getWorld(), this.mBody);
 };
 Physics.prototype.getBody=function(){ return this.mBody; };

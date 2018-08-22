@@ -15,9 +15,24 @@ function SimpleGame() {
 
     this.mTheLight = null;
     
+    this.mFullScreenBtn = document.getElementById('full-screen');
+    this.mFullScreenBtn.addEventListener('click',this.fullScreen,false);
 }
 gEngine.Core.inheritPrototype(SimpleGame, Scene);
 
+SimpleGame.prototype.fullScreen=function()
+{
+    var elem=gEngine.Core.getGL().canvas;
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.mozRequestFullScreen) { /* Firefox */
+        elem.mozRequestFullScreen();
+      } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) { /* IE/Edge */
+        elem.msRequestFullscreen();
+      }
+};
 SimpleGame.prototype.loadScene = function () {
     gEngine.Audio.loadAudio(this.kBgClip);
     gEngine.Textures.loadTexture(this.kCollector);
