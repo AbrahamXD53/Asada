@@ -145,8 +145,10 @@ function MapLayer(data, tilesets, shader) {
         indices: { numComponents: 3, data: [] },
         textureCoordinate: { numComponents: 2, data: [] }
     };
-    var initialX = -this.mData.width / 2;
-    var initialY = this.mData.height / 2;
+    var initialX = 0.5-this.mData.width / 2;
+    initialX = -0.5;
+    var initialY = this.mData.height-0.5;
+    //initialY = 0;
     for (let y = 0, realIndex = 0; y < this.mData.height; y++)
         for (let index = this.mData.width * y, x = 0; x < this.mData.width; index++ , x++) {
             if (this.mData.data[index] > 0) {
@@ -188,6 +190,7 @@ function MapRenderer(filePath) {
     this.mTransform = new Transform();
     this.mLights = [];
     this.mShader = gEngine.DefaultResources.getSpriteShader();
+    this.mComposites = [];
 
 }
 MapRenderer.prototype.load = function () {
@@ -202,12 +205,24 @@ MapRenderer.prototype.load = function () {
         }
     }.bind(this));
 };
-
+MapRenderer.prototype.createBody=function(data){
+    let world=gEngine.Physics.getWorld();
+    for(let i in data.objects){
+        let body = Matter.Bodies.rectangle(7,12.5,10,1,{isStatic:true});
+        console.log(body);
+        Matter.World.add(world,body);
+    }
+};
 MapRenderer.prototype.initialize = function () {
     if (this.mData) {
         for (let i in this.mData.layers) {
-            let layer = new MapLayer(this.mData.layers[i], this.mTilesets, this.mShader);
-            this.mLayers.push(layer);
+            if(this.mData.layers[i].data){
+                let layer = new MapLayer(this.mData.layers[i], this.mTilesets, this.mShader);
+                this.mLayers.push(layer);
+            }
+            else{
+                this.createBody(this.mData.layers[i]);
+            }
         }
     }
 };

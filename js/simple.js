@@ -72,10 +72,10 @@ SimpleGame.prototype.initialize = function () {
     this.square = new GameObject();
 
     //this.square.transform.setRotation(Math.PI / 4);
-    this.square.getComponent(ComponetType.transform).setScale([2,2,2]);
-    this.square.getComponent(ComponetType.transform).setPosition(twgl.v3.create(-5, 0));
+    this.square.getComponent(ComponetType.transform).setScale([1,1,1]);
+    this.square.getComponent(ComponetType.transform).setPosition(twgl.v3.create(2.2, 16));
     this.square.setComponent('Renderer',new LightRenderer(this.kCollector));
-    this.square.transform.setRotationDeg(45);
+    // this.square.transform.setRotationDeg(45);
 
     this.square.getComponent(ComponetType.renderer).setColor([1, 1, 0, 1]);
     this.square.addComponent(new Physics());
@@ -84,11 +84,11 @@ SimpleGame.prototype.initialize = function () {
     this.squareBlue = new GameObject();
     this.squareBlue.getComponent(ComponetType.transform).setScale([1,2,2]);
     
-    this.squareBlue.transform.setPosition(twgl.v3.create(-5.9, 2.5));
+    this.squareBlue.transform.setPosition(twgl.v3.create(-5.9, 25.5));
     this.squareBlue.transform.setRotationDeg(45);
 
     this.squareBlue.renderer.setColor([1, 1, 1, 1]);
-    this.squareBlue.addComponent(new Physics());
+    this.squareBlue.addComponent(new Physics({inertia:Infinity}));
     //this.squareBlue.physics.getBody().angle = 1.57/2.0;
 
     this.squareFloor = new GameObject();
@@ -110,8 +110,8 @@ SimpleGame.prototype.initialize = function () {
         transitions: [
         ]
     }));
-    this.mCollector.transform.setPosition([9, 0, 0]);
-    this.mCollector.transform.setScale([4, 4, 1]);
+    this.mCollector.transform.setPosition([0, 0, 0]);
+    this.mCollector.transform.setScale([1, 1, 1]);
 
     this.mCollector.renderer.addLight(this.mTheLight);
     this.mCollector.renderer.addLight(this.mTheLight2);
@@ -143,8 +143,8 @@ SimpleGame.prototype.initialize = function () {
         ]
     }));
     this.mCollector2.renderer.setColor([1, 1, 1, 1]);
-    this.mCollector2.transform.setPosition([5, 0, 0]);
-    this.mCollector2.transform.setScale([8, 8, 1]);
+    this.mCollector2.transform.setPosition([2, 13, 0]);
+    this.mCollector2.transform.setScale([1, 1, 1]);
     this.mCollector2.renderer.addLight(this.mTheLight);
     this.mCollector2.renderer.addLight(this.mTheLight2);
     this.mCollector2.renderer.addLight(this.mTheLight3);
@@ -157,8 +157,8 @@ SimpleGame.prototype.initialize = function () {
     gEngine.Audio.playBackgroundAudio(this.kBgClip);
 
     this.mMap.initialize();
-    this.mMap.getTransform().setPosition([0, 0, 0]);
-    this.mMap.getTransform().setScale([0.8, 0.8, 1]);
+    //this.mMap.getTransform().setPosition([0, 0, 0]);
+    //this.mMap.getTransform().setScale([1, 1, 1]);
     this.mMap.setShader(gEngine.DefaultResources.getLightShader());
     this.mMap.addLight(this.mTheLight);
     this.mMap.addLight(this.mTheLight2);
