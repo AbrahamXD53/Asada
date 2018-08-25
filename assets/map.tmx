@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.5" orientation="orthogonal" renderorder="right-down" width="50" height="30" tilewidth="8" tileheight="8" infinite="0" nextobjectid="9">
+<map version="1.0" tiledversion="1.1.5" orientation="orthogonal" renderorder="right-down" width="50" height="30" tilewidth="8" tileheight="8" infinite="0" nextobjectid="40">
  <tileset firstgid="1" name="sprites" tilewidth="8" tileheight="8" tilecount="64" columns="8">
   <image source="sprites.png" width="64" height="64"/>
  </tileset>
@@ -140,11 +140,21 @@
 </data>
  </layer>
  <objectgroup name="Object Layer 1">
-  <object id="7" x="16" y="136">
-   <polyline points="0,0 136,0 128,8 8,8 0,0"/>
-  </object>
-  <object id="8" x="0" y="0">
-   <polyline points="0,0 8,0 8,8 0,8"/>
-  </object>
+  <object id="10" x="16" y="136" width="136" height="2"/>
+  <object id="11" x="64" y="112" width="24" height="2.04348"/>
+  <object id="12" x="40" y="88" width="24" height="2.125"/>
+  <object id="13" x="88" y="56" width="24" height="1.875"/>
+  <object id="26" x="128" y="56" width="8" height="1.96307"/>
+  <object id="28" x="152" y="56" width="8" height="2"/>
+  <object id="29" x="176" y="56" width="8" height="1.96875"/>
+  <object id="30" x="200" y="56" width="8" height="2.03125"/>
+  <object id="31" x="224" y="56" width="8" height="2"/>
+  <object id="32" x="248" y="56" width="8" height="2.0625"/>
+  <object id="33" x="272" y="56" width="8" height="1.96875"/>
+  <object id="34" x="272" y="120" width="24" height="1.81818"/>
+  <object id="35" x="304" y="144" width="24" height="2"/>
+  <object id="36" x="336" y="88" width="48" height="1.875"/>
+  <object id="37" x="304" y="56" width="24" height="2"/>
+  <object id="39" x="176" y="160" width="112" height="2.125"/>
  </objectgroup>
 </map>

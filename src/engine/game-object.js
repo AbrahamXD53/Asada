@@ -52,23 +52,23 @@ GameObject.prototype.setComponent = function (componentType, value) {
 };
 
 GameObject.prototype.onCollisionStart=function(event){
-    this.renderer.setColor([1,0,0,1]);
+    // this.renderer.setColor([1,0,0,1]);
 };
 GameObject.prototype.onCollisionEnd=function(event){
-    this.renderer.setColor([1,1,1,1]);
+    // this.renderer.setColor([1,1,1,1]);
 };
 
 
 function Physics(options) {
     this.mBody = null;
     this.mParent = null;
-    this.mOptions = options || {};
+    this.mOptions = options || {inertia:Infinity};
 };
 
 Physics.prototype.setParent = function (p) {
     this.mParent = p;
     let transform = this.mParent.transform;    
-    this.mBody = Matter.Bodies.rectangle(0, 0, 1,1, this.mOptions);
+    this.mBody = Matter.Bodies.rectangle(0, 0, 0.95,0.95, this.mOptions);
     Matter.Body.scale(this.mBody,transform.getScaleX(),transform.getScaleY(),{x:0,y:0});
     Matter.Body.rotate(this.mBody,transform.getRotation(),{x:0.0,y:0.0});
     Matter.Body.setPosition(this.mBody,{x:transform.getPositionX(),y:transform.getPositionY()});
@@ -82,4 +82,8 @@ Physics.prototype.update = function (delta) {
     this.mParent.transform.setPositionX(this.mBody.position.x);
     this.mParent.transform.setPositionY(this.mBody.position.y);
     this.mParent.transform.setRotation(this.mBody.angle);
+};
+Physics.prototype.applyForce=function(delta)
+{
+    Matter.Body.applyForce(this.mBody,{x:this.mParent.transform.getPositionX(),y:this.mParent.transform.getPositionY()},delta);        
 };

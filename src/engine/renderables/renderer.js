@@ -145,9 +145,9 @@ function MapLayer(data, tilesets, shader) {
         indices: { numComponents: 3, data: [] },
         textureCoordinate: { numComponents: 2, data: [] }
     };
-    var initialX = 0.5-this.mData.width / 2;
-    initialX = -0.5;
-    var initialY = this.mData.height-0.5;
+    let initialX = -(this.mData.width*.5);
+    //initialX = 0;
+    let initialY = this.mData.height*0.5;
     //initialY = 0;
     for (let y = 0, realIndex = 0; y < this.mData.height; y++)
         for (let index = this.mData.width * y, x = 0; x < this.mData.width; index++ , x++) {
@@ -207,11 +207,16 @@ MapRenderer.prototype.load = function () {
 };
 MapRenderer.prototype.createBody=function(data){
     let world=gEngine.Physics.getWorld();
+    let initialX = -this.mData.width *0.5;
+    let initialY = this.mData.height *0.5;
+    let composite = Matter.Composite.create();
     for(let i in data.objects){
-        let body = Matter.Bodies.rectangle(7,12.5,10,1,{isStatic:true});
-        console.log(body);
-        Matter.World.add(world,body);
+        let w=data.objects[i].width/this.mData.tilewidth,h=data.objects[i].height/this.mData.tileheight;
+        let x=(data.objects[i].x/this.mData.tilewidth)+(w*0.5),y=(this.mData.height-(data.objects[i].y/this.mData.tileheight))-(h*0.5);
+        Matter.Composite.add(composite,Matter.Bodies.rectangle(x,y,w,h,{isStatic:true}));
     }
+    Matter.Composite.translate(composite,{x:initialX,y:-initialY});    
+    Matter.World.add(world,composite);
 };
 MapRenderer.prototype.initialize = function () {
     if (this.mData) {

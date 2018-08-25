@@ -1,6 +1,6 @@
 'use strict';
 function SimpleGame() {
-    
+
     this.square = null;
     this.squareBlue = null;
     this.squareFloor = null;
@@ -14,24 +14,23 @@ function SimpleGame() {
     this.mTouchPos = document.getElementById('touch-position');
 
     this.mTheLight = null;
-    
+
     this.mFullScreenBtn = document.getElementById('full-screen');
-    this.mFullScreenBtn.addEventListener('click',this.fullScreen,false);
+    this.mFullScreenBtn.addEventListener('click', this.fullScreen, false);
 }
 gEngine.Core.inheritPrototype(SimpleGame, Scene);
 
-SimpleGame.prototype.fullScreen=function()
-{
-    var elem=gEngine.Core.getGL().canvas;
+SimpleGame.prototype.fullScreen = function () {
+    var elem = gEngine.Core.getGL().canvas;
     if (elem.requestFullscreen) {
         elem.requestFullscreen();
-      } else if (elem.mozRequestFullScreen) { /* Firefox */
+    } else if (elem.mozRequestFullScreen) { /* Firefox */
         elem.mozRequestFullScreen();
-      } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+    } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
         elem.webkitRequestFullscreen();
-      } else if (elem.msRequestFullscreen) { /* IE/Edge */
+    } else if (elem.msRequestFullscreen) { /* IE/Edge */
         elem.msRequestFullscreen();
-      }
+    }
 };
 SimpleGame.prototype.loadScene = function () {
     gEngine.Audio.loadAudio(this.kBgClip);
@@ -72,38 +71,40 @@ SimpleGame.prototype.initialize = function () {
     this.square = new GameObject();
 
     //this.square.transform.setRotation(Math.PI / 4);
-    this.square.getComponent(ComponetType.transform).setScale([1,1,1]);
-    this.square.getComponent(ComponetType.transform).setPosition(twgl.v3.create(2.2, 16));
-    this.square.setComponent('Renderer',new LightRenderer(this.kCollector));
+    this.square.getComponent(ComponetType.transform).setScale([2, 2, 1]);
+    this.square.getComponent(ComponetType.transform).setPosition(twgl.v3.create(2.3, 16));
+    this.square.setComponent('Renderer', new LightRenderer(this.kCollector));
     // this.square.transform.setRotationDeg(45);
 
-    this.square.getComponent(ComponetType.renderer).setColor([1, 1, 0, 1]);
-    this.square.addComponent(new Physics());
+    // this.square.getComponent(ComponetType.renderer).setColor([1, 1, 1, 1]);
+    this.square.addComponent(new Physics({ density: 1, frictionStatic: 0.1, frictionAir: 0.1, inertia: Infinity }));
+    Matter.Body.setInertia(this.square.physics.getBody(), Infinity);
     this.square.getAllComponents();
 
     this.squareBlue = new GameObject();
-    this.squareBlue.getComponent(ComponetType.transform).setScale([1,2,2]);
-    
+    this.squareBlue.getComponent(ComponetType.transform).setScale([1, 2, 2]);
+
     this.squareBlue.transform.setPosition(twgl.v3.create(-5.9, 25.5));
     this.squareBlue.transform.setRotationDeg(45);
 
     this.squareBlue.renderer.setColor([1, 1, 1, 1]);
-    this.squareBlue.addComponent(new Physics({inertia:Infinity}));
+    this.squareBlue.addComponent(new Physics({density:1}));
+    this.squareBlue.getAllComponents();
     //this.squareBlue.physics.getBody().angle = 1.57/2.0;
 
     this.squareFloor = new GameObject();
     this.squareFloor.transform.setPosition(twgl.v3.create(-7, -5, 0));
     this.squareFloor.transform.setScale([8, 1, 1]);
     this.squareFloor.renderer.setColor([1, 0, 0, 1]);
-    this.squareFloor.addComponent(new Physics({isStatic:true}));
+    this.squareFloor.addComponent(new Physics({ isStatic: true }));
 
     this.mCollector = new GameObject();
-    this.mCollector.setComponent('Renderer',new LightRenderer(this.kMinion));
+    this.mCollector.setComponent('Renderer', new LightRenderer(this.kMinion));
     this.mCollector.addComponent(new Animator({
         frame: { width: 204, height: 160, count: 10 },
         animations: [
             new AnimationDescription({ frames: [0], time: 300, loops: -1 }),
-            new AnimationDescription({ start:1,count:9, time: 100, loops: -1 })
+            new AnimationDescription({ start: 1, count: 9, time: 100, loops: -1 })
         ],
         defaultAnimation: 1,
         params: { X: 0 },
@@ -113,18 +114,22 @@ SimpleGame.prototype.initialize = function () {
     this.mCollector.transform.setPosition([0, 0, 0]);
     this.mCollector.transform.setScale([1, 1, 1]);
 
+    this.square.renderer.addLight(this.mTheLight);
+    this.square.renderer.addLight(this.mTheLight2);
+    this.square.renderer.addLight(this.mTheLight3);
+
     this.mCollector.renderer.addLight(this.mTheLight);
     this.mCollector.renderer.addLight(this.mTheLight2);
     this.mCollector.renderer.addLight(this.mTheLight3);
-   
+
 
     this.mCollector2 = new GameObject();
-    this.mCollector2.setComponent(ComponetType.renderer,new LightRenderer(this.kMinion));
+    this.mCollector2.setComponent(ComponetType.renderer, new LightRenderer(this.kMinion));
     this.mCollector2.addComponent(new Animator({
         frame: { width: 204, height: 160, count: 10 },
         animations: [
             new AnimationDescription({ frames: [0], time: 300, loops: -1 }),
-            new AnimationDescription({ start:1,count:9, time: 200, loops: -1 })
+            new AnimationDescription({ start: 1, count: 9, time: 200, loops: -1 })
         ],
         defaultAnimation: 0,
         params: { X: 0 },
@@ -149,9 +154,9 @@ SimpleGame.prototype.initialize = function () {
     this.mCollector2.renderer.addLight(this.mTheLight2);
     this.mCollector2.renderer.addLight(this.mTheLight3);
 
-    this.mTextSysFont = new FontRenderable("System Font: in Red");
-    this.mTextSysFont.setColor([1, 0, 0, 1]);
-    this.mTextSysFont.getTransform().setPosition([-10, 0, 0]);
+    this.mTextSysFont = new FontRenderable("Asada Engine Fierro!");
+    this.mTextSysFont.setColor([1, .8, .8, 1]);
+    this.mTextSysFont.getTransform().setPosition([-10, 5, 0]);
     this.mTextSysFont.setTextHeight(1);
 
     gEngine.Audio.playBackgroundAudio(this.kBgClip);
@@ -165,21 +170,19 @@ SimpleGame.prototype.initialize = function () {
     this.mMap.addLight(this.mTheLight3);
 };
 var aux = 0;
-SimpleGame.prototype.update = function (delta=1) 
-{
+SimpleGame.prototype.update = function (delta = 1) {
 
-    aux+=1;
+    aux += 1;
     var touches = gEngine.Input.getTouches();
-    if(gEngine.Input.getTouchCount()>0)
-    {
-        let coords= this.camera.screenToSpace([touches[0].clientX,touches[0].clientY]);
-        coords[2]=0;
+    if (gEngine.Input.getTouchCount() > 0) {
+        let coords = this.camera.screenToSpace([touches[0].clientX, touches[0].clientY]);
+        coords[2] = 0;
         this.mCollector.transform.setPosition(coords);
-        this.mTouchPos.innerText = 'Touch Position: '+ [ Math.floor( touches[0].clientX),Math.floor(touches[0].clientY)];
+        this.mTouchPos.innerText = 'Touch Position: ' + [Math.floor(touches[0].clientX), Math.floor(touches[0].clientY)];
 
     }
     var gamepads = gEngine.Input.getGamepads();
-    
+
     if (gamepads[0]) {
         this.mTextSysFont.transform.translate([gamepads[0].axes[0] * .1, -gamepads[0].axes[1] * .1, 0])
         this.mTextSysFont.transform.setRotation(Math.atan2(-gamepads[0].axes[3], gamepads[0].axes[2]));
@@ -205,7 +208,7 @@ SimpleGame.prototype.update = function (delta=1)
         this.mCollector.transform.setPositionX(this.camera.mouseWCX());
         this.mCollector.transform.setPositionY(this.camera.mouseWCY());
 
-        this.mTouchPos.innerText = 'Mouse Position: '+gEngine.Input.getMousePos();
+        this.mTouchPos.innerText = 'Mouse Position: ' + gEngine.Input.getMousePos();
     }
 
     if (gEngine.Input.isKeyClicked(gEngine.Input.keyCodes.F)) {
@@ -223,10 +226,20 @@ SimpleGame.prototype.update = function (delta=1)
     this.square.update(delta);
     this.squareBlue.update(delta);
 
+    if (gEngine.Input.isKeyPressed(gEngine.Input.keyCodes.Z)) {
+        this.square.physics.applyForce({ x: -5, y: 0 });
+        this.square.transform.setScale([2, 2, 1]);
+    }
+    if (gEngine.Input.isKeyPressed(gEngine.Input.keyCodes.C)) {
+        this.square.physics.applyForce({ x: 5, y: 0 });
+        this.square.transform.setScale([-2, 2, 1]);
+    }
+    if (gEngine.Input.isKeyClicked(gEngine.Input.keyCodes.S))
+        this.square.physics.applyForce({ x: 0, y: 90 });
     //console.log(this.squareBlue.physics.getBody().angle);
 };
-SimpleGame.prototype.draw = function () 
-{
+SimpleGame.prototype.draw = function () {
+
     this.camera.refreshViewport();
     //this.camera2.refreshViewport();
     this.camera.setupViewProjection();
