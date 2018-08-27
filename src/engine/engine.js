@@ -868,7 +868,6 @@ gEngine.Fonts = (function () {
 	var getCharInfo = function (fontName, aChar) {
 		var returnInfo = null;
 		var fontInfo = gEngine.ResourceMap.retrieveAsset(fontName);
-		console.log(fontName,gEngine.ResourceMap.entries);
 		var commonPath = "font/common";
 		var commonInfo = fontInfo.evaluate(commonPath, fontInfo, null, XPathResult.ANY_TYPE, null);
 		commonInfo = commonInfo.iterateNext();

@@ -374,7 +374,7 @@ gEngine.DefaultResources = (function () {
 		gEngine.TextFileLoader.unloadTextFile(kPixelSnapVS);
 		gEngine.TextFileLoader.unloadTextFile(kLightFS);
 
-		gEngine.Fonts.unloadFont(kDefaultFont);
+		gEngine.Fonts.unloadFont(kDefaultFont.name);
 	};
 	var mPublic = {
 		initialize: initialize,
