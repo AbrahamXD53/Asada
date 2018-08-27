@@ -73,7 +73,7 @@ SimpleGame.prototype.initialize = function () {
     //this.square.transform.setRotation(Math.PI / 4);
     this.square.getComponent(ComponetType.transform).setScale([2, 2, 1]);
     this.square.getComponent(ComponetType.transform).setPosition(twgl.v3.create(2.3, 16));
-    this.square.setComponent('Renderer', new LightRenderer(this.kCollector));
+    this.square.setComponent('Renderer', new SpriteRenderer(this.kCollector));
     // this.square.transform.setRotationDeg(45);
 
     // this.square.getComponent(ComponetType.renderer).setColor([1, 1, 1, 1]);

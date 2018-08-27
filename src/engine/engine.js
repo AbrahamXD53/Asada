@@ -557,6 +557,10 @@ gEngine.ResourceMap = (function () {
 		}
 		return 0;
 	};
+	var preload = function (rName, loadedAsset) {
+		mResourceMap[rName] = new MapEntry(rName);
+		mResourceMap[rName].mAsset = loadedAsset;
+	}
 
 	var mPublic = {
 		asyncLoadRequested: asyncLoadRequested,
@@ -567,7 +571,9 @@ gEngine.ResourceMap = (function () {
 		unloadAsset: unloadAsset,
 		isAssetLoaded: isAssetLoaded,
 		incAssetRefCount: incAssetRefCount,
-		registerLoader: registerLoader
+		registerLoader: registerLoader,
+		preload: preload,
+		entries:mResourceMap
 	};
 	return mPublic;
 }());
@@ -627,97 +633,6 @@ gEngine.TextFileLoader = (function () {
 		TextFileType: TextFileType
 	};
 
-	return mPublic;
-}());
-
-gEngine.DefaultResources = (function () {
-	var kSimpleVS = 'src/shaders/simpleVS.glsl',
-		kSimpleFS = 'src/shaders/simpleFS.glsl';
-	var kTextureVS = 'src/shaders/textureVS.glsl',
-		kTextureFS = 'src/shaders/textureFS.glsl';
-	var kFontFS = 'src/shaders/fontFS.glsl';
-	var kPixelSnapVS = 'src/shaders/pixelSnapVS.glsl';
-	var kLightFS = 'src/shaders/lightFS.glsl';
-
-	var kDefaultFont = "assets/fonts/system-default-font";
-
-	var mGlobalAmbientColor = [0.1, 0.1, 0.1, 1];
-	var mGlobalAmbientIntensity = 1;
-
-	var mTextureShader = null;
-	var mColorShader = null;
-	var mSpriteShader = null;
-	var mFontShader = null;
-	var mLightShader = null;
-
-	var getColorShader = function () { return mColorShader; };
-	var getTextureShader = function () { return mTextureShader; };
-	var getSpriteShader = function () { return mSpriteShader; };
-	var getFontShader = function () { return mFontShader; };
-	var getDefaultFont = function () { return kDefaultFont; };
-	var getLightShader = function () { return mLightShader; };
-	var getGlobalAmbientColor = function () { return mGlobalAmbientColor; };
-	var getGlobalAmbientIntensity = function () { return mGlobalAmbientIntensity; };
-
-	var setGlobalAmbientIntensity = function (v) { mGlobalAmbientIntensity = v; };
-	var setGlobalAmbientColor = function (v) { mGlobalAmbientColor = [v[0], v[1], v[2], v[3]]; };
-
-	var createShaders = function (callbackFunction) {
-		mColorShader = new SimpleShader(kSimpleVS, kSimpleFS);
-		mTextureShader = new TextureShader(kTextureVS, kTextureFS);
-		mSpriteShader = new SpriteShader(kPixelSnapVS, kTextureFS);
-		mFontShader = new SpriteShader(kTextureVS, kFontFS);
-		mLightShader = new LightShader(kPixelSnapVS, kLightFS);
-		callbackFunction();
-	};
-
-	var initialize = function (callbackFunction) {
-		gEngine.TextFileLoader.loadTextFile(kSimpleVS, gEngine.TextFileLoader.TextFileType.TextFile);
-		gEngine.TextFileLoader.loadTextFile(kSimpleFS, gEngine.TextFileLoader.TextFileType.TextFile);
-
-		gEngine.TextFileLoader.loadTextFile(kTextureVS, gEngine.TextFileLoader.TextFileType.TextFile);
-		gEngine.TextFileLoader.loadTextFile(kTextureFS, gEngine.TextFileLoader.TextFileType.TextFile);
-		gEngine.TextFileLoader.loadTextFile(kFontFS, gEngine.TextFileLoader.TextFileType.TextFile);
-		gEngine.TextFileLoader.loadTextFile(kPixelSnapVS, gEngine.TextFileLoader.TextFileType.TextFile);
-		gEngine.TextFileLoader.loadTextFile(kLightFS, gEngine.TextFileLoader.TextFileType.TextFile);
-
-		gEngine.Fonts.loadFont(kDefaultFont);
-
-		gEngine.ResourceMap.setLoadCompleteCallback(function () {
-			createShaders(callbackFunction);
-		});
-	};
-	var cleanUp = function () {
-		mColorShader.cleanUp();
-		mTextureShader.cleanUp();
-		mSpriteShader.cleanUp();
-		mFontShader.cleanUp();
-		mLightShader.cleanUp();
-
-		gEngine.TextFileLoader.unloadTextFile(kSimpleVS);
-		gEngine.TextFileLoader.unloadTextFile(kSimpleFS);
-
-		gEngine.TextFileLoader.unloadTextFile(kTextureVS);
-		gEngine.TextFileLoader.unloadTextFile(kTextureFS);
-		gEngine.TextFileLoader.unloadTextFile(kPixelSnapVS);
-		gEngine.TextFileLoader.unloadTextFile(kLightFS);
-
-		gEngine.Fonts.unloadFont(kDefaultFont);
-	};
-	var mPublic = {
-		initialize: initialize,
-		getColorShader: getColorShader,
-		getTextureShader: getTextureShader,
-		getSpriteShader: getSpriteShader,
-		getDefaultFont: getDefaultFont,
-		getFontShader: getFontShader,
-		cleanUp: cleanUp,
-		getGlobalAmbientColor: getGlobalAmbientColor,
-		setGlobalAmbientColor: setGlobalAmbientColor,
-		getGlobalAmbientIntensity: getGlobalAmbientIntensity,
-		setGlobalAmbientIntensity: setGlobalAmbientIntensity,
-		getLightShader: getLightShader
-	};
 	return mPublic;
 }());
 
@@ -826,7 +741,7 @@ gEngine.Textures = (function () {
 		this.mHeight = h;
 		this.mGLTexID = id;
 	};
-	var loadTexture = function (textureName) {
+	var loadTexture = function (textureName, url) {
 		if (!gEngine.ResourceMap.isAssetLoaded(textureName)) {
 			var img = new Image();
 
@@ -836,7 +751,7 @@ gEngine.Textures = (function () {
 				processLoadedImage(textureName, img);
 			};
 
-			img.src = textureName;
+			img.src = url || textureName;
 		} else {
 			gEngine.ResourceMap.incAssetRefCount(textureName);
 		}
@@ -911,7 +826,18 @@ gEngine.Fonts = (function () {
 
 		this.mCharAspectRatio = 1;
 	}
-
+	var preloadFont = function (fontName, source, map) {
+		if (!gEngine.ResourceMap.isAssetLoaded(fontName)) 
+		{
+			let parser = new DOMParser();
+			let fileContent = parser.parseFromString(map, 'text/xml');
+			fileContent.FontImage = fontName + '.png';
+			gEngine.ResourceMap.preload(fontName,fileContent);
+			gEngine.Textures.loadTexture(fileContent.FontImage,source);
+		} else {
+			gEngine.ResourceMap.incAssetRefCount(fontName);
+		}
+	};
 	var loadFont = function (fontName) {
 		if (!gEngine.ResourceMap.isAssetLoaded(fontName)) {
 			var fontInfoSourceString = fontName + '.fnt';
@@ -942,6 +868,7 @@ gEngine.Fonts = (function () {
 	var getCharInfo = function (fontName, aChar) {
 		var returnInfo = null;
 		var fontInfo = gEngine.ResourceMap.retrieveAsset(fontName);
+		console.log(fontName,gEngine.ResourceMap.entries);
 		var commonPath = "font/common";
 		var commonInfo = fontInfo.evaluate(commonPath, fontInfo, null, XPathResult.ANY_TYPE, null);
 		commonInfo = commonInfo.iterateNext();
@@ -982,26 +909,14 @@ gEngine.Fonts = (function () {
 	var mPublic = {
 		loadFont: loadFont,
 		unloadFont: unloadFont,
-		getCharInfo: getCharInfo
+		getCharInfo: getCharInfo,
+		preloadFont:preloadFont
 	};
 	return mPublic;
 }());
 
 gEngine.Physics = (function () {
 	var engine = null;
-
-
-	var onCollisionStart = function (event) {
-		console.log(event);
-	};
-
-	var onCollisionActive = function (event) {
-
-	};
-
-	var onCollisionEnd = function (event) {
-
-	};
 
 	var initialize = function () {
 		Matter.use('matter-collision-events');

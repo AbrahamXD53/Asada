@@ -1,7 +1,5 @@
 precision mediump float;
-
 #define kGLSLuLightArraySize 4
-
 struct Light {
     vec4 Position; 
     vec4 Color;
@@ -10,16 +8,12 @@ struct Light {
     float Intensity;
     bool IsOn;
 };
-
 uniform sampler2D u_texture;
 uniform vec4 u_color;
 uniform vec4 u_globalAmbientColor;
 uniform float u_globalAmbientIntensity;
 uniform Light u_lights[kGLSLuLightArraySize];
-
 varying vec2 texCoord;
-
-
 vec3 LightEffect(Light lgt) {
     vec4 result = vec4(0);
     float atten = 0.0;
@@ -36,7 +30,6 @@ vec3 LightEffect(Light lgt) {
     result = atten * lgt.Intensity * lgt.Color;
     return result.rgb;
 }
-
 void main(void){
     vec4 textureMapColor = texture2D(u_texture, vec2(texCoord));
     vec4 lgtResults = u_globalAmbientColor * u_globalAmbientIntensity;
