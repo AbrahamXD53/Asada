@@ -1,0 +1,34 @@
+{
+  "name": "asada-engine",
+  "version": "0.4.0",
+  "description": "Asada Engine",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/AbrahamXD53/Asada.git"
+  },
+  "keywords": [
+    "webgl",
+    "game",
+    "engine"
+  ],
+  "author": "Abraham Ahumada",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://gitlab.com/AbrahamXD53/Asada/issues"
+  },
+  "homepage": "https://gitlab.com/AbrahamXD53/Asada#README",
+  "devDependencies": {
+    "gulp": "^4.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-minify": "^3.1.0",
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-watch": "^5.0.1"
+  }
+}

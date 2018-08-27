@@ -46,11 +46,13 @@
             align-items: center;
             justify-content: center;
         }
-        .light-text{
+
+        .light-text {
             color: beige;
             display: flex;
-            font-size: 30px;                 
+            font-size: 30px;
         }
+
         .ui {
             background-color: transparent;
             width: 100%;
@@ -59,22 +61,24 @@
             position: fixed;
             top: 0;
             left: 0;
-            pointer-events:none;
+            pointer-events: none;
         }
-        #touch-position{
+
+        #touch-position {
             margin: 10px;
             font-size: 30px;
             display: block;
-            text-shadow: -2px 2px rgba(0,0,0,0.6);
+            text-shadow: -2px 2px rgba(0, 0, 0, 0.6);
             color: white;
         }
-        .button-classic{
-            background-color: rgba(100,200,255,0.5);
+
+        .button-classic {
+            background-color: rgba(100, 200, 255, 0.5);
             border: 1px white solid;
             border-radius: 10px;
             padding: 10px;
-            color:white;
-            position:absolute;
+            color: white;
+            position: absolute;
             top: 10px;
             right: 10px;
             pointer-events: all;
@@ -83,45 +87,26 @@
 </head>
 
 <body>
-    <div class="loader" id="loader">
-        <div class="light-text">
-            Initializing, please wait          
+    <div class="container" id="full-screen-container">
+        <div class="loader" id="loader">
+            <div class="light-text">
+                Initializing, please wait
+            </div>
         </div>
+        <div class="ui" id="ui">
+            <span id="touch-position">Touch Position: </span>
+            <button class="button-classic" id="full-screen">Full Screen</button>
+        </div>
+        <canvas id="GLCanvas">
+            You can't render this :c
+        </canvas>
     </div>
-    <div class="ui" id="ui">
-        <span id="touch-position">Touch Position: </span>
-        <button class="button-classic" id="full-screen">Full Screen</button>
-    </div>
-    <canvas id="GLCanvas">
-        You can't render this :c
-    </canvas>
 
-    <script src="lib/twgl-full.min.js"></script>
-    <script src="lib/decomp.min.js"></script>
-    <script src="lib/matter.min.js"></script>
-    <script src="lib/matter-collision-events.min.js"></script>
+    <script src="build/dependencies.js"></script>
 
-    <script src="src/engine/engine.js"></script>
-    <script src="src/engine/engine-defaults.js"></script>
-    <script src="src/engine/utils/interpolate.js"></script>
-    <script src="src/engine/utils/shake.js"></script>
-    <script src="src/engine/shaders/simple-shader.js"></script>
-    <script src="src/engine/shaders/texture-shader.js"></script>
-    <script src="src/engine/shaders/sprite-shader.js"></script>
-    <script src="src/engine/shaders/light-shader.js"></script>
-    <script src="src/engine/transform.js"></script>
-    <script src="src/engine/game-object.js"></script>    
-    <script src="src/engine/animation.js"></script>
-    <script src="src/engine/light.js"></script>
+    <script src="build/app-min.js"></script>
 
-    <script src="src/engine/renderables/renderer.js"></script>
-    <script src="src/engine/camera.js"></script>
-    <script src="src/engine/scene.js"></script>
-
-    <script src="js/simple.js"></script>
-
-    <script src="js/index.js"></script>
-
+    <script src="build/game-min.js"></script>
 
 </body>
 

@@ -1,7 +1,4 @@
-﻿'use strict';
-
-var gEngine = gEngine || {};
-
+﻿var gEngine = gEngine || {};
 gEngine.Core = (function () {
 	var mGL = null;
 

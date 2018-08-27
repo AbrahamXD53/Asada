@@ -1,4 +1,3 @@
-'use strict';
 function Interpolate(value, cycles, rate) {
     this.mCurrentValue = value;
     this.mFinalValue = value;
@@ -21,7 +20,7 @@ Interpolate.prototype.configInterpolation = function (stiffness, duration) {
 
 Interpolate.prototype.setFinalValue = function (v) {
     this.mFinalValue = v;
-    this.mCyclesLeft - this.mCycles;
+    this.mCyclesLeft - this.mCycles; 
 };
 
 Interpolate.prototype.updateInterpolation = function () {

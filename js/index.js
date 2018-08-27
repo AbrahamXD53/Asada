@@ -12,7 +12,6 @@ var app = {
     // Bind any cordova events here. Common events are:
     // 'pause', 'resume', etc.
     onDeviceReady: function () {
-        console.log('device read');
         var game = new SimpleGame();
         gEngine.ResourceMap.registerLoader(this.onProgressLoading.bind(this));
         gEngine.Core.initialize('GLCanvas', game);
@@ -43,7 +42,6 @@ var app = {
         listeningElement.setAttribute('style', 'display:none;');
         receivedElement.setAttribute('style', 'display:block;');
 
-        console.log('Received Event: ' + id);
     }
 };
 

@@ -1,6 +1,4 @@
-'use strict';
 function Scene() {}
-
 Scene.prototype.constructor = function () { };
 Scene.prototype.initialize = function () {};
 Scene.prototype.loadScene = function () {};

@@ -1,6 +1,4 @@
-﻿'use strict';
-
-function Transform (){
+﻿function Transform (){
 	this.mPosition = twgl.v3.create(0, 0, 0);
 	this.mScale = twgl.v3.create(1, 1, 1);
 	this.mRotation = 0;

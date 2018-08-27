@@ -21,7 +21,7 @@ function SimpleGame() {
 gEngine.Core.inheritPrototype(SimpleGame, Scene);
 
 SimpleGame.prototype.fullScreen = function () {
-    var elem = gEngine.Core.getGL().canvas;
+    var elem = document.getElementById('full-screen-container');
     if (elem.requestFullscreen) {
         elem.requestFullscreen();
     } else if (elem.mozRequestFullScreen) { /* Firefox */
@@ -76,10 +76,8 @@ SimpleGame.prototype.initialize = function () {
     this.square.setComponent('Renderer', new SpriteRenderer(this.kCollector));
     // this.square.transform.setRotationDeg(45);
 
-    // this.square.getComponent(ComponetType.renderer).setColor([1, 1, 1, 1]);
     this.square.addComponent(new Physics({ density: 1, frictionStatic: 0.1, frictionAir: 0.1, inertia: Infinity }));
     Matter.Body.setInertia(this.square.physics.getBody(), Infinity);
-    this.square.getAllComponents();
 
     this.squareBlue = new GameObject();
     this.squareBlue.getComponent(ComponetType.transform).setScale([1, 2, 2]);
@@ -89,8 +87,6 @@ SimpleGame.prototype.initialize = function () {
 
     this.squareBlue.renderer.setColor([1, 1, 1, 1]);
     this.squareBlue.addComponent(new Physics({density:1}));
-    this.squareBlue.getAllComponents();
-    //this.squareBlue.physics.getBody().angle = 1.57/2.0;
 
     this.squareFloor = new GameObject();
     this.squareFloor.transform.setPosition(twgl.v3.create(-7, -5, 0));
@@ -169,10 +165,8 @@ SimpleGame.prototype.initialize = function () {
     this.mMap.addLight(this.mTheLight2);
     this.mMap.addLight(this.mTheLight3);
 };
-var aux = 0;
 SimpleGame.prototype.update = function (delta = 1) {
 
-    aux += 1;
     var touches = gEngine.Input.getTouches();
     if (gEngine.Input.getTouchCount() > 0) {
         let coords = this.camera.screenToSpace([touches[0].clientX, touches[0].clientY]);
@@ -183,9 +177,10 @@ SimpleGame.prototype.update = function (delta = 1) {
     }
     var gamepads = gEngine.Input.getGamepads();
 
-    if (gamepads[0]) {
-        this.mTextSysFont.transform.translate([gamepads[0].axes[0] * .1, -gamepads[0].axes[1] * .1, 0])
-        this.mTextSysFont.transform.setRotation(Math.atan2(-gamepads[0].axes[3], gamepads[0].axes[2]));
+    if (gamepads[2]) {
+        console.log(gamepads[2]);
+        this.mTextSysFont.getTransform().translate([gamepads[2].axes[0] * .1, -gamepads[2].axes[1] * .1, 0])
+        this.mTextSysFont.getTransform().setRotation(Math.atan2(-gamepads[2].axes[3], gamepads[2].axes[2]));
     }
 
     if (gEngine.Input.isKeyPressed(gEngine.Input.keyCodes.A)) {
@@ -219,7 +214,6 @@ SimpleGame.prototype.update = function (delta = 1) {
     }
     this.mCollector2.update(delta);
     this.mCollector.update(delta);
-    //this.mMap.getTransform().scale([Math.cos(aux/200)*.01,Math.cos(aux/200)*.01,0]);
     this.camera.update();
     this.camera2.update();
     this.squareFloor.update(delta);
@@ -236,7 +230,6 @@ SimpleGame.prototype.update = function (delta = 1) {
     }
     if (gEngine.Input.isKeyClicked(gEngine.Input.keyCodes.S))
         this.square.physics.applyForce({ x: 0, y: 90 });
-    //console.log(this.squareBlue.physics.getBody().angle);
 };
 SimpleGame.prototype.draw = function () {
 

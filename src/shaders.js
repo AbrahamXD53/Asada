@@ -1,5 +1,4 @@
-﻿'use strict';
-function SimpleShader(vertexId, fragmentId) {
+﻿function SimpleShader(vertexId, fragmentId) {
 	this.mCompiledShader = null;
 	var gl = gEngine.Core.getGL();
 	var vsShaderInfo = gEngine.ResourceMap.retrieveAsset(vertexId);

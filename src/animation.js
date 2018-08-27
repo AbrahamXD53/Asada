@@ -1,5 +1,3 @@
-'use strict';
-
 var AnimationState = Object.freeze({
     Paused: 0,
     Playing: 1,
@@ -130,7 +128,7 @@ AnimationController.prototype.update = function (delta) {
                 for (let and = 0,condLen=transitions[or].mConditions.length; and < condLen; and++) 
                 {
                     if(this.mParams[transitions[or].mConditions[and].mName]==undefined){
-                        console.warn('No animation param called ' + transitions[or].mConditions[and].mName);
+                        console.warn('No animation param called: ' + transitions[or].mConditions[and].mName);
                     }else{
                         if (!transitions[or].mConditions[and].test(this.mParams[transitions[or].mConditions[and].mName])) {
                             valid = false;

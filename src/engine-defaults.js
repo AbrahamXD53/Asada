@@ -1,5 +1,4 @@
 var gEngine = gEngine || {};
-
 gEngine.DefaultResources = (function () {
 	var kSimpleVS = {
 		name: 'simpleVS', program: `attribute vec3 position;

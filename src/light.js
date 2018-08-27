@@ -1,5 +1,3 @@
-'use strict';
-
 function Light() {
     this.mColor = [1.0, 1.0, 1.0, 1.0];
     this.mPosition = [0, 0, 5];

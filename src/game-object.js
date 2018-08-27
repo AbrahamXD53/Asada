@@ -1,4 +1,3 @@
-'use strict';
 let ComponetType = Object.freeze({
     transform: 'Transform',
     renderer: 'Renderer',
