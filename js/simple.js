@@ -177,10 +177,9 @@ SimpleGame.prototype.update = function (delta = 1) {
     }
     var gamepads = gEngine.Input.getGamepads();
 
-    if (gamepads[2]) {
-        console.log(gamepads[2]);
-        this.mTextSysFont.getTransform().translate([gamepads[2].axes[0] * .1, -gamepads[2].axes[1] * .1, 0])
-        this.mTextSysFont.getTransform().setRotation(Math.atan2(-gamepads[2].axes[3], gamepads[2].axes[2]));
+    if (gamepads[0]) {
+        this.mTextSysFont.getTransform().translate([gamepads[0].axes[0] * .1, -gamepads[0].axes[1] * .1, 0])
+        this.mTextSysFont.getTransform().setRotation(Math.atan2(-gamepads[0].axes[3], gamepads[0].axes[2]));
     }
 
     if (gEngine.Input.isKeyPressed(gEngine.Input.keyCodes.A)) {

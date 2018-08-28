@@ -2,6 +2,8 @@ const gulp = require('gulp');
 const concat = require('gulp-concat');
 const minify = require('gulp-minify');
 const watch = require('gulp-watch');
+const uglify = require('gulp-uglify');
+const javascriptObfuscator = require('gulp-javascript-obfuscator');
 
 gulp.task('default', minifySource);
 gulp.task('min-dep', concatDependenciesMin);
@@ -39,3 +41,11 @@ function concatDependencies() {
         .pipe(concat('dependencies.js'))
         .pipe(gulp.dest('build'))
 }
+
+gulp.task('compress', function () {
+    return gulp.src(['build/dependencies.js','build/app-min.js','build/game-min.js'])
+        .pipe(watch('build/app-min.js'))
+        .pipe(concat('final.js'))
+        .pipe(javascriptObfuscator())
+        .pipe(gulp.dest('build'))
+});

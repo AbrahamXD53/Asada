@@ -28,7 +28,12 @@
     "gulp": "^4.0.0",
     "gulp-concat": "^2.6.1",
     "gulp-minify": "^3.1.0",
+    "gulp-obfuscate": "^0.2.9",
     "gulp-sourcemaps": "^2.6.4",
-    "gulp-watch": "^5.0.1"
+    "gulp-uglify": "^3.0.1",
+    "gulp-watch": "^5.0.1",
+    "gulp-javascript-obfuscator": "^1.1.4"
+  },
+  "dependencies": {
   }
 }
