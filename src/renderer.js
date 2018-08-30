@@ -111,7 +111,7 @@ function Tileset(texture, data) {
     this.mWidth = data.imagewidth / data.tilewidth;
     this.mInverseWidth = 1.0 / data.tilewidth;
     this.mInverseHeight = 1.0 / data.tileheight;
-    this.mOffset = 0.003;
+    this.mOffset = 0.0005;
 
 }
 Tileset.prototype.getCoords = function (id) {
@@ -212,10 +212,14 @@ MapRenderer.prototype.createBody=function(data){
     for(let i in data.objects){
         let w=data.objects[i].width/this.mData.tilewidth,h=data.objects[i].height/this.mData.tileheight;
         let x=(data.objects[i].x/this.mData.tilewidth)+(w*0.5),y=(this.mData.height-(data.objects[i].y/this.mData.tileheight))-(h*0.5);
-        Matter.Composite.add(composite,Matter.Bodies.rectangle(x,y,w,h,{friction:0.5,frictionDynamic:0,isStatic:true}));
+        let body = Matter.Bodies.rectangle(x,y,w,h,{friction:0.5,frictionDynamic:0,isStatic:true,properties:data.objects[i].properties||{}});
+        body.collisionFilter.group=0;
+        body.collisionFilter.category=0b00000001;
+        Matter.Composite.add(composite,body);
     }
     Matter.Composite.translate(composite,{x:initialX,y:-initialY});    
     Matter.World.add(world,composite);
+    this.mComposites.push(composite);
 };
 MapRenderer.prototype.initialize = function () {
     if (this.mData) {
@@ -258,6 +262,23 @@ MapRenderer.prototype.addLight = function (l) {
 
 MapRenderer.prototype.cleanUp= function(){
     //TODO: clear buffers
+};
+
+MapRenderer.prototype.setCollision = function(playerPos){
+    for(let p in this.mComposites){
+        let bodies = Matter.Composite.allBodies(this.mComposites[p]);
+        for(let b in bodies)
+        {
+            if(bodies[b].properties.hasOwnProperty('oneSide'))
+                if(bodies[b].position.y+1>playerPos[1])
+                {
+                    bodies[b].collisionFilter.mask=0;
+                }
+                else{
+                    bodies[b].collisionFilter.mask=-1;                
+                }
+        }
+    }
 };
 
 function FontRenderable(aString) {

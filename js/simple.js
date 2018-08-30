@@ -41,7 +41,7 @@ SimpleGame.prototype.loadScene = function () {
 };
 
 SimpleGame.prototype.initialize = function () {
-    this.camera = new Camera([0, 0], 40);
+    this.camera = new Camera([0, 0], 20);
     this.camera2 = new Camera([0, 0], 10, [.5, 0, .5, 1]);
 
     this.mTheLight = new Light();
@@ -230,8 +230,8 @@ SimpleGame.prototype.update = function (delta = 1) {
     this.squareFloor.update(delta);
     this.square.update(delta);
     this.squareBlue.update(delta);
-    
-    this.camera.setCenter(this.square.transform.getPositionX(),9.5+this.square.transform.getPositionY());
+    this.mMap.setCollision(this.square.transform.getPosition());
+    this.camera.setCenter(this.square.transform.getPositionX(),3.5+this.square.transform.getPositionY());
     
     this.camera.update();
     this.camera2.update();
