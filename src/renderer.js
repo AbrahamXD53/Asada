@@ -212,7 +212,7 @@ MapRenderer.prototype.createBody=function(data){
     for(let i in data.objects){
         let w=data.objects[i].width/this.mData.tilewidth,h=data.objects[i].height/this.mData.tileheight;
         let x=(data.objects[i].x/this.mData.tilewidth)+(w*0.5),y=(this.mData.height-(data.objects[i].y/this.mData.tileheight))-(h*0.5);
-        Matter.Composite.add(composite,Matter.Bodies.rectangle(x,y,w,h,{isStatic:true}));
+        Matter.Composite.add(composite,Matter.Bodies.rectangle(x,y,w,h,{friction:0.5,frictionDynamic:0,isStatic:true}));
     }
     Matter.Composite.translate(composite,{x:initialX,y:-initialY});    
     Matter.World.add(world,composite);

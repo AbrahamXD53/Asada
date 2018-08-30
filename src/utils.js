@@ -20,13 +20,13 @@ Interpolate.prototype.configInterpolation = function (stiffness, duration) {
 
 Interpolate.prototype.setFinalValue = function (v) {
     this.mFinalValue = v;
-    this.mCyclesLeft - this.mCycles; 
+    this.mCyclesLeft = this.mCycles; 
 };
 
 Interpolate.prototype.updateInterpolation = function () {
     if (this.mCyclesLeft <= 0)
         return;
-    this.mCycles--;
+    this.mCyclesLeft--;
     if (this.mCyclesLeft === 0)
         this.mCurrentValue = this.mFinalValue;
     else
