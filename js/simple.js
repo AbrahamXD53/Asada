@@ -7,6 +7,8 @@ function SimpleGame() {
     this.kBgClip = 'assets/sound/ZombiesAreComing.ogg';
     this.kCollector = 'assets/minion_collector.png';
     this.kMinion = 'assets/minion_sprite.png';
+    this.kMinionNormal = 'assets/minion_sprite_normal.png';
+    this.kDefaultParticle = 'defaultParticle';
     this.mTextSysFont = null;
     this.mMapText = 'assets/mario.json';
     this.mMapTexture = 'assets/smb3.png';
@@ -36,12 +38,13 @@ SimpleGame.prototype.loadScene = function () {
     gEngine.Audio.loadAudio(this.kBgClip);
     gEngine.Textures.loadTexture(this.kCollector);
     gEngine.Textures.loadTexture(this.kMinion);
+    gEngine.Textures.loadTexture(this.kMinionNormal);
     gEngine.Textures.loadTexture(this.mMapTexture);
     this.mMap.load();
 };
 
 SimpleGame.prototype.initialize = function () {
-    this.camera = new Camera([0, 0], 20);
+    this.camera = new Camera([0, 0], 30);
     this.camera2 = new Camera([0, 0], 10, [.5, 0, .5, 1]);
 
     this.mTheLight = new Light();
@@ -70,6 +73,8 @@ SimpleGame.prototype.initialize = function () {
 
     this.square = new GameObject();
 
+    this.particle= new ParticleGameObject(this.kDefaultParticle,0,0,1000);
+
     //this.square.transform.setRotation(Math.PI / 4);
     this.square.getComponent(ComponetType.transform).setScale([2, 2, 1]);
     this.square.getComponent(ComponetType.transform).setPosition(twgl.v3.create(2.3, 16));
@@ -78,7 +83,6 @@ SimpleGame.prototype.initialize = function () {
 
     this.square.addComponent(new Physics({ density: 1,friction:0, frictionStatic: 0.0, frictionAir: 0.1, inertia: Infinity }));
     Matter.Body.setInertia(this.square.physics.getBody(), Infinity);
-    this.square.getAllComponents();
     this.squareBlue = new GameObject();
     this.squareBlue.getComponent(ComponetType.transform).setScale([1, 2, 2]);
 
@@ -95,7 +99,7 @@ SimpleGame.prototype.initialize = function () {
     this.squareFloor.addComponent(new Physics({ isStatic: true }));
 
     this.mCollector = new GameObject();
-    this.mCollector.setComponent('Renderer', new LightRenderer(this.kMinion));
+    this.mCollector.setComponent('Renderer', new IllumRenderer(this.kMinion,this.kMinionNormal));
     this.mCollector.addComponent(new Animator({
         frame: { width: 204, height: 160, count: 10 },
         animations: [
@@ -107,8 +111,9 @@ SimpleGame.prototype.initialize = function () {
         transitions: [
         ]
     }));
+    
     this.mCollector.transform.setPosition([0, 0, 0]);
-    this.mCollector.transform.setScale([1, 1, 1]);
+    this.mCollector.transform.setScale([5, 5, 1]);
 
     this.square.renderer.addLight(this.mTheLight);
     this.square.renderer.addLight(this.mTheLight2);
@@ -120,7 +125,7 @@ SimpleGame.prototype.initialize = function () {
 
 
     this.mCollector2 = new GameObject();
-    this.mCollector2.setComponent(ComponetType.renderer, new LightRenderer(this.kMinion));
+    this.mCollector2.setComponent(ComponetType.renderer, new IllumRenderer(this.kMinion,this.kMinionNormal));
     this.mCollector2.addComponent(new Animator({
         frame: { width: 204, height: 160, count: 10 },
         animations: [
@@ -144,7 +149,7 @@ SimpleGame.prototype.initialize = function () {
         ]
     }));
     this.mCollector2.renderer.setColor([1, 1, 1, 1]);
-    this.mCollector2.transform.setPosition([2, 13, 0]);
+    this.mCollector2.transform.setPosition([2, 0, 0]);
     this.mCollector2.transform.setScale([1, 1, 1]);
     this.mCollector2.renderer.addLight(this.mTheLight);
     this.mCollector2.renderer.addLight(this.mTheLight2);
@@ -167,6 +172,7 @@ SimpleGame.prototype.initialize = function () {
 };
 SimpleGame.prototype.update = function (delta = 1) {
 
+    this.particle.update();
     var touches = gEngine.Input.getTouches();
     if (gEngine.Input.getTouchCount() > 0) {
         let coords = this.camera.screenToSpace([touches[0].clientX, touches[0].clientY]);
@@ -214,15 +220,15 @@ SimpleGame.prototype.update = function (delta = 1) {
     
 
     if (gEngine.Input.isKeyPressed(gEngine.Input.keyCodes.Z)) {
-        this.square.physics.applyForce({ x: -5, y: 0 });
+        this.square.physics.applyForce({ x: -2, y: 0 });
         this.square.transform.setScale([2, 2, 1]);
     }
     if (gEngine.Input.isKeyPressed(gEngine.Input.keyCodes.C)) {
-        this.square.physics.applyForce({ x: 5, y: 0 });
+        this.square.physics.applyForce({ x: 2, y: 0 });
         this.square.transform.setScale([-2, 2, 1]);
     }
     if (gEngine.Input.isKeyClicked(gEngine.Input.keyCodes.S))
-        this.square.physics.applyForce({ x: 0, y: 90 });
+        this.square.physics.applyForce({ x: 0, y: 120 });
     
     this.mCollector2.update(delta);
     this.mCollector.update(delta);
@@ -248,6 +254,8 @@ SimpleGame.prototype.draw = function () {
     this.mCollector2.draw(this.camera);
     this.mCollector.draw(this.camera);
     this.mTextSysFont.draw(this.camera);
+    this.particle.draw(this.camera);
+    
     //this.camera2.setupViewProjection();
     //this.mMap.draw(this.camera2);
     // this.squareBlue.draw(this.camera2);

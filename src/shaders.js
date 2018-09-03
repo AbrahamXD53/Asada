@@ -13,7 +13,12 @@ SimpleShader.prototype.activateShader = function (color, transform, camera) {
 	gl.useProgram(this.mCompiledShader.program);
 	twgl.setBuffersAndAttributes(gl, this.mCompiledShader, gEngine.VertexBuffer.getVertexBuffer());
 	let screen = camera.getViewport();
-	this.mUniforms = { u_globalAmbientColor:gEngine.DefaultResources.getGlobalAmbientColor(),u_globalAmbientIntensity:gEngine.DefaultResources.getGlobalAmbientIntensity(),u_color: color,u_screenSize:[screen[2],screen[3]], u_transform: transform, u_viewTransform: camera.getVPMatrix() };
+    this.mUniforms = { u_globalAmbientColor:gEngine.DefaultResources.getGlobalAmbientColor(),
+        u_globalAmbientIntensity:gEngine.DefaultResources.getGlobalAmbientIntensity(),
+        u_color: color,u_screenSize:[screen[2],screen[3]],
+        u_transform: transform,
+        u_viewTransform: camera.getVPMatrix(),
+    };
 	twgl.setUniforms(this.mCompiledShader, this.mUniforms);
 };
 SimpleShader.prototype.getShader = function () { return this.mCompiledShader; };
@@ -25,13 +30,15 @@ SimpleShader.prototype.cleanUp = function () {
 
 function TextureShader(vertexPath,fragmentPath){
     SimpleShader.call(this,vertexPath,fragmentPath);
+    this.mSamplerRef = gEngine.Core.getGL().getUniformLocation(this.mCompiledShader.program, "u_texture");
 }
 
 gEngine.Core.inheritPrototype(TextureShader,SimpleShader);
 
 TextureShader.prototype.activateShader=function(color,transform,vpMatrix)
 {
-	SimpleShader.prototype.activateShader.call(this,color,transform,vpMatrix);
+    SimpleShader.prototype.activateShader.call(this,color,transform,vpMatrix);
+    //gEngine.Core.getGL().uniform1i(this.mSamplerRef, 0);
 };
 
 function SpriteShader(vertexPath, fragmentPath) {
@@ -108,4 +115,16 @@ LightShader.prototype.activateShader = function (color, transform, vpMatrix) {
         numLight++;
     }
     twgl.setUniforms(this.mCompiledShader, this.mUniforms);
+};
+
+function IllumShader(vertex,fragment){
+    LightShader.call(this,vertex,fragment);
+    this.mNormalSamplerRef = gEngine.Core.getGL().getUniformLocation(this.mCompiledShader.program, "u_normal");
+    
+}
+gEngine.Core.inheritPrototype(IllumShader,LightShader);
+
+IllumShader.prototype.activateShader = function(color,transform,camera){
+    LightShader.prototype.activateShader.call(this,color,transform,camera);
+    gEngine.Core.getGL().uniform1i(this.mNormalSamplerRef, 1);
 };

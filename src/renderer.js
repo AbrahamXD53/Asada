@@ -96,6 +96,23 @@ LightRenderer.prototype.addLight = function (l) {
     this.mLights.push(l);
 };
 
+function IllumRenderer(texture,normalMap){
+    LightRenderer.call(this,texture);
+    Renderer.prototype.setShader.call(this, gEngine.DefaultResources.getIllumShader());
+    this.mNormalMap = normalMap;
+}
+gEngine.Core.inheritPrototype(IllumRenderer,LightRenderer);
+IllumRenderer.prototype.draw = function(camera){
+    gEngine.Textures.activateNormalMap(this.mNormalMap);
+    LightRenderer.prototype.draw.call(this,camera);
+};
+
+function ParticleRenderer(texture){
+    TextureRenderer.call(this,texture);
+    Renderer.prototype.setShader.call(this,gEngine.DefaultResources.getParticleShader());
+}
+gEngine.Core.inheritPrototype(ParticleRenderer,TextureRenderer);
+
 function Tileset(texture, data) {
     this.mTexture = texture;
     this.mColumns = data.columns;
@@ -175,9 +192,9 @@ MapLayer.prototype.draw = function (transform, vpMatrix, lights) {
     let gl = gEngine.Core.getGL();
     if (this.mShader.setLights)
         this.mShader.setLights(lights);
+    gEngine.Textures.activateTexture(this.mTilesets[0].mTexture);
     this.mShader.activateShader(this.mTint, transform, vpMatrix);
     twgl.setBuffersAndAttributes(gl, this.mShader.getShader(), this.mBufferInfo);
-    gEngine.Textures.activateTexture(this.mTilesets[0].mTexture);
     twgl.drawBufferInfo(gl, this.mBufferInfo);
 };
 
