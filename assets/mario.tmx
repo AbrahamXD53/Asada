@@ -72,44 +72,44 @@
 </data>
  </layer>
  <objectgroup name="Object Layer 1">
-  <object id="2" x="0" y="896" width="544" height="32"/>
-  <object id="3" x="256" y="736" width="96" height="32">
+  <object id="2" x="0" y="896" width="544" height="8"/>
+  <object id="3" x="256" y="736" width="96" height="8">
    <properties>
     <property name="oneSide" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="4" x="448" y="576" width="192" height="32">
+  <object id="4" x="448" y="576" width="192" height="8">
    <properties>
     <property name="oneSide" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="7" x="672" y="864" width="320" height="32"/>
-  <object id="8" x="768" y="768" width="96" height="32">
+  <object id="7" x="672" y="864" width="320" height="95"/>
+  <object id="8" x="768" y="768" width="96" height="8">
    <properties>
     <property name="oneSide" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="10" x="896" y="608" width="96" height="32">
+  <object id="10" x="896" y="608" width="96" height="11">
    <properties>
     <property name="oneSide" type="bool" value="true"/>
    </properties>
   </object>
   <object id="11" x="1120" y="704" width="96" height="32"/>
-  <object id="12" x="1120" y="896" width="64" height="32"/>
+  <object id="12" x="1120" y="896" width="64" height="64"/>
   <object id="13" x="1312" y="736" width="288" height="64"/>
   <object id="15" x="1536" y="800" width="64" height="96"/>
-  <object id="19" x="1312" y="896" width="576" height="32"/>
-  <object id="22" x="96" y="608" width="160" height="32">
+  <object id="19" x="1312" y="896" width="576" height="65"/>
+  <object id="22" x="96" y="608" width="160" height="8">
    <properties>
     <property name="oneSide" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="23" x="320" y="640" width="96" height="32">
+  <object id="23" x="320" y="640" width="96" height="9">
    <properties>
     <property name="oneSide" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="24" x="320" y="800" width="160" height="32">
+  <object id="24" x="320" y="800" width="160" height="9">
    <properties>
     <property name="oneSide" type="bool" value="true"/>
    </properties>

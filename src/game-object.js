@@ -68,7 +68,7 @@ function ParticleGameObject(texture, atX, atY, cyclesToLive) {
     GameObject.call(this);
     this.setComponent.call(this, 'Renderer', new ParticleRenderer(texture));
     this.transform.setPosition.call(this, [atX, atY, 0]);
-
+    this.addComponent(new Physics({circle:true}));
     this.mDeltaColor = [0, 0, 0, 0];
     this.mSizeDelta = 0;
     this.mCyclesToLive = cyclesToLive;
@@ -107,7 +107,10 @@ function Physics(options) {
 Physics.prototype.setParent = function (p) {
     this.mParent = p;
     let transform = this.mParent.transform;
-    this.mBody = Matter.Bodies.rectangle(0, 0, 1, 1, this.mOptions);
+    if(!this.mOptions.hasOwnProperty('circle'))
+        this.mBody = Matter.Bodies.rectangle(0, 0, 1, 1, this.mOptions);
+    else
+        this.mBody = Matter.Bodies.circle(0, 0, 0.6, this.mOptions);
     Matter.Body.scale(this.mBody, transform.getScaleX(), transform.getScaleY(), { x: 0, y: 0 });
     Matter.Body.rotate(this.mBody, transform.getRotation(), { x: 0.0, y: 0.0 });
     Matter.Body.setPosition(this.mBody, { x: transform.getPositionX(), y: transform.getPositionY() });

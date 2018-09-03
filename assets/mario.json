@@ -28,7 +28,7 @@
          "name":"Object Layer 1",
          "objects":[
                 {
-                 "height":32,
+                 "height":8,
                  "id":2,
                  "name":"",
                  "rotation":0,
@@ -39,7 +39,7 @@
                  "y":896
                 }, 
                 {
-                 "height":32,
+                 "height":8,
                  "id":3,
                  "name":"",
                  "properties":
@@ -58,7 +58,7 @@
                  "y":736
                 }, 
                 {
-                 "height":32,
+                 "height":8,
                  "id":4,
                  "name":"",
                  "properties":
@@ -77,7 +77,7 @@
                  "y":576
                 }, 
                 {
-                 "height":32,
+                 "height":95,
                  "id":7,
                  "name":"",
                  "rotation":0,
@@ -88,7 +88,7 @@
                  "y":864
                 }, 
                 {
-                 "height":32,
+                 "height":8,
                  "id":8,
                  "name":"",
                  "properties":
@@ -107,7 +107,7 @@
                  "y":768
                 }, 
                 {
-                 "height":32,
+                 "height":11,
                  "id":10,
                  "name":"",
                  "properties":
@@ -137,7 +137,7 @@
                  "y":704
                 }, 
                 {
-                 "height":32,
+                 "height":64,
                  "id":12,
                  "name":"",
                  "rotation":0,
@@ -170,7 +170,7 @@
                  "y":800
                 }, 
                 {
-                 "height":32,
+                 "height":65,
                  "id":19,
                  "name":"",
                  "rotation":0,
@@ -181,7 +181,7 @@
                  "y":896
                 }, 
                 {
-                 "height":32,
+                 "height":8,
                  "id":22,
                  "name":"",
                  "properties":
@@ -200,7 +200,7 @@
                  "y":608
                 }, 
                 {
-                 "height":32,
+                 "height":9,
                  "id":23,
                  "name":"",
                  "properties":
@@ -219,7 +219,7 @@
                  "y":640
                 }, 
                 {
-                 "height":32,
+                 "height":9,
                  "id":24,
                  "name":"",
                  "properties":

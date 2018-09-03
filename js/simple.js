@@ -19,6 +19,7 @@ function SimpleGame() {
 
     this.mFullScreenBtn = document.getElementById('full-screen');
     this.mFullScreenBtn.addEventListener('click', this.fullScreen, false);
+    this.mJumping=false;
 }
 gEngine.Core.inheritPrototype(SimpleGame, Scene);
 
@@ -228,8 +229,16 @@ SimpleGame.prototype.update = function (delta = 1) {
         this.square.transform.setScale([-2, 2, 1]);
     }
     if (gEngine.Input.isKeyClicked(gEngine.Input.keyCodes.S))
-        this.square.physics.applyForce({ x: 0, y: 120 });
+    {
+        this.mJumping=1;
+        this.square.physics.applyForce({ x: 0, y: 60 });
+    }
     
+    if (gEngine.Input.isKeyPressed(gEngine.Input.keyCodes.S))
+    {
+        if((this.mJumping++)<26 && (this.mJumping%5)==0)
+            this.square.physics.applyForce({ x: 0, y: 20 });
+    }
     this.mCollector2.update(delta);
     this.mCollector.update(delta);
 
