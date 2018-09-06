@@ -403,10 +403,10 @@ gEngine.DefaultResources = (function () {
 	var createShaders = function (callbackFunction) {
 		mColorShader = new SimpleShader(kSimpleVS.name, kSimpleFS.name);
 		mTextureShader = new TextureShader(kTextureVS.name, kTextureFS.name);
-		mSpriteShader = new SpriteShader(kPixelSnapVS.name, kTextureFS.name);
+		mSpriteShader = new SpriteShader(kTextureVS.name, kTextureFS.name);
 		mFontShader = new SpriteShader(kTextureVS.name, kFontFS.name);
-		mLightShader = new LightShader(kPixelSnapVS.name, kLightFS.name);
-		mIllumShader = new IllumShader(kPixelSnapVS.name,kIllumFS.name);
+		mLightShader = new LightShader(kTextureVS.name, kLightFS.name);
+		mIllumShader = new IllumShader(kTextureVS.name,kIllumFS.name);
 		mParticleShader = new TextureShader(kTextureVS.name,kParticleFS.name);
 		callbackFunction();
 	};

@@ -6,7 +6,21 @@ let ComponetType = Object.freeze({
 function GameObject() {
     this.mComponents = {};
     this.addComponent(new Transform());
-    this.addComponent(new Renderer());
+    if (arguments.length > 0) {
+        if (arguments.length > 1) {
+            if (typeof arguments[1] === 'string' || arguments[1] instanceof String) {
+                this.addComponent(new IllumRenderer(arguments[0], arguments[1]),ComponetType.renderer);
+            }
+            else {
+                this.addComponent(new LightRenderer(arguments[0]),ComponetType.renderer);
+            }
+        }
+        else {
+            this.addComponent(new SpriteRenderer(arguments[0]),ComponetType.renderer);
+        }
+    } else {
+        this.addComponent(new Renderer());
+    }
     this.mParent = null;
     this.mChildren = null;
 }
@@ -25,11 +39,12 @@ GameObject.prototype.draw = function (camera) {
     }
 };
 
-GameObject.prototype.addComponent = function (component) {
-    this.mComponents[component.constructor.name] = component;
-    if (this.mComponents[component.constructor.name].setParent)
-        this.mComponents[component.constructor.name].setParent(this);
-    Object.defineProperty(this, component.constructor.name.replace(/^\w/, c => c.toLowerCase()), { get: function () { return this.mComponents[component.constructor.name]; } });
+GameObject.prototype.addComponent = function (component,componentType) {
+    let componentName = componentType || component.constructor.name;
+    this.mComponents[ componentName] = component;
+    if (this.mComponents[componentName].setParent)
+        this.mComponents[componentName].setParent(this);
+    Object.defineProperty(this, componentName.replace(/^\w/, c => c.toLowerCase()), { get: function () { return this.mComponents[componentName]; } });
 };
 GameObject.prototype.getComponent = function (component) {
     return this.mComponents[component];
@@ -68,7 +83,7 @@ function ParticleGameObject(texture, atX, atY, cyclesToLive) {
     GameObject.call(this);
     this.setComponent.call(this, 'Renderer', new ParticleRenderer(texture));
     this.transform.setPosition.call(this, [atX, atY, 0]);
-    this.addComponent(new Physics({circle:true}));
+    this.addComponent(new Physics({ circle: true }));
     this.mDeltaColor = [0, 0, 0, 0];
     this.mSizeDelta = 0;
     this.mCyclesToLive = cyclesToLive;
@@ -88,15 +103,91 @@ ParticleGameObject.prototype.update = function () {
     GameObject.prototype.update.call(this);
     this.mCyclesToLive--;
     let c = this.renderer.getColor();
-    this.renderer.setColor([c[0]+this.mDeltaColor[0],c[1]+this.mDeltaColor[1],c[2]+this.mDeltaColor[2],c[3]+this.mDeltaColor[3]]);
+    this.renderer.setColor([c[0] + this.mDeltaColor[0], c[1] + this.mDeltaColor[1], c[2] + this.mDeltaColor[2], c[3] + this.mDeltaColor[3]]);
     this.transform.scale(this.mSizeDelta);
 };
-ParticleGameObject.prototype.draw=function(camera){
+ParticleGameObject.prototype.draw = function (camera) {
     var gl = gEngine.Core.getGL();
     gl.blendFunc(gl.ONE, gl.ONE); // for additive blending!
     GameObject.prototype.draw.call(this, camera);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 }
+
+function TiledGameObject(texture,normal) {
+    GameObject.call(this, texture,normal);
+    this.mShouldTile = true;
+}
+gEngine.Core.inheritPrototype(TiledGameObject, GameObject);
+TiledGameObject.prototype.setIsTiled = function (t) { this.mShouldTile = t; };
+TiledGameObject.prototype.shouldTile = function () { return this.mShouldTile; };
+/**
+ * @param {Camera} camera Camera used to render
+ */
+TiledGameObject.prototype.drawTile = function (camera) {
+    let transform = this.transform;
+    let w = transform.getScaleX();
+    let h = transform.getScaleY();
+    let pos = transform.getPosition();
+    let left = pos[0] - (w / 2);
+    let right = left + w;
+    let top = pos[1] + (h / 2);
+    let bottom = top - h;
+
+    let wcPos = camera.getCenter();
+    let wcLeft = wcPos[0] - (camera.getWidth() / 2);
+    let wcRight = wcLeft + camera.getWidth();
+    let wcBottom = wcPos[1] - (camera.getHeight() / 2);
+    let wcTop = wcBottom + camera.getHeight();
+
+    let dx = 0, dy = 0;
+    if (right < wcLeft) {
+        dx = Math.ceil((wcLeft - right) / w) * w;
+    } else {
+        if (left > wcLeft) {
+            dx = -Math.ceil((left - wcLeft) / w) * w;
+        }
+    }
+    if (top < wcBottom) {
+        dy = Math.ceil((wcBottom - top) / h) * h;
+    } else {
+        if (bottom > wcBottom) {
+            dy = -Math.ceil((bottom - wcBottom) / h) * h;
+        }
+    }
+
+    let sX = pos[0], sY = pos[1];
+
+    transform.translate([dx, dy, 0]);
+    right = pos[0] + (w / 2);
+    top = pos[1] + (h / 2);
+
+    let nx = 1, ny = 1;
+    nx = Math.ceil((wcRight - right) / w);
+    ny = Math.ceil((wcTop - top) / h);
+    let cx = nx;
+    let xPos = pos[0];
+    while (ny >= 0) {
+        cx = nx;
+        pos[0] = xPos;
+        while (cx >= 0) {
+            this.renderer.draw(camera);
+            transform.translateX(w);
+            --cx;
+        }
+        transform.translateY(h);
+        --ny;
+    }
+    pos[0] = sX;
+    pos[1] = sY;
+};
+TiledGameObject.prototype.draw = function (camera) {
+    if (this.mShouldTile) {
+        this.drawTile(camera);
+    }
+    else {
+        this.renderer.draw(camera);
+    }
+};
 
 function Physics(options) {
     this.mBody = null;
@@ -107,7 +198,7 @@ function Physics(options) {
 Physics.prototype.setParent = function (p) {
     this.mParent = p;
     let transform = this.mParent.transform;
-    if(!this.mOptions.hasOwnProperty('circle'))
+    if (!this.mOptions.hasOwnProperty('circle'))
         this.mBody = Matter.Bodies.rectangle(0, 0, 1, 1, this.mOptions);
     else
         this.mBody = Matter.Bodies.circle(0, 0, 0.6, this.mOptions);

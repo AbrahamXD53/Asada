@@ -205,7 +205,7 @@ function MapRenderer(filePath) {
     this.mTilesets = [];
     this.mTransform = new Transform();
     this.mLights = [];
-    this.mShader = gEngine.DefaultResources.getSpriteShader();
+    this.mShader = gEngine.DefaultResources.getLightShader();
     this.mComposites = [];
 
 }

@@ -4,6 +4,8 @@ function SimpleGame() {
     this.square = null;
     this.squareBlue = null;
     this.squareFloor = null;
+    this.mBg = 'assets/bg.png';
+    this.mBgNormal = 'assets/bg_normal.png';
     this.kBgClip = 'assets/sound/ZombiesAreComing.ogg';
     this.kCollector = 'assets/minion_collector.png';
     this.kMinion = 'assets/minion_sprite.png';
@@ -41,12 +43,18 @@ SimpleGame.prototype.loadScene = function () {
     gEngine.Textures.loadTexture(this.kMinion);
     gEngine.Textures.loadTexture(this.kMinionNormal);
     gEngine.Textures.loadTexture(this.mMapTexture);
+    gEngine.Textures.loadTexture(this.mBg);
+    gEngine.Textures.loadTexture(this.mBgNormal);
     this.mMap.load();
 };
 
 SimpleGame.prototype.initialize = function () {
     this.camera = new Camera([0, 0], 30);
     this.camera2 = new Camera([0, 0], 10, [.5, 0, .5, 1]);
+
+    this.mBackground = new TiledGameObject(this.mBg,this.mBgNormal);
+    this.mBackground.transform.scale([19,19,1]);
+    //this.mBackground.setComponent(ComponetType.renderer,new SpriteRenderer(this.mBg));
 
     this.mTheLight = new Light();
     this.mTheLight.setPositionZ(2);
@@ -72,14 +80,14 @@ SimpleGame.prototype.initialize = function () {
     this.mTheLight3.setFar(9);
     this.mTheLight3.setColor([0.0, 1.0, 0, 1]);
 
-    this.square = new GameObject();
+    this.square = new GameObject(this.kCollector,true);
 
     this.particle= new ParticleGameObject(this.kDefaultParticle,0,0,1000);
 
     //this.square.transform.setRotation(Math.PI / 4);
     this.square.getComponent(ComponetType.transform).setScale([2, 2, 1]);
     this.square.getComponent(ComponetType.transform).setPosition(twgl.v3.create(2.3, 16));
-    this.square.setComponent('Renderer', new SpriteRenderer(this.kCollector));
+    //this.square.setComponent('Renderer', new SpriteRenderer(this.kCollector));
     // this.square.transform.setRotationDeg(45);
 
     this.square.addComponent(new Physics({ density: 1,friction:0, frictionStatic: 0.0, frictionAir: 0.1, inertia: Infinity }));
@@ -125,8 +133,8 @@ SimpleGame.prototype.initialize = function () {
     this.mCollector.renderer.addLight(this.mTheLight3);
 
 
-    this.mCollector2 = new GameObject();
-    this.mCollector2.setComponent(ComponetType.renderer, new IllumRenderer(this.kMinion,this.kMinionNormal));
+    this.mCollector2 = new GameObject(this.kMinion,this.kMinionNormal);
+    // this.mCollector2.setComponent(ComponetType.renderer, new IllumRenderer(this.kMinion,this.kMinionNormal));
     this.mCollector2.addComponent(new Animator({
         frame: { width: 204, height: 160, count: 10 },
         animations: [
@@ -155,6 +163,9 @@ SimpleGame.prototype.initialize = function () {
     this.mCollector2.renderer.addLight(this.mTheLight);
     this.mCollector2.renderer.addLight(this.mTheLight2);
     this.mCollector2.renderer.addLight(this.mTheLight3);
+    this.mBackground.renderer.addLight(this.mTheLight);
+    this.mBackground.renderer.addLight(this.mTheLight2);
+    this.mBackground.renderer.addLight(this.mTheLight3);
 
     this.mTextSysFont = new FontRenderable("Asada Engine Fierro!");
     this.mTextSysFont.setColor([1, .8, .8, 1]);
@@ -167,9 +178,9 @@ SimpleGame.prototype.initialize = function () {
     //this.mMap.getTransform().setPosition([0, 0, 0]);
     //this.mMap.getTransform().setScale([1, 1, 1]);
     this.mMap.setShader(gEngine.DefaultResources.getLightShader());
-    // this.mMap.addLight(this.mTheLight);
-    // this.mMap.addLight(this.mTheLight2);
-    // this.mMap.addLight(this.mTheLight3);
+    this.mMap.addLight(this.mTheLight);
+    this.mMap.addLight(this.mTheLight2);
+    this.mMap.addLight(this.mTheLight3);
 };
 SimpleGame.prototype.update = function (delta = 1) {
 
@@ -252,10 +263,11 @@ SimpleGame.prototype.update = function (delta = 1) {
     this.camera2.update();
 };
 SimpleGame.prototype.draw = function () {
-
     this.camera.refreshViewport();
     //this.camera2.refreshViewport();
     this.camera.setupViewProjection();
+    this.mBackground.draw(this.camera);
+
     this.mMap.draw(this.camera);
     this.squareBlue.draw(this.camera);
     this.squareFloor.draw(this.camera);
