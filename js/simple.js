@@ -5,7 +5,9 @@ function SimpleGame() {
     this.squareBlue = null;
     this.squareFloor = null;
     this.mBg = 'assets/bg.png';
+    this.mBgUp = 'assets/bgLayer.png';
     this.mBgNormal = 'assets/bg_normal.png';
+    this.mBgUpNormal = 'assets/bgLayer_normal.png';
     this.kBgClip = 'assets/sound/ZombiesAreComing.ogg';
     this.kCollector = 'assets/minion_collector.png';
     this.kMinion = 'assets/minion_sprite.png';
@@ -44,16 +46,20 @@ SimpleGame.prototype.loadScene = function () {
     gEngine.Textures.loadTexture(this.kMinionNormal);
     gEngine.Textures.loadTexture(this.mMapTexture);
     gEngine.Textures.loadTexture(this.mBg);
+    gEngine.Textures.loadTexture(this.mBgUp);
+    gEngine.Textures.loadTexture(this.mBgUpNormal);
     gEngine.Textures.loadTexture(this.mBgNormal);
     this.mMap.load();
 };
 
 SimpleGame.prototype.initialize = function () {
-    this.camera = new Camera([0, 0], 30);
-    this.camera2 = new Camera([0, 0], 10, [.5, 0, .5, 1]);
+    this.camera = new Camera([0, 0,0], 30);
+    this.camera2 = new Camera([0, 0,0], 10, [.5, 0, .5, 1]);
 
-    this.mBackground = new TiledGameObject(this.mBg,this.mBgNormal);
+    this.mBackground = new ParallaxGameObject(this.camera,4,this.mBg,this.mBgNormal);
     this.mBackground.transform.scale([19,19,1]);
+    this.mBackgroundUp = new ParallaxGameObject(this.camera,3,this.mBgUp,this.mBgUpNormal);
+    this.mBackgroundUp.transform.scale([19,19,1]);
     //this.mBackground.setComponent(ComponetType.renderer,new SpriteRenderer(this.mBg));
 
     this.mTheLight = new Light();
@@ -166,6 +172,9 @@ SimpleGame.prototype.initialize = function () {
     this.mBackground.renderer.addLight(this.mTheLight);
     this.mBackground.renderer.addLight(this.mTheLight2);
     this.mBackground.renderer.addLight(this.mTheLight3);
+    this.mBackgroundUp.renderer.addLight(this.mTheLight);
+    this.mBackgroundUp.renderer.addLight(this.mTheLight2);
+    this.mBackgroundUp.renderer.addLight(this.mTheLight3);
 
     this.mTextSysFont = new FontRenderable("Asada Engine Fierro!");
     this.mTextSysFont.setColor([1, .8, .8, 1]);
@@ -259,6 +268,8 @@ SimpleGame.prototype.update = function (delta = 1) {
     this.mMap.setCollision(this.square.transform.getPosition());
     this.camera.setCenter(this.square.transform.getPositionX(),3.5+this.square.transform.getPositionY());
     
+    this.mBackground.update(delta);
+    this.mBackgroundUp.update(delta);
     this.camera.update();
     this.camera2.update();
 };
@@ -267,6 +278,7 @@ SimpleGame.prototype.draw = function () {
     //this.camera2.refreshViewport();
     this.camera.setupViewProjection();
     this.mBackground.draw(this.camera);
+    this.mBackgroundUp.draw(this.camera);
 
     this.mMap.draw(this.camera);
     this.squareBlue.draw(this.camera);

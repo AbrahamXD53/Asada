@@ -9,14 +9,14 @@ function GameObject() {
     if (arguments.length > 0) {
         if (arguments.length > 1) {
             if (typeof arguments[1] === 'string' || arguments[1] instanceof String) {
-                this.addComponent(new IllumRenderer(arguments[0], arguments[1]),ComponetType.renderer);
+                this.addComponent(new IllumRenderer(arguments[0], arguments[1]), ComponetType.renderer);
             }
             else {
-                this.addComponent(new LightRenderer(arguments[0]),ComponetType.renderer);
+                this.addComponent(new LightRenderer(arguments[0]), ComponetType.renderer);
             }
         }
         else {
-            this.addComponent(new SpriteRenderer(arguments[0]),ComponetType.renderer);
+            this.addComponent(new SpriteRenderer(arguments[0]), ComponetType.renderer);
         }
     } else {
         this.addComponent(new Renderer());
@@ -39,9 +39,9 @@ GameObject.prototype.draw = function (camera) {
     }
 };
 
-GameObject.prototype.addComponent = function (component,componentType) {
+GameObject.prototype.addComponent = function (component, componentType) {
     let componentName = componentType || component.constructor.name;
-    this.mComponents[ componentName] = component;
+    this.mComponents[componentName] = component;
     if (this.mComponents[componentName].setParent)
         this.mComponents[componentName].setParent(this);
     Object.defineProperty(this, componentName.replace(/^\w/, c => c.toLowerCase()), { get: function () { return this.mComponents[componentName]; } });
@@ -112,10 +112,11 @@ ParticleGameObject.prototype.draw = function (camera) {
     GameObject.prototype.draw.call(this, camera);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 }
-
-function TiledGameObject(texture,normal) {
-    GameObject.call(this, texture,normal);
+var TiledType = Object.freeze({ All: 0, Vertical: 1, Horizontal: 2 });
+function TiledGameObject(texture, normal) {
+    GameObject.call(this, texture, normal);
     this.mShouldTile = true;
+    this.mTiledType = TiledType.All;
 }
 gEngine.Core.inheritPrototype(TiledGameObject, GameObject);
 TiledGameObject.prototype.setIsTiled = function (t) { this.mShouldTile = t; };
@@ -174,6 +175,7 @@ TiledGameObject.prototype.drawTile = function (camera) {
             transform.translateX(w);
             --cx;
         }
+
         transform.translateY(h);
         --ny;
     }
@@ -187,6 +189,38 @@ TiledGameObject.prototype.draw = function (camera) {
     else {
         this.renderer.draw(camera);
     }
+};
+function ParallaxGameObject(camera, scale, texture, normal) {
+    this.mRefCamera = camera;
+    this.mCameraCenterRef = this.mRefCamera.getCenter();
+    console.log(this.mRefCamera,this.mCameraCenterRef);
+    this.mParallaxScale = 1;
+    this.setParallaxScale(scale);
+    TiledGameObject.call(this, texture, normal);
+}
+gEngine.Core.inheritPrototype(ParallaxGameObject, TiledGameObject);
+ParallaxGameObject.prototype.getParallaxScale = function () { return this.mParallaxScale; };
+ParallaxGameObject.prototype.setParallaxScale = function (s) {
+    if (s <= 0) {
+        this.mParallaxScale = 1;
+    } else {
+        this.mParallaxScale = 1 / s;
+    }
+};
+
+ParallaxGameObject.prototype.refPosUpdate = function () {
+    let deltaT=twgl.v3.subtract(this.mCameraCenterRef, this.mRefCamera.getCenter());
+    this.setTranslationBy(deltaT);
+    this.mCameraCenterRef=twgl.v3.subtract(this.mCameraCenterRef,deltaT);
+    return deltaT;
+};
+ParallaxGameObject.prototype.setTranslationBy = function (delta) {
+    let f = (1 - this.mParallaxScale);
+    this.transform.translate([-delta[0]*f,-delta[1]*f,0]);
+};
+ParallaxGameObject.prototype.update = function () { 
+    let delta=this.refPosUpdate();
+    this.transform.translate([this.mParallaxScale*delta[0],this.mParallaxScale*delta[1],0]);
 };
 
 function Physics(options) {
