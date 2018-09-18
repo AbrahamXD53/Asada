@@ -88,11 +88,11 @@ SimpleGame.prototype.initialize = function () {
 
     this.square = new GameObject(this.kCollector,true);
 
-    this.particle= new ParticleGameObject(this.kDefaultParticle,0,0,1000);
+    //this.particle= new ParticleGameObject(this.kDefaultParticle,0,0,1000);
 
     //this.square.transform.setRotation(Math.PI / 4);
     this.square.getComponent(ComponetType.transform).setScale([2, 2, 1]);
-    this.square.getComponent(ComponetType.transform).setPosition(twgl.v3.create(2.3, 16));
+    this.square.getComponent(ComponetType.transform).setPosition(twgl.v3.create(0, -2.8));
     //this.square.setComponent('Renderer', new SpriteRenderer(this.kCollector));
     // this.square.transform.setRotationDeg(45);
 
@@ -190,10 +190,12 @@ SimpleGame.prototype.initialize = function () {
     this.mMap.addLight(this.mTheLight);
     this.mMap.addLight(this.mTheLight2);
     this.mMap.addLight(this.mTheLight3);
+
+    this.particleEmiter = new ParticleEmiter();
 };
 SimpleGame.prototype.update = function (delta = 1) {
 
-    this.particle.update();
+    //this.particle.update();
     var touches = gEngine.Input.getTouches();
     if (gEngine.Input.getTouchCount() > 0) {
         let coords = this.camera.screenToSpace([touches[0].clientX, touches[0].clientY]);
@@ -272,6 +274,7 @@ SimpleGame.prototype.update = function (delta = 1) {
     this.mBackgroundUp.update(delta);
     this.camera.update();
     this.camera2.update();
+    this.particleEmiter.update(delta);
 };
 SimpleGame.prototype.draw = function () {
     this.camera.refreshViewport();
@@ -287,7 +290,7 @@ SimpleGame.prototype.draw = function () {
     this.mCollector2.draw(this.camera);
     this.mCollector.draw(this.camera);
     this.mTextSysFont.draw(this.camera);
-    this.particle.draw(this.camera);
+    this.particleEmiter.draw(this.camera);
     
     //this.camera2.setupViewProjection();
     //this.mMap.draw(this.camera2);

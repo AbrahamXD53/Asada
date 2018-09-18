@@ -385,6 +385,8 @@ gEngine.DefaultResources = (function () {
 	var mIllumShader = null;
 	var mParticleShader = null;
 
+	var getDefaultParticleTexture = function(){ return kDefaultParticleTexture.name; };
+	var getDefaultFontTexture = function(){ return kDefaultFont.name; };
 	var getColorShader = function () { return mColorShader; };
 	var getTextureShader = function () { return mTextureShader; };
 	var getSpriteShader = function () { return mSpriteShader; };
@@ -462,7 +464,8 @@ gEngine.DefaultResources = (function () {
 		setGlobalAmbientIntensity: setGlobalAmbientIntensity,
 		getLightShader: getLightShader,
 		getIllumShader:getIllumShader,
-		getParticleShader:getParticleShader
+		getParticleShader:getParticleShader,
+		getDefaultParticleTexture:getDefaultParticleTexture
 	};
 	return mPublic;
 }());

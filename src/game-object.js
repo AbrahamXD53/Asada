@@ -53,7 +53,9 @@ GameObject.prototype.getAllComponents = function () {
     console.log(this.mComponents);
 };
 GameObject.prototype.destroy = function () {
-
+    if (this.getComponent(ComponetType.physics)) {
+        Matter.World.remove(gEngine.Physics.getWorld(), this.getComponent(ComponetType.physics).getBody());
+    }
 };
 GameObject.prototype.setComponent = function (componentType, value) {
     if (!this.mComponents[componentType])
@@ -72,7 +74,59 @@ GameObject.prototype.onCollisionEnd = function (event) {
     // this.renderer.setColor([1,1,1,1]);
 };
 
-function Particle(pos) {
+function Particle(cyclesToLive) {
+    this.mColor = [1.0, 1.0, 1.0, 1.0];
+    this.mCyclesToLive = cyclesToLive;
+    GameObject.call(this, gEngine.DefaultResources.getDefaultParticleTexture());
+    this.addComponent(new Physics({ circle: true, friction: 0,collisionFilter:{category:0} }));
+    this.renderer.setColor([0.0,0.5,1,0.9]);
+}
+gEngine.Core.inheritPrototype(Particle, GameObject);
+
+Particle.prototype.update = function (delta) {
+    this.mCyclesToLive -= delta;
+    GameObject.prototype.update.call(this, delta);
+};
+Particle.prototype.hasExpired = function () { return (this.mCyclesToLive < 0); };
+
+function ParticleEmiter(options = {}) { //New component
+    this.mParticles = [];
+    this.mStartSize = 1;
+    this.mMaxParticles = 100;
+    this.mNextParticle = Random(2, 1);
+}
+
+ParticleEmiter.prototype.emit = function (position) {
+    this.mParticles.push(
+        new Particle(Random(5, 8))
+    );
+};
+
+ParticleEmiter.prototype.update = function (delta) {
+    this.mNextParticle -= delta;
+    if (this.mNextParticle < 0 && this.mMaxParticles > this.mParticles.length) {
+        this.mNextParticle = 0.2;//Random(2, 1);
+        this.emit();
+    }
+    for (let index = this.mParticles.length - 1; index >= 0; index--) {
+        if (this.mParticles[index].hasExpired()) {
+            this.mParticles[index].destroy();
+            this.mParticles.splice(index, 1);
+        } else
+            this.mParticles[index].update(delta);
+    }
+};
+
+ParticleEmiter.prototype.draw = function (camera) {
+    let gl = gEngine.Core.getGL();
+    gl.blendFunc(gl.ONE, gl.ONE);
+    for (let index = this.mParticles.length - 1; index >= 0; index--) {
+        this.mParticles[index].draw(camera);
+    }
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+};
+
+/*function Particle(pos) {
     this.kPadding = 0.5; // for drawing particle bounds
     this.mPosition = pos; // this is likely to be a reference to xform.mPosition
     this.mDrag = 0.95;
@@ -111,7 +165,7 @@ ParticleGameObject.prototype.draw = function (camera) {
     gl.blendFunc(gl.ONE, gl.ONE); // for additive blending!
     GameObject.prototype.draw.call(this, camera);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-}
+}*/
 var TiledType = Object.freeze({ All: 0, Vertical: 1, Horizontal: 2 });
 function TiledGameObject(texture, normal) {
     GameObject.call(this, texture, normal);
@@ -193,7 +247,7 @@ TiledGameObject.prototype.draw = function (camera) {
 function ParallaxGameObject(camera, scale, texture, normal) {
     this.mRefCamera = camera;
     this.mCameraCenterRef = this.mRefCamera.getCenter();
-    console.log(this.mRefCamera,this.mCameraCenterRef);
+    console.log(this.mRefCamera, this.mCameraCenterRef);
     this.mParallaxScale = 1;
     this.setParallaxScale(scale);
     TiledGameObject.call(this, texture, normal);
@@ -209,18 +263,18 @@ ParallaxGameObject.prototype.setParallaxScale = function (s) {
 };
 
 ParallaxGameObject.prototype.refPosUpdate = function () {
-    let deltaT=twgl.v3.subtract(this.mCameraCenterRef, this.mRefCamera.getCenter());
+    let deltaT = twgl.v3.subtract(this.mCameraCenterRef, this.mRefCamera.getCenter());
     this.setTranslationBy(deltaT);
-    this.mCameraCenterRef=twgl.v3.subtract(this.mCameraCenterRef,deltaT);
+    this.mCameraCenterRef = twgl.v3.subtract(this.mCameraCenterRef, deltaT);
     return deltaT;
 };
 ParallaxGameObject.prototype.setTranslationBy = function (delta) {
     let f = (1 - this.mParallaxScale);
-    this.transform.translate([-delta[0]*f,-delta[1]*f,0]);
+    this.transform.translate([-delta[0] * f, -delta[1] * f, 0]);
 };
-ParallaxGameObject.prototype.update = function () { 
-    let delta=this.refPosUpdate();
-    this.transform.translate([this.mParallaxScale*delta[0],this.mParallaxScale*delta[1],0]);
+ParallaxGameObject.prototype.update = function () {
+    let delta = this.refPosUpdate();
+    this.transform.translate([this.mParallaxScale * delta[0], this.mParallaxScale * delta[1], 0]);
 };
 
 function Physics(options) {
