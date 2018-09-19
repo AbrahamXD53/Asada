@@ -78,7 +78,7 @@ function Particle(cyclesToLive) {
     this.mColor = [1.0, 1.0, 1.0, 1.0];
     this.mCyclesToLive = cyclesToLive;
     GameObject.call(this, gEngine.DefaultResources.getDefaultParticleTexture());
-    this.addComponent(new Physics({ circle: true, friction: 0,collisionFilter:{category:0} }));
+    this.addComponent(new Physics({ circle: true, friction: 0,isSensor:true }));
     this.renderer.setColor([0.0,0.5,1,0.9]);
 }
 gEngine.Core.inheritPrototype(Particle, GameObject);
@@ -126,46 +126,6 @@ ParticleEmiter.prototype.draw = function (camera) {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 };
 
-/*function Particle(pos) {
-    this.kPadding = 0.5; // for drawing particle bounds
-    this.mPosition = pos; // this is likely to be a reference to xform.mPosition
-    this.mDrag = 0.95;
-}
-
-function ParticleGameObject(texture, atX, atY, cyclesToLive) {
-
-    GameObject.call(this);
-    this.setComponent.call(this, 'Renderer', new ParticleRenderer(texture));
-    this.transform.setPosition.call(this, [atX, atY, 0]);
-    this.addComponent(new Physics({ circle: true }));
-    this.mDeltaColor = [0, 0, 0, 0];
-    this.mSizeDelta = 0;
-    this.mCyclesToLive = cyclesToLive;
-}
-gEngine.Core.inheritPrototype(ParticleGameObject, GameObject);
-
-ParticleGameObject.prototype.setFinalColor = function (f) {
-    //vec4.sub(this.mDeltaColor, f, this.mRenderComponent.getColor());
-    if (this.mCyclesToLive !== 0) {
-        // vec4.scale(this.mDeltaColor, this.mDeltaColor, 1 / this.mCyclesToLive);
-    }
-};
-
-ParticleGameObject.prototype.setSizeDelta = function (d) { this.mSizeDelta = d; };
-ParticleGameObject.prototype.hasExpired = function () { return (this.mCyclesToLive < 0); };
-ParticleGameObject.prototype.update = function () {
-    GameObject.prototype.update.call(this);
-    this.mCyclesToLive--;
-    let c = this.renderer.getColor();
-    this.renderer.setColor([c[0] + this.mDeltaColor[0], c[1] + this.mDeltaColor[1], c[2] + this.mDeltaColor[2], c[3] + this.mDeltaColor[3]]);
-    this.transform.scale(this.mSizeDelta);
-};
-ParticleGameObject.prototype.draw = function (camera) {
-    var gl = gEngine.Core.getGL();
-    gl.blendFunc(gl.ONE, gl.ONE); // for additive blending!
-    GameObject.prototype.draw.call(this, camera);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-}*/
 var TiledType = Object.freeze({ All: 0, Vertical: 1, Horizontal: 2 });
 function TiledGameObject(texture, normal) {
     GameObject.call(this, texture, normal);
