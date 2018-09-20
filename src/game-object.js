@@ -74,20 +74,24 @@ GameObject.prototype.onCollisionEnd = function (event) {
     // this.renderer.setColor([1,1,1,1]);
 };
 
-function Particle(cyclesToLive) {
+function Particle(options = {}) {
     this.mColor = [1.0, 1.0, 1.0, 1.0];
-    this.mCyclesToLive = cyclesToLive;
+    this.mLifeSpan = options.lifeSpan || 10;
     GameObject.call(this, gEngine.DefaultResources.getDefaultParticleTexture());
-    this.addComponent(new Physics({ circle: true, friction: 0,isSensor:true }));
-    this.renderer.setColor([0.0,0.5,1,0.9]);
+    this.transform.setPosition(options.position||[0,0,0]);
+    let scale=Math.random();
+    this.transform.setScale(options.scale||[scale,scale,1]);
+    this.addComponent(new Physics({ circle: true, friction: 0, isSensor: true,gravityScale:0}));
+    Matter.Body.setVelocity(this.physics.getBody(),{x:options.velocity[0]/10,y:options.velocity[1]/10});
+    this.renderer.setColor([0.0, 0.5, 1, 0.9]);
 }
 gEngine.Core.inheritPrototype(Particle, GameObject);
 
 Particle.prototype.update = function (delta) {
-    this.mCyclesToLive -= delta;
+    this.mLifeSpan -= delta;
     GameObject.prototype.update.call(this, delta);
 };
-Particle.prototype.hasExpired = function () { return (this.mCyclesToLive < 0); };
+Particle.prototype.hasExpired = function () { return (this.mLifeSpan < 0); };
 
 function ParticleEmiter(options = {}) { //New component
     this.mParticles = [];
@@ -98,7 +102,13 @@ function ParticleEmiter(options = {}) { //New component
 
 ParticleEmiter.prototype.emit = function (position) {
     this.mParticles.push(
-        new Particle(Random(5, 8))
+        new Particle({lifeSpan:Random(5, 8),position:[
+            -1+(2*Math.random()),
+            -1+(2*Math.random()),0
+        ],velocity:[
+            -1+(2*Math.random()),
+            -1+(2*Math.random())
+        ]})
     );
 };
 

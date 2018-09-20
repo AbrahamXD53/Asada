@@ -106,6 +106,7 @@ SimpleGame.prototype.initialize = function () {
 
     this.squareBlue.renderer.setColor([1, 1, 1, 1]);
     this.squareBlue.addComponent(new Physics({density:1}));
+    this.squareBlue.getAllComponents();
 
     this.squareFloor = new GameObject();
     this.squareFloor.transform.setPosition(twgl.v3.create(-7, -5, 0));
