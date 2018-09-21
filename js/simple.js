@@ -194,6 +194,7 @@ SimpleGame.prototype.initialize = function () {
 
     this.particleEmiter = new ParticleEmiter();
 };
+var localTime=0;
 SimpleGame.prototype.update = function (delta = 1) {
 
     //this.particle.update();
@@ -275,6 +276,8 @@ SimpleGame.prototype.update = function (delta = 1) {
     this.mBackgroundUp.update(delta);
     this.camera.update();
     this.camera2.update();
+    localTime+=delta;
+    this.particleEmiter.getTransform().translate([Math.cos(localTime),Math.sin(localTime),0]);
     this.particleEmiter.update(delta);
 };
 SimpleGame.prototype.draw = function () {

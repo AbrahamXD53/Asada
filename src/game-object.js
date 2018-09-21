@@ -78,18 +78,40 @@ function Particle(options = {}) {
     this.mColor = [1.0, 1.0, 1.0, 1.0];
     this.mLifeSpan = options.lifeSpan || 10;
     GameObject.call(this, gEngine.DefaultResources.getDefaultParticleTexture());
-    this.transform.setPosition(options.position||[0,0,0]);
-    let scale=Math.random();
-    this.transform.setScale(options.scale||[scale,scale,1]);
-    this.addComponent(new Physics({ circle: true, friction: 0, isSensor: true,gravityScale:0}));
-    Matter.Body.setVelocity(this.physics.getBody(),{x:options.velocity[0]/10,y:options.velocity[1]/10});
-    this.renderer.setColor([0.0, 0.5, 1, 0.9]);
+    this.transform.setPosition(options.position || [0, 0, 0]);
+    this.mScale = options.scale || [1, 1, 1];
+    if (!this.mScale[2])
+        this.mScale[2] = 1;
+    this.transform.setScale(this.mScale);
+    if (!options.velocity)
+        options.velocity = [0, 0, 0];
+    this.mVelocity = options.velocity;
+    this.usePhysics = options.physics || false;
+    if(this.usePhysics){
+        this.addComponent(new Physics({ circle: true, friction: 0, isSensor: true, gravityScale: 0 }));
+        Matter.Body.setVelocity(this.physics.getBody(), { x: this.mVelocity[0], y: this.mVelocity[1] });
+    }
+    this.mDeltaColor = options.deltaColor || [0, 0, 0, 0];
+    this.mBaseColor = options.startColor || [1, 1, 1, 1];
+    this.mDeltaScale = options.deltaScale || [0, 0, 0];
+    this.renderer.setColor(this.mBaseColor);
 }
 gEngine.Core.inheritPrototype(Particle, GameObject);
 
 Particle.prototype.update = function (delta) {
     this.mLifeSpan -= delta;
     GameObject.prototype.update.call(this, delta);
+    this.mBaseColor[0] += this.mDeltaColor[0];
+    this.mBaseColor[1] += this.mDeltaColor[1];
+    this.mBaseColor[2] += this.mDeltaColor[2];
+    this.mBaseColor[3] += this.mDeltaColor[3];
+    if(!this.usePhysics){
+        this.transform.translate(this.mVelocity);
+        this.mScale[0]+=this.mDeltaScale[0];
+        this.mScale[1]+=this.mDeltaScale[1];
+        this.transform.setScale(this.mScale);
+    }
+    this.renderer.setColor(this.mBaseColor);
 };
 Particle.prototype.hasExpired = function () { return (this.mLifeSpan < 0); };
 
@@ -97,25 +119,37 @@ function ParticleEmiter(options = {}) { //New component
     this.mParticles = [];
     this.mStartSize = 1;
     this.mMaxParticles = 100;
-    this.mNextParticle = Random(2, 1);
+    this.mNextParticle = Math.random();
+    this.mTransform = new Transform();
 }
 
 ParticleEmiter.prototype.emit = function (position) {
     this.mParticles.push(
-        new Particle({lifeSpan:Random(5, 8),position:[
-            -1+(2*Math.random()),
-            -1+(2*Math.random()),0
-        ],velocity:[
-            -1+(2*Math.random()),
-            -1+(2*Math.random())
-        ]})
-    );
+        new Particle({
+            lifeSpan: Random(14, 18), position: [
+                this.mTransform.getPosition()[0]+(-1 + (2 * Math.random())),
+                this.mTransform.getPosition()[1]+(-1 + (2 * Math.random())), 0
+            ],
+            velocity: [
+                (-1 + (2 * Math.random())) / 10,
+                (-1 + (2 * Math.random())) / 10, 0
+            ],
+            deltaScale:[-0.005,-0.005,0],
+            deltaColor:[-0.01,0,0,-0.01],
+            startColor: [1, 1, 0, 1.0],
+            scale: [1,1,1,1],
+        }));
+};
+
+ParticleEmiter.prototype.getTransform = function(){
+    return this.mTransform;
 };
 
 ParticleEmiter.prototype.update = function (delta) {
     this.mNextParticle -= delta;
     if (this.mNextParticle < 0 && this.mMaxParticles > this.mParticles.length) {
-        this.mNextParticle = 0.2;//Random(2, 1);
+        //this.mNextParticle = 0.2;//Random(2, 1);
+        this.mNextParticle = 0;//Math.random();
         this.emit();
     }
     for (let index = this.mParticles.length - 1; index >= 0; index--) {
@@ -129,7 +163,7 @@ ParticleEmiter.prototype.update = function (delta) {
 
 ParticleEmiter.prototype.draw = function (camera) {
     let gl = gEngine.Core.getGL();
-    gl.blendFunc(gl.ONE, gl.ONE);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
     for (let index = this.mParticles.length - 1; index >= 0; index--) {
         this.mParticles[index].draw(camera);
     }
