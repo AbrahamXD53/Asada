@@ -96,7 +96,7 @@ SimpleGame.prototype.initialize = function () {
     //this.square.setComponent('Renderer', new SpriteRenderer(this.kCollector));
     // this.square.transform.setRotationDeg(45);
 
-    this.square.addComponent(new Physics({ density: 1,friction:0, frictionStatic: 0.0, frictionAir: 0.1, inertia: Infinity }));
+    this.square.addComponent(new Physics({ density: 1,friction:0, frictionStatic: 0.0, frictionAir: 0.1, inertia: Infinity,offsetX:0.2 }));
     Matter.Body.setInertia(this.square.physics.getBody(), Infinity);
     this.squareBlue = new GameObject();
     this.squareBlue.getComponent(ComponetType.transform).setScale([1, 2, 2]);
@@ -192,7 +192,8 @@ SimpleGame.prototype.initialize = function () {
     this.mMap.addLight(this.mTheLight2);
     this.mMap.addLight(this.mTheLight3);
 
-    this.particleEmiter = new ParticleEmiter();
+    this.particleEmiter = new GameObject(gEngine.DefaultResources.getDefaultParticleTexture());
+    this.particleEmiter.addComponent(new ParticleEmiter());
 };
 var localTime=0;
 SimpleGame.prototype.update = function (delta = 1) {
@@ -277,7 +278,7 @@ SimpleGame.prototype.update = function (delta = 1) {
     this.camera.update();
     this.camera2.update();
     localTime+=delta;
-    this.particleEmiter.getTransform().translate([Math.cos(localTime),Math.sin(localTime),0]);
+    this.particleEmiter.transform.translate([Math.cos(localTime),Math.sin(localTime),0]);
     this.particleEmiter.update(delta);
 };
 SimpleGame.prototype.draw = function () {

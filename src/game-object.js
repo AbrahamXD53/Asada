@@ -3,6 +3,14 @@ let ComponetType = Object.freeze({
     renderer: 'Renderer',
     physics: 'Physics'
 });
+function Component() {
+    this.mParent = null;
+    this.mActive = true;
+}
+Component.prototype.setParent = function (parent) { this.mParent = parent; };
+Component.prototype.getParent = function () { return this.getParent; };
+Component.prototype.setActive = function(a){this.mActive=a; };
+Component.prototype.getActibe = function(){return this.mActive; };
 function GameObject() {
     this.mComponents = {};
     this.addComponent(new Transform());
@@ -87,7 +95,7 @@ function Particle(options = {}) {
         options.velocity = [0, 0, 0];
     this.mVelocity = options.velocity;
     this.usePhysics = options.physics || false;
-    if(this.usePhysics){
+    if (this.usePhysics) {
         this.addComponent(new Physics({ circle: true, friction: 0, isSensor: true, gravityScale: 0 }));
         Matter.Body.setVelocity(this.physics.getBody(), { x: this.mVelocity[0], y: this.mVelocity[1] });
     }
@@ -105,10 +113,10 @@ Particle.prototype.update = function (delta) {
     this.mBaseColor[1] += this.mDeltaColor[1];
     this.mBaseColor[2] += this.mDeltaColor[2];
     this.mBaseColor[3] += this.mDeltaColor[3];
-    if(!this.usePhysics){
+    if (!this.usePhysics) {
         this.transform.translate(this.mVelocity);
-        this.mScale[0]+=this.mDeltaScale[0];
-        this.mScale[1]+=this.mDeltaScale[1];
+        this.mScale[0] += this.mDeltaScale[0];
+        this.mScale[1] += this.mDeltaScale[1];
         this.transform.setScale(this.mScale);
     }
     this.renderer.setColor(this.mBaseColor);
@@ -120,29 +128,26 @@ function ParticleEmiter(options = {}) { //New component
     this.mStartSize = 1;
     this.mMaxParticles = 100;
     this.mNextParticle = Math.random();
-    this.mTransform = new Transform();
+    Component.call(this);
 }
+gEngine.Core.inheritPrototype(ParticleEmiter,Component);
 
 ParticleEmiter.prototype.emit = function (position) {
     this.mParticles.push(
         new Particle({
             lifeSpan: Random(14, 18), position: [
-                this.mTransform.getPosition()[0]+(-1 + (2 * Math.random())),
-                this.mTransform.getPosition()[1]+(-1 + (2 * Math.random())), 0
+                this.mParent.transform.getPosition()[0] + (-1 + (2 * Math.random())),
+                this.mParent.transform.getPosition()[1] + (-1 + (2 * Math.random())), 0
             ],
             velocity: [
                 (-1 + (2 * Math.random())) / 10,
                 (-1 + (2 * Math.random())) / 10, 0
             ],
-            deltaScale:[-0.005,-0.005,0],
-            deltaColor:[-0.01,0,0,-0.01],
+            deltaScale: [-0.005, -0.005, 0],
+            deltaColor: [-0.01, 0, 0, -0.01],
             startColor: [1, 1, 0, 1.0],
-            scale: [1,1,1,1],
+            scale: [1, 1, 1, 1],
         }));
-};
-
-ParticleEmiter.prototype.getTransform = function(){
-    return this.mTransform;
 };
 
 ParticleEmiter.prototype.update = function (delta) {
@@ -291,9 +296,9 @@ Physics.prototype.setParent = function (p) {
     this.mParent = p;
     let transform = this.mParent.transform;
     if (!this.mOptions.hasOwnProperty('circle'))
-        this.mBody = Matter.Bodies.rectangle(0, 0, 1, 1, this.mOptions);
+        this.mBody = Matter.Bodies.rectangle(0 + ((this.mOptions.offsetX||0)*0.5), 0+ ((this.mOptions.offsetY||0)*0.5), 1 - (this.mOptions.offsetX||0), 1 - (this.mOptions.offsetY||0), this.mOptions);
     else
-        this.mBody = Matter.Bodies.circle(0, 0, 0.6, this.mOptions);
+        this.mBody = Matter.Bodies.circle(0, 0, 0.5, this.mOptions);
     Matter.Body.scale(this.mBody, transform.getScaleX(), transform.getScaleY(), { x: 0, y: 0 });
     Matter.Body.rotate(this.mBody, transform.getRotation(), { x: 0.0, y: 0.0 });
     Matter.Body.setPosition(this.mBody, { x: transform.getPositionX(), y: transform.getPositionY() });
