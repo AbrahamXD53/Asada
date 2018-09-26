@@ -32,7 +32,7 @@ function AnimationDescription(description) {
     if (description.frames) {
         this.mLimit = description.frames.length;
         this.mStart = 0;
-        this.mFrameIndexes = description.frames
+		this.mFrameIndexes = description.frames;
     }
     else {
         this.mStart = description.start;
@@ -94,7 +94,7 @@ Condition.prototype.test = function (val)
 {
     switch (this.mOperador) {
         case AnimationOperator.Equals:
-            return this.mValue == val;
+            return this.mValue === val;
         case AnimationOperator.MoreThan:
             return val > this.mValue;
         case AnimationOperator.LessThan:
@@ -120,14 +120,14 @@ AnimationController.prototype.update = function (delta) {
         let transitions = this.mTransitions[this.mCurrentAnimation];
         for (let or = 0,transLen=transitions.length, valid = true; or < transLen; or++) {
             if (!transitions[or].mConditions) {
-                if (this.mAnimations[this.mCurrentAnimation].mState != AnimationState.Ended) {
+                if (this.mAnimations[this.mCurrentAnimation].mState !== AnimationState.Ended) {
                     valid = false;
                     break;
                 }
             } else {
                 for (let and = 0,condLen=transitions[or].mConditions.length; and < condLen; and++) 
                 {
-                    if(this.mParams[transitions[or].mConditions[and].mName]==undefined){
+                    if(this.mParams[transitions[or].mConditions[and].mName]===undefined){
                         console.warn('No animation param called: ' + transitions[or].mConditions[and].mName);
                     }else{
                         if (!transitions[or].mConditions[and].test(this.mParams[transitions[or].mConditions[and].mName])) {
@@ -166,14 +166,14 @@ function Animator(options) {
             params: options.params || {},
             animations: options.animations || [new AnimationDescription({ frames: [0], time: 300, loops: -1 })],
             defaultAnimation: options.defaultAnimation || 0,
-            transitions: options.transitions,
+            transitions: options.transitions
         });
         if (options.frames || options.frame) {
             this.mFrameInfo = {
                 frames: options.frames,
                 width: options.frame.width,
                 height: options.frame.height,
-                numFrames: options.frame.count,
+                numFrames: options.frame.count
                 //imageWidth: textureInfo.mWidth,
                 //imageHeight: textureInfo.mHeight
             };
@@ -183,45 +183,44 @@ function Animator(options) {
             params: {},
             animations: [new AnimationDescription({ frames: [0], time: 300, loops: -1 })],
             defaultAnimation: 0,
-            transitions: [],
+            transitions: []
         });
     }
     this.mPrevFrame = -1;
     this.mParent = null;
 }
 
-Animator.prototype.setUpTexture = function () 
-{
-    let textureInfo = gEngine.Textures.getTextureInfo( this.mParent.renderer.getTexture());    
-    if(this.mFrameInfo){
-        this.mFrameInfo.imageWidth= textureInfo.mWidth;
-        this.mFrameInfo.imageHeight= textureInfo.mHeight;
-    }
-    else{
-        this.mFrameInfo  = {frames:[[0,0,textureInfo.mWidth,textureInfo.mHeight]]};
-    }
-    this.mFrames = new FrameDescriptor(this.mFrameInfo);
+Animator.prototype.setUpTexture = function () {
+	let textureInfo = gEngine.Textures.getTextureInfo(this.mParent.renderer.getTexture());
+	if (this.mFrameInfo) {
+		this.mFrameInfo.imageWidth = textureInfo.mWidth;
+		this.mFrameInfo.imageHeight = textureInfo.mHeight;
+	}
+	else {
+		this.mFrameInfo = { frames: [[0, 0, textureInfo.mWidth, textureInfo.mHeight]] };
+	}
+	this.mFrames = new FrameDescriptor(this.mFrameInfo);
 
-    let frame = this.mAnimationController.getFrame();
-    if (frame != this.mPrevFrame) {
-        let box = this.mFrames.getFrame(frame);
-        this.mPrevFrame = frame;
-        this.mParent.renderer.setTextureCoordPixels(box[0], box[2], box[3], box[1]);
-    }
-}
+	let frame = this.mAnimationController.getFrame();
+	if (frame !== this.mPrevFrame) {
+		let box = this.mFrames.getFrame(frame);
+		this.mPrevFrame = frame;
+		this.mParent.renderer.setTextureCoordPixels(box[0], box[2], box[3], box[1]);
+	}
+};
 
 Animator.prototype.setParent = function (p) {
-    this.mParent = p;
+	this.mParent = p;
 
-    this.setUpTexture();
-}
+	this.setUpTexture();
+};
 
 Animator.prototype.update = function (delta = 10) {
     this.mAnimationController.update(delta);
 
     let animation = this.mAnimationController.getFrame();
     let frame = this.mFrames.getFrame(animation);
-    if (frame != this.mPrevFrame) {
+    if (frame !== this.mPrevFrame) {
         this.mPrevFrame = frame;
         this.mParent.renderer.setTextureCoordPixels(frame[0], frame[2], frame[3], frame[1]);
     }

@@ -121,7 +121,7 @@ Particle.prototype.update = function (delta) {
     }
     this.renderer.setColor(this.mBaseColor);
 };
-Particle.prototype.hasExpired = function () { return (this.mLifeSpan < 0); };
+Particle.prototype.hasExpired = function () { return this.mLifeSpan < 0; };
 
 function ParticleEmiter(options = {}) { //New component
     this.mParticles = [];
@@ -136,17 +136,17 @@ ParticleEmiter.prototype.emit = function (position) {
     this.mParticles.push(
         new Particle({
             lifeSpan: Random(14, 18), position: [
-                this.mParent.transform.getPosition()[0] + (-1 + (2 * Math.random())),
-                this.mParent.transform.getPosition()[1] + (-1 + (2 * Math.random())), 0
+                this.mParent.transform.getPosition()[0] + (-1 + 2 * Math.random()),
+                this.mParent.transform.getPosition()[1] + (-1 + 2 * Math.random()), 0
             ],
             velocity: [
-                (-1 + (2 * Math.random())) / 10,
-                (-1 + (2 * Math.random())) / 10, 0
+                (-1 + 2 * Math.random()) / 10,
+                (-1 + 2 * Math.random()) / 10, 0
             ],
             deltaScale: [-0.005, -0.005, 0],
             deltaColor: [-0.01, 0, 0, -0.01],
             startColor: [1, 1, 0, 1.0],
-            scale: [1, 1, 1, 1],
+            scale: [1, 1, 1, 1]
         }));
 };
 
@@ -192,15 +192,15 @@ TiledGameObject.prototype.drawTile = function (camera) {
     let w = transform.getScaleX();
     let h = transform.getScaleY();
     let pos = transform.getPosition();
-    let left = pos[0] - (w / 2);
+    let left = pos[0] - w * 0.5;
     let right = left + w;
-    let top = pos[1] + (h / 2);
+    let top = pos[1] + h * 0.5;
     let bottom = top - h;
 
     let wcPos = camera.getCenter();
-    let wcLeft = wcPos[0] - (camera.getWidth() / 2);
+    let wcLeft = wcPos[0] - camera.getWidth() * 0.5;
     let wcRight = wcLeft + camera.getWidth();
-    let wcBottom = wcPos[1] - (camera.getHeight() / 2);
+	let wcBottom = wcPos[1] - camera.getHeight() * 0.5;
     let wcTop = wcBottom + camera.getHeight();
 
     let dx = 0, dy = 0;
@@ -222,8 +222,8 @@ TiledGameObject.prototype.drawTile = function (camera) {
     let sX = pos[0], sY = pos[1];
 
     transform.translate([dx, dy, 0]);
-    right = pos[0] + (w / 2);
-    top = pos[1] + (h / 2);
+	right = pos[0] + w * 0.5;
+	top = pos[1] + h * 0.5;
 
     let nx = 1, ny = 1;
     nx = Math.ceil((wcRight - right) / w);
@@ -278,7 +278,7 @@ ParallaxGameObject.prototype.refPosUpdate = function () {
     return deltaT;
 };
 ParallaxGameObject.prototype.setTranslationBy = function (delta) {
-    let f = (1 - this.mParallaxScale);
+    let f = 1 - this.mParallaxScale;
     this.transform.translate([-delta[0] * f, -delta[1] * f, 0]);
 };
 ParallaxGameObject.prototype.update = function () {
@@ -290,13 +290,17 @@ function Physics(options) {
     this.mBody = null;
     this.mParent = null;
     this.mOptions = options || { inertia: Infinity };
-};
+}
 
 Physics.prototype.setParent = function (p) {
     this.mParent = p;
     let transform = this.mParent.transform;
     if (!this.mOptions.hasOwnProperty('circle'))
-        this.mBody = Matter.Bodies.rectangle(0 + ((this.mOptions.offsetX||0)*0.5), 0+ ((this.mOptions.offsetY||0)*0.5), 1 - (this.mOptions.offsetX||0), 1 - (this.mOptions.offsetY||0), this.mOptions);
+		this.mBody = Matter.Bodies.rectangle(
+			0 + (this.mOptions.offsetX || 0) * 0.5,
+			0 + (this.mOptions.offsetY || 0) * 0.5,
+			1 - (this.mOptions.offsetX || 0),
+			1 - (this.mOptions.offsetY || 0), this.mOptions);
     else
         this.mBody = Matter.Bodies.circle(0, 0, 0.5, this.mOptions);
     Matter.Body.scale(this.mBody, transform.getScaleX(), transform.getScaleY(), { x: 0, y: 0 });

@@ -17,7 +17,7 @@ SimpleShader.prototype.activateShader = function (color, transform, camera) {
         u_globalAmbientIntensity:gEngine.DefaultResources.getGlobalAmbientIntensity(),
         u_color: color,u_screenSize:[screen[2],screen[3]],
         u_transform: transform,
-        u_viewTransform: camera.getVPMatrix(),
+        u_viewTransform: camera.getVPMatrix()
     };
 	twgl.setUniforms(this.mCompiledShader, this.mUniforms);
 };

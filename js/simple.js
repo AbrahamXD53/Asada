@@ -154,7 +154,7 @@ SimpleGame.prototype.initialize = function () {
             [
                 new Transition(1, [
                     new Condition('X', AnimationOperator.MoreThan, 1)
-                ]),
+                ])
 
             ],
             [
@@ -210,7 +210,7 @@ SimpleGame.prototype.update = function (delta = 1) {
     var gamepads = gEngine.Input.getGamepads();
 
     if (gamepads[0]) {
-        this.mTextSysFont.getTransform().translate([gamepads[0].axes[0] * .1, -gamepads[0].axes[1] * .1, 0])
+		this.mTextSysFont.getTransform().translate([gamepads[0].axes[0] * .1, -gamepads[0].axes[1] * .1, 0]);
         this.mTextSysFont.getTransform().setRotation(Math.atan2(-gamepads[0].axes[3], gamepads[0].axes[2]));
     }
 
@@ -260,8 +260,9 @@ SimpleGame.prototype.update = function (delta = 1) {
     }
     
     if (gEngine.Input.isKeyPressed(gEngine.Input.keyCodes.S))
-    {
-        if((this.mJumping++)<26 && (this.mJumping%5)==0)
+	{
+		this.mJumping++;
+		if (this.mJumping<26 && this.mJumping%5===0)
             this.square.physics.applyForce({ x: 0, y: 20 });
     }
     this.mCollector2.update(delta);

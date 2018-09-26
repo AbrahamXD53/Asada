@@ -393,7 +393,7 @@ gEngine.DefaultResources = (function () {
 	var getFontShader = function () { return mFontShader; };
 	var getLightShader = function () { return mLightShader; };
 	var getIllumShader = function() { return mIllumShader; };
-	var getParticleShader = function () { return mParticleShader };
+	var getParticleShader = function () { return mParticleShader; };
 
 	var getGlobalAmbientColor = function () { return mGlobalAmbientColor; };
 	var getGlobalAmbientIntensity = function () { return mGlobalAmbientIntensity; };

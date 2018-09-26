@@ -1,7 +1,7 @@
 var app = {
     // Application Constructor
     initialize: function () {
-        document.addEventListener('DOMContentLoaded', this.onDeviceReady.bind(this), false);
+		document.addEventListener('DOMContentLoaded', this.onDeviceReady.bind(this), false);
         document.addEventListener('pause', this.onPause.bind(this), false);
         document.addEventListener('resume', this.onResume.bind(this), false);
         this.loader=document.getElementById('loader');

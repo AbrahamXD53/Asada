@@ -12,7 +12,7 @@ gEngine.Core = (function () {
 
 		mGL.canvas.width = width;
 		mGL.canvas.height = height;
-	}
+	};
 
 	var initializeWebGL = function (canvasId) {
 		var canvas = document.getElementById(canvasId);
@@ -147,7 +147,7 @@ gEngine.GameLoop = (function () {
 			mPreviousTime = mCurrentTime;
 			mLagTime += mElapsedTime;
 
-			while ((mLagTime >= kMPF) && mIsLoopRunning) {
+			while (mLagTime >= kMPF && mIsLoopRunning) {
 				if (mIsFocused) {
 					gEngine.Physics.update(kMPF / 100);
 					gEngine.Input.update();
@@ -197,7 +197,7 @@ gEngine.GameLoop = (function () {
 
 		window.removeEventListener('focus');
 		window.removeEventListener('blur');
-	}
+	};
 
 	var mPublic = {
 		start: start,
@@ -297,7 +297,7 @@ gEngine.Input = (function () {
 		var bBox = mCanvas.getBoundingClientRect();
 		var x = Math.round((event.clientX - bBox.left) * (mCanvas.width / bBox.width));
 		var y = Math.round((event.clientY - bBox.top) * (mCanvas.width / bBox.width));
-		if ((x >= 0) && (x < mCanvas.width) && (y >= 0) && (y < mCanvas.height)) {
+		if (x >= 0 && x < mCanvas.width && y >= 0 && y < mCanvas.height) {
 			mMousePosX = x;
 			mMousePosY = mCanvas.height - 1 - y;
 			inside = true;
@@ -427,20 +427,20 @@ gEngine.Input = (function () {
 		window.addEventListener('gamepadconnected', onGamepadConnected, false);
 		window.addEventListener('gamepaddisconnected', onGamepadDisconnected, false);
 
-		gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
+		gamepads = navigator.getGamepads ? navigator.getGamepads() : navigator.webkitGetGamepads ? navigator.webkitGetGamepads : [];
 
 	};
 
 	var update = function () {
 		for (let i in kKeyCodes) {
-			mIsKeyClicked[kKeyCodes[i]] = (!mKeyPreviousState[kKeyCodes[i]]) && mIsKeyPressed[kKeyCodes[i]];
+			mIsKeyClicked[kKeyCodes[i]] = !mKeyPreviousState[kKeyCodes[i]] && mIsKeyPressed[kKeyCodes[i]];
 			mKeyPreviousState[kKeyCodes[i]] = mIsKeyPressed[kKeyCodes[i]];
 		}
 		for (let i = 0; i < 3; i++) {
-			mIsButtonClicked[i] = (!mButtonPreviousState[i]) && mIsButtonPressed[i];
+			mIsButtonClicked[i] = !mButtonPreviousState[i] && mIsButtonPressed[i];
 			mButtonPreviousState[i] = mIsButtonPressed[i];
 		}
-		gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
+		gamepads = navigator.getGamepads ? navigator.getGamepads() : navigator.webkitGetGamepads ? navigator.webkitGetGamepads : [];
 	};
 
 	var isKeyPressed = function (keyCode) {
@@ -501,10 +501,10 @@ gEngine.ResourceMap = (function () {
 
 
 	var checkForAllLoadCompleted = function () {
-		let progress = Math.floor((mLoadedResources / mRequestedResources) * 100);
+		let progress = Math.floor(mLoadedResources / mRequestedResources * 100);
 		if (mCallbackLoader !== null)
-			mCallbackLoader(progress)
-		if ((mLoadedResources === mRequestedResources) && (mLoadCompleteCallback !== null)) {
+			mCallbackLoader(progress);
+		if (mLoadedResources === mRequestedResources && mLoadCompleteCallback !== null) {
 			var funcToCall = mLoadCompleteCallback;
 			mLoadCompleteCallback = null;
 			funcToCall();
@@ -531,7 +531,7 @@ gEngine.ResourceMap = (function () {
 	};
 
 	var isAssetLoaded = function (rName) {
-		return (rName in mResourceMap);
+		return rName in mResourceMap;
 	};
 
 	var retrieveAsset = function (rName) {
@@ -542,7 +542,7 @@ gEngine.ResourceMap = (function () {
 
 	var incAssetRefCount = function (rName) {
 		mResourceMap[rName].mRefCount += 1;
-	}
+	};
 
 	var unloadAsset = function (rName) {
 		if (rName in mResourceMap) {
@@ -557,7 +557,7 @@ gEngine.ResourceMap = (function () {
 	var preload = function (rName, loadedAsset) {
 		mResourceMap[rName] = new MapEntry(rName);
 		mResourceMap[rName].mAsset = loadedAsset;
-	}
+	};
 
 	var mPublic = {
 		asyncLoadRequested: asyncLoadRequested,
@@ -588,10 +588,10 @@ gEngine.TextFileLoader = (function () {
 			var req = new XMLHttpRequest();
 
 			req.onreadystatechange = function () {
-				if ((req.readyState === 4) && (req.status !== 200)) {
+				if (req.readyState === 4 && req.status !== 200) {
 					console.log(fileName + ': must be served by a web-server');
 				}
-			}
+			};
 			req.open("GET", fileName, true);
 			req.setRequestHeader("Content-Type", "text/xml");
 
@@ -654,10 +654,10 @@ gEngine.Audio = (function () {
 			var req = new XMLHttpRequest();
 
 			req.onreadystatechange = function () {
-				if ((req.readyState === 4) && (req.status !== 200)) {
+				if (req.readyState === 4 && req.status !== 200) {
 					console.log(clipName + ': must be served by a web-server');
 				}
-			}
+			};
 			req.open('GET', clipName, true);
 			req.responseType = 'arraybuffer';
 
@@ -715,7 +715,7 @@ gEngine.Audio = (function () {
 		}
 	};
 	var isBackgroundAudioPlaying = function () {
-		return (mBgAudioNode !== null);
+		return mBgAudioNode !== null;
 	};
 	var mPublic = {
 		initialize: initialize,
@@ -737,7 +737,7 @@ gEngine.Textures = (function () {
 		this.mWidth = w;
 		this.mHeight = h;
 		this.mGLTexID = id;
-	};
+	}
 	var loadTexture = function (textureName, url) {
 		if (!gEngine.ResourceMap.isAssetLoaded(textureName)) {
 			var img = new Image();
@@ -919,7 +919,7 @@ gEngine.Fonts = (function () {
 		returnInfo.mCharAspectRatio = charWidth / charHeight;
 
 		return returnInfo;
-	}
+	};
 	var mPublic = {
 		loadFont: loadFont,
 		unloadFont: unloadFont,

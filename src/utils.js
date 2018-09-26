@@ -39,9 +39,9 @@ function InterpolateVec2(value,cycle,rate){
 
 gEngine.Core.inheritPrototype(InterpolateVec2,Interpolate);
 
-InterpolateVec2.prototype.interpolateValue = function(){
-    twgl.v3.lerp(this.mCurrentValue,this.mFinalValue,this.mRate,this.mCurrentValue);
-}
+InterpolateVec2.prototype.interpolateValue = function () {
+	twgl.v3.lerp(this.mCurrentValue, this.mFinalValue, this.mRate, this.mCurrentValue);
+};
 
 function Shake(xDelta,yDelta,frequency,duration){
     this.mXMag = xDelta;
@@ -67,8 +67,8 @@ Shake.prototype.getShakeResults = function(){
     let fy = 0;
     if(!this.shakeDone()){
         let v = this.nextDampedHarmonic();
-        fx = (Math.random()>0.5)?-v:v;
-        fy = (Math.random()>0.5)?-v:v;
+        fx = Math.random()>0.5?-v:v;
+        fy = Math.random()>0.5?-v:v;
     }
     c[0]= this.mXMag*fx;
     c[1]= this.mYMag*fy;
