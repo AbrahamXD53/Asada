@@ -3,10 +3,10 @@ function Renderer() {
 	this.mColor = [1.0, 1.0, 1.0, 1.0];
 	this.mParent = null;
 }
-Renderer.prototype.setParent = function (parent) { this.mParent = parent; };
+Renderer.prototype.setParent = function (parent) { this.mParent = parent; this.mTransform = this.mParent.transform; };
 Renderer.prototype.draw = function (vpMatrix) {
 	var gl = gEngine.Core.getGL();
-	this.mShader.activateShader(this.mColor, this.mParent.transform.getMatrix(), vpMatrix);
+	this.mShader.activateShader(this.mColor, this.mTransform.getMatrix(), vpMatrix);
 	twgl.drawBufferInfo(gl, gEngine.VertexBuffer.getVertexBuffer(), gl.TRIANGLE_STRIP);
 };
 Renderer.prototype.setShader = function (shader) { this.mShader = shader; };
@@ -205,7 +205,7 @@ function MapRenderer(filePath) {
 	this.mTilesets = [];
 	this.mTransform = new Transform();
 	this.mLights = [];
-	this.mShader = gEngine.DefaultResources.getLightShader();
+	this.mShader = gEngine.DefaultResources.getSpriteShader();
 	this.mComposites = [];
 
 }
@@ -304,6 +304,7 @@ function FontRenderable(aString) {
 	this.mOneChar.renderer.setShader(gEngine.DefaultResources.getFontShader());
 	this.mTransform = new Transform();
 	this.mText = aString;
+	this.mCharTransform = this.mOneChar.transform;
 }
 FontRenderable.prototype.draw = function (vpMatrix) {
 	var charWidth = this.mTransform.getScaleX() / this.mText.length;
@@ -313,7 +314,7 @@ FontRenderable.prototype.draw = function (vpMatrix) {
 
 	var aChar, charInfo, xSize, ySize, xOffset, yOffset;
 	var rotation = this.mTransform.getRotation();
-	this.mOneChar.transform.setRotation(rotation);
+	this.mCharTransform.setRotation(rotation);
 	for (var charIndex = 0, limit = this.mText.length; charIndex < limit; charIndex++) {
 		aChar = this.mText.charCodeAt(charIndex);
 		charInfo = gEngine.Fonts.getCharInfo(this.mFont, aChar);
@@ -321,11 +322,11 @@ FontRenderable.prototype.draw = function (vpMatrix) {
 		this.mOneChar.renderer.setTextureCoordUV(charInfo.mTexCoordLeft, charInfo.mTexCoordRight, charInfo.mTexCoordBottom, charInfo.mTexCoordTop);
 		xSize = charWidth * charInfo.mCharWidth;
 		ySize = charHeight * charInfo.mCharHeight;
-		this.mOneChar.transform.setScale([xSize, ySize, 1]);
+		this.mCharTransform.setScale([xSize, ySize, 1]);
 
 		xOffset = charWidth * charInfo.mCharWidthOffset * 0.5;
 		yOffset = Math.cos(rotation) * charHeight * charInfo.mCharHeightOffset * 0.5;
-		this.mOneChar.transform.setPosition([xPos - xOffset, yPos - yOffset, 0]);
+		this.mCharTransform.setPosition([xPos - xOffset, yPos - yOffset, 0]);
 		this.mOneChar.draw(vpMatrix);
 		xPos += charWidth * Math.cos(rotation);
 		yPos += charWidth * Math.sin(rotation);

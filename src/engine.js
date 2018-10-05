@@ -17,7 +17,7 @@ gEngine.Core = (function () {
 	var initializeWebGL = function (canvasId) {
 		var canvas = document.getElementById(canvasId);
 
-		mGL = canvas.getContext('webgl', { alpha: false }) || canvas.getContext('experimental-webgl', { alpha: false });
+		mGL = canvas.getContext('webgl2', { alpha: false }) || canvas.getContext('experimental-webgl2', { alpha: false });
 		var width = mGL.canvas.clientWidth;
 		var height = mGL.canvas.clientHeight;
 
@@ -139,6 +139,12 @@ gEngine.GameLoop = (function () {
 
 	var mCurrentScene = null;
 
+	var stats = window.Stats ? new Stats() : null;
+	if (stats) {
+		stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+		document.body.appendChild(stats.dom);
+	}
+
 	var runLoop = function () {
 		if (mIsLoopRunning) {
 			requestAnimationFrame(function () { runLoop.call(mCurrentScene); });
@@ -147,6 +153,8 @@ gEngine.GameLoop = (function () {
 			mPreviousTime = mCurrentTime;
 			mLagTime += mElapsedTime;
 
+			if (stats)
+				stats.begin();
 			while (mLagTime >= kMPF && mIsLoopRunning) {
 				if (mIsFocused) {
 					gEngine.Physics.update(kMPF / 100);
@@ -157,6 +165,8 @@ gEngine.GameLoop = (function () {
 			}
 			if (mIsLoopRunning)
 				this.draw();
+			if (stats)
+				stats.end();
 		} else {
 			mCurrentScene.unloadScene();
 		}

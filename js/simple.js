@@ -114,8 +114,8 @@ SimpleGame.prototype.initialize = function () {
     this.squareFloor.renderer.setColor([1, 0, 0, 1]);
     this.squareFloor.addComponent(new Physics({ isStatic: true }));
 
-    this.mCollector = new GameObject();
-    this.mCollector.setComponent('Renderer', new IllumRenderer(this.kMinion,this.kMinionNormal));
+	this.mCollector = new GameObject(this.kMinion, this.kMinionNormal);
+    //this.mCollector.setComponent('Renderer', new IllumRenderer(this.kMinion,this.kMinionNormal));
     this.mCollector.addComponent(new Animator({
         frame: { width: 204, height: 160, count: 10 },
         animations: [
@@ -229,7 +229,6 @@ SimpleGame.prototype.update = function (delta = 1) {
             this.squareFloor.renderer.setColor([0, 0, 1, 1]);
         }
     }
-
     if (this.camera.isMouseInViewport()) {
         this.mCollector.transform.setPositionX(this.camera.mouseWCX());
         this.mCollector.transform.setPositionY(this.camera.mouseWCY());
@@ -279,7 +278,7 @@ SimpleGame.prototype.update = function (delta = 1) {
     this.camera.update();
     this.camera2.update();
     localTime+=delta;
-    this.particleEmiter.transform.translate([Math.cos(localTime),Math.sin(localTime),0]);
+    //this.particleEmiter.transform.translate([Math.cos(localTime),Math.sin(localTime),0]);
     this.particleEmiter.update(delta);
 };
 SimpleGame.prototype.draw = function () {

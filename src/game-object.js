@@ -132,12 +132,16 @@ function ParticleEmiter(options = {}) { //New component
 }
 gEngine.Core.inheritPrototype(ParticleEmiter,Component);
 
+ParticleEmiter.prototype.setParent = function (p) {
+	this.mParent = p;
+	this.mTransform = this.mParent.transform;
+};
 ParticleEmiter.prototype.emit = function (position) {
     this.mParticles.push(
         new Particle({
             lifeSpan: Random(14, 18), position: [
-                this.mParent.transform.getPosition()[0] + (-1 + 2 * Math.random()),
-                this.mParent.transform.getPosition()[1] + (-1 + 2 * Math.random()), 0
+				this.mTransform.getPosition()[0] + (-1 + 2 * Math.random()),
+				this.mTransform.getPosition()[1] + (-1 + 2 * Math.random()), 0
             ],
             velocity: [
                 (-1 + 2 * Math.random()) / 10,
@@ -170,14 +174,17 @@ ParticleEmiter.prototype.draw = function (camera) {
     let gl = gEngine.Core.getGL();
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
     for (let index = this.mParticles.length - 1; index >= 0; index--) {
-        this.mParticles[index].draw(camera);
+			this.mParticles[index].draw(camera);
     }
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 };
 
 var TiledType = Object.freeze({ All: 0, Vertical: 1, Horizontal: 2 });
-function TiledGameObject(texture, normal) {
-    GameObject.call(this, texture, normal);
+function TiledGameObject(texture, normal = null) {
+	if (normal)
+		GameObject.call(this, texture, normal);
+	else
+		GameObject.call(this, texture);
     this.mShouldTile = true;
     this.mTiledType = TiledType.All;
 }
@@ -253,13 +260,17 @@ TiledGameObject.prototype.draw = function (camera) {
         this.renderer.draw(camera);
     }
 };
-function ParallaxGameObject(camera, scale, texture, normal) {
+function ParallaxGameObject(camera, scale, texture, normal = null) {
     this.mRefCamera = camera;
     this.mCameraCenterRef = this.mRefCamera.getCenter();
     console.log(this.mRefCamera, this.mCameraCenterRef);
     this.mParallaxScale = 1;
-    this.setParallaxScale(scale);
-    TiledGameObject.call(this, texture, normal);
+	this.setParallaxScale(scale);
+	if (normal)
+		TiledGameObject.call(this, texture, normal);
+	else
+		TiledGameObject.call(this, texture);
+
 }
 gEngine.Core.inheritPrototype(ParallaxGameObject, TiledGameObject);
 ParallaxGameObject.prototype.getParallaxScale = function () { return this.mParallaxScale; };

@@ -158,7 +158,7 @@ Camera.prototype.mouseWC = function () {
 };
 
 Camera.prototype.isMouseInViewport = function () {
-	return this.isCoordInViewport(this.mouseDC);
+	return this.isCoordInViewport(this.mouseDC());
 };
 
 Camera.prototype.isCoordInViewport = function (coord) {
