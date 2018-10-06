@@ -193,6 +193,7 @@ SimpleGame.prototype.initialize = function () {
     this.mMap.addLight(this.mTheLight3);
 
     this.particleEmiter = new GameObject(gEngine.DefaultResources.getDefaultParticleTexture());
+    this.particleEmiter.removeComponent(ComponetType.renderer);
     this.particleEmiter.addComponent(new ParticleEmiter());
 };
 var localTime=0;
@@ -294,8 +295,9 @@ SimpleGame.prototype.draw = function () {
     this.square.draw(this.camera);
     this.mCollector2.draw(this.camera);
     this.mCollector.draw(this.camera);
-    this.mTextSysFont.draw(this.camera);
-    this.particleEmiter.draw(this.camera);
+	this.mTextSysFont.draw(this.camera);
+
+	this.particleEmiter.draw(this.camera);
     
     //this.camera2.setupViewProjection();
     //this.mMap.draw(this.camera2);
