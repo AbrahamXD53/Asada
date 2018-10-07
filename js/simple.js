@@ -194,7 +194,18 @@ SimpleGame.prototype.initialize = function () {
 
     this.particleEmiter = new GameObject(gEngine.DefaultResources.getDefaultParticleTexture());
     this.particleEmiter.removeComponent(ComponetType.renderer);
-    this.particleEmiter.addComponent(new ParticleEmiter());
+    this.particleEmiter.addComponent(new ParticleEmiter({
+        positionGenerator:function(){
+            return [this.transform.getPosition()[0] + (-1 + 2 * Math.random()),
+            this.transform.getPosition()[1] + (-1 + 2 * Math.random()), 0];
+        }.bind(this.particleEmiter),
+        velocityGenerator:function(){
+            return [0,-0.1,0];
+        }.bind(this.particleEmiter),
+        startColor:[0,.2,1,0.6],
+        startScale:[2,2,0],
+        lifeTime:[10,15]
+    }));
 };
 var localTime=0;
 SimpleGame.prototype.update = function (delta = 1) {
