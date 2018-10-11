@@ -112,12 +112,29 @@ MapRenderer.prototype.createBody = function (data) {
 	let initialY = this.mData.height * 0.5;
 	let composite = Matter.Composite.create();
 	for (let i in data.objects) {
-		let w = data.objects[i].width / this.mData.tilewidth, h = data.objects[i].height / this.mData.tileheight;
-		let x = data.objects[i].x / this.mData.tilewidth + w * 0.5,
-			y = this.mData.height - data.objects[i].y / this.mData.tileheight - h * 0.5;
-		let body = Matter.Bodies.rectangle(x, y, w, h, { friction: 0.5, frictionDynamic: 0, isStatic: true, properties: data.objects[i].properties || {} });
-		body.collisionFilter.group = 0;
-		body.collisionFilter.category = 0b00000001;
+		let body = null;
+		if (!data.objects[i].polyline) {
+			let w = data.objects[i].width / this.mData.tilewidth, h = data.objects[i].height / this.mData.tileheight,
+				x = data.objects[i].x / this.mData.tilewidth + w * 0.5,
+				y = this.mData.height - data.objects[i].y / this.mData.tileheight - h * 0.5;
+			console.log(x, y);
+			body = Matter.Bodies.rectangle(x, y, w, h, { friction: 0.5, frictionDynamic: 0, isStatic: true, properties: data.objects[i].properties || {} });
+			body.collisionFilter.group = 0;
+			body.collisionFilter.category = 0b00000001;
+		} else {
+			let x = data.objects[i].x / this.mData.tilewidth,
+				y = this.mData.height -data.objects[i].y / this.mData.tileheight;
+			let vertex = [];
+			for (var j = 0; j < data.objects[i].polyline.length; j++) {
+				vertex[j] = {
+					x: data.objects[i].polyline[j].x / this.mData.tilewidth,
+					y: this.mData.height -data.objects[i].polyline[j].y / this.mData.tileheight
+				};
+
+			}
+			body = Matter.Bodies.fromVertices(x,y, vertex, { friction: 0.5, frictionDynamic: 0, isStatic: true, properties: data.objects[i].properties || {} });
+		}
+
 		Matter.Composite.add(composite, body);
 	}
 	Matter.Composite.translate(composite, { x: initialX, y: -initialY });
@@ -171,13 +188,14 @@ MapRenderer.prototype.setCollision = function (playerPos) {
 	for (let p in this.mComposites) {
 		let bodies = Matter.Composite.allBodies(this.mComposites[p]);
 		for (let b in bodies) {
-			if (bodies[b].properties.hasOwnProperty('oneSide'))
-				if (bodies[b].position.y + 1 > playerPos[1]) {
-					bodies[b].collisionFilter.mask = 0;
-				}
-				else {
-					bodies[b].collisionFilter.mask = -1;
-				}
+			if (bodies[b].properties)
+				if (bodies[b].properties.hasOwnProperty('oneSide'))
+					if (bodies[b].position.y + 1 > playerPos[1]) {
+						bodies[b].collisionFilter.mask = 0;
+					}
+					else {
+						bodies[b].collisionFilter.mask = -1;
+					}
 		}
 	}
 };

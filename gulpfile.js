@@ -34,6 +34,7 @@ function minifySource() {
             'src/components/renderer/illum-renderer.js',
             'src/components/renderer/map-renderer.js',
             'src/components/renderables/font-renderable.js',
+            'src/components/particle-emiter.js',
             'src/components/animation.js',
             'src/components/animator.js',
             'src/components/physics-component.js',
@@ -43,7 +44,6 @@ function minifySource() {
             'src/objects/scene.js',
             'src/objects/game-objects/game-object.js',
             'src/objects/game-objects/particle.js',
-            'src/objects/game-objects/particle-emiter.js',
             'src/objects/game-objects/tiled-game-object.js',
             'src/objects/game-objects/parallax-game-objects.js'
         ])

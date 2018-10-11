@@ -160,6 +160,96 @@ gEngine.DefaultResources = (function () {
 		lgtResults *= textureMapColor;
 		gl_FragColor = lgtResults * u_color;
 	}`};
+	var kPhongFS = {
+		name: 'phongFS', program: `precision mediump float;
+	#define kGLSLuLightArraySize 4
+	struct Light {
+		vec4 Position; 
+		vec4 Color;
+		float Near; 
+		float Far; 
+		float Intensity;
+		bool IsOn;
+	};
+	struct Material{
+		vec4 Ka;
+		vec4 Kd;
+		vec4 Ks;
+		float Shininess;
+	};
+
+	uniform sampler2D u_texture;
+	uniform sampler2D u_normal;
+	uniform vec4 u_color;
+	uniform vec4 u_globalAmbientColor;
+	uniform float u_globalAmbientIntensity;
+	uniform vec3 u_cameraPosition;
+	uniform Material u_material;
+	uniform Light u_lights[kGLSLuLightArraySize];
+	
+	varying vec2 texCoord;
+
+	float LightAttenuation(Light lgt,float dist){
+		float atten = 0.0;
+		if(dist <= lgt.Far){
+			if(dist <= lgt.Near)
+				atten = 1.0;
+			else{
+				float n = dist - lgt.Near;
+				float d = lgt.Far - lgt.Near;
+				atten = smoothstep(0.0, 1.0, 1.0 - (n*n)/(d*d));
+			}
+		}
+		return atten;
+	}
+
+	vec4 SpecularResult(vec3 N, vec3 L) {
+		vec3 V = normalize(u_cameraPosition - gl_FragCoord.xyz);
+		vec3 H = (L + V) * 0.5;
+		return u_material.Ks * pow(max(0.0, dot(N, H)), u_material.Shininess);
+	}
+	vec4 DiffuseResult(vec3 N, vec3 L, vec4 textureMapColor) {
+		return u_material.Kd * max(0.0, dot(N, L)) * textureMapColor;
+	}
+
+	vec4 ShadedResult(Light lgt, vec3 N, vec4 textureMapColor) {
+		vec3 L = lgt.Position.xyz - gl_FragCoord.xyz;
+		float dist = length(L);
+		L = L / dist;
+		float atten = LightAttenuation(lgt, dist);
+		vec4 diffuse = DiffuseResult(N, L, textureMapColor);
+		vec4 specular = SpecularResult(N, L);
+		vec4 result = atten * lgt.Intensity * lgt.Color * (diffuse + specular);
+		return result;
+	}
+
+	void main(void) {
+		// simple tint based on uPixelColor setting
+		vec4 textureMapColor = texture2D(u_texture, texCoord);
+		vec4 normal = texture2D(u_normal, texCoord);
+		vec4 normalMap = (2.0 * normal) - 1.0;
+	   
+		// normalMap.y = -normalMap.y; // flip Y
+		// depending on the normal map you work with, this may or may not be flipped
+		//
+		vec3 N = normalize(normalMap.xyz);
+	   
+		vec4 shadedResult = u_material.Ka + (textureMapColor * u_globalAmbientColor * u_globalAmbientIntensity);
+		// now decide if we should illuminate by the light
+		if (textureMapColor.a > 0.0) {
+			for (int i=0; i<4; i++) {
+				if (u_lights[i].IsOn) {
+					shadedResult += ShadedResult(u_lights[i], N, textureMapColor);
+				}
+			}
+		}
+		// tint the textured area, and leave transparent area as defined by the texture
+		//vec3 tintResult = vec3(shadedResult) * (1.0-u_color.a) + vec3(u_color) * u_color.a;
+		//vec4 result = vec4(tintResult, shadedResult.a);
+		//gl_FragColor = result;
+		gl_FragColor = shadedResult * u_color;
+	}
+	`};
 	var kParticleFS ={name:'textureFS',program:`precision mediump float;
 	uniform sampler2D u_texture;
 	uniform vec4 u_color;
@@ -182,6 +272,7 @@ gEngine.DefaultResources = (function () {
 	var mLightShader = null;
 	var mIllumShader = null;
 	var mParticleShader = null;
+	var mPhongShader = null;
 
 	var getDefaultParticleTexture = function(){ return kDefaultParticleTexture.name; };
 	var getDefaultFontTexture = function(){ return kDefaultFont.name; };
@@ -192,6 +283,7 @@ gEngine.DefaultResources = (function () {
 	var getLightShader = function () { return mLightShader; };
 	var getIllumShader = function() { return mIllumShader; };
 	var getParticleShader = function () { return mParticleShader; };
+	var getPhongShader = function () { return mPhongShader; };
 
 	var getGlobalAmbientColor = function () { return mGlobalAmbientColor; };
 	var getGlobalAmbientIntensity = function () { return mGlobalAmbientIntensity; };
@@ -208,6 +300,7 @@ gEngine.DefaultResources = (function () {
 		mLightShader = new LightShader(kTextureVS.name, kLightFS.name);
 		mIllumShader = new IllumShader(kTextureVS.name,kIllumFS.name);
 		mParticleShader = new TextureShader(kTextureVS.name,kParticleFS.name);
+		mPhongShader = new PhongShader(kTextureVS.name,kPhongFS.name);
 		callbackFunction();
 	};
 
@@ -222,6 +315,7 @@ gEngine.DefaultResources = (function () {
 		gEngine.ResourceMap.preload(kLightFS.name, kLightFS.program);
 		gEngine.ResourceMap.preload(kIllumFS.name, kIllumFS.program);
 		gEngine.ResourceMap.preload(kParticleFS.name, kParticleFS.program);
+		gEngine.ResourceMap.preload(kPhongFS.name, kPhongFS.program);
 		
 		gEngine.Fonts.preloadFont(kDefaultFont.name,kDefaultFont.data,kDefaultFont.map);
 		gEngine.Textures.loadTexture(kDefaultParticleTexture.name,kDefaultParticleTexture.data);
@@ -263,7 +357,8 @@ gEngine.DefaultResources = (function () {
 		getLightShader: getLightShader,
 		getIllumShader:getIllumShader,
 		getParticleShader:getParticleShader,
-		getDefaultParticleTexture:getDefaultParticleTexture
+		getDefaultParticleTexture:getDefaultParticleTexture,
+		getPhongShader:getPhongShader
 	};
 	return mPublic;
 }());

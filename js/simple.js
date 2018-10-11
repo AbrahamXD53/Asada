@@ -63,10 +63,10 @@ SimpleGame.prototype.initialize = function () {
     //this.mBackground.setComponent(ComponetType.renderer,new SpriteRenderer(this.mBg));
 
     this.mTheLight = new Light();
-    this.mTheLight.setPositionZ(2);
+    this.mTheLight.setPositionZ(1);
     this.mTheLight.setPositionX(0);
-    this.mTheLight.setNear(8);
-    this.mTheLight.setFar(9);
+    this.mTheLight.setNear(12);
+    this.mTheLight.setFar(12);
     this.mTheLight.setPositionY(5);  // Position above LMinion
     this.mTheLight.setColor([0, 0, 1, 1]);
 
@@ -76,7 +76,7 @@ SimpleGame.prototype.initialize = function () {
     this.mTheLight2.setPositionY(-1);  // Position above LMinion
     this.mTheLight2.setNear(8);
     this.mTheLight2.setFar(9);
-    this.mTheLight2.setColor([1.0, 0.0, 0, 1]);
+    this.mTheLight2.setColor([0.0, 1.0, 0.0, 1]);
 
     this.mTheLight3 = new Light();
     this.mTheLight3.setPositionZ(2);
@@ -84,7 +84,7 @@ SimpleGame.prototype.initialize = function () {
     this.mTheLight3.setPositionY(-5);  // Position above LMinion
     this.mTheLight3.setNear(8);
     this.mTheLight3.setFar(9);
-    this.mTheLight3.setColor([0.0, 1.0, 0, 1]);
+    this.mTheLight3.setColor([1.0, 0.0, 0, 1]);
 
     this.square = new GameObject(this.kCollector,true);
 
@@ -193,6 +193,7 @@ SimpleGame.prototype.initialize = function () {
     this.mMap.addLight(this.mTheLight3);
 
     this.particleEmiter = new GameObject(gEngine.DefaultResources.getDefaultParticleTexture());
+    this.particleEmiter.transform.setPosition([6,-7,0]);
     this.particleEmiter.removeComponent(ComponetType.renderer);
     this.particleEmiter.addComponent(new ParticleEmiter({
         positionGenerator:function(){
@@ -289,9 +290,18 @@ SimpleGame.prototype.update = function (delta = 1) {
     this.mBackgroundUp.update(delta);
     this.camera.update();
     this.camera2.update();
-    localTime+=delta;
+    localTime+=delta*.1;
     //this.particleEmiter.transform.translate([Math.cos(localTime),Math.sin(localTime),0]);
     this.particleEmiter.update(delta);
+    // this.mTheLight2.setPositionZ(2);
+    this.mTheLight3.setPositionX(5*Math.cos(Math.PI*Math.cos(localTime)));
+    this.mTheLight3.setPositionY(5*Math.sin(Math.PI*Math.cos(localTime))); 
+    this.mTheLight2.setPositionX(5*Math.cos(Math.PI*Math.sin(localTime)));
+    this.mTheLight2.setPositionY(5*Math.sin(Math.PI*Math.sin(localTime))); 
+    this.mTheLight.setPositionX(5*Math.cos(localTime*5));
+    this.mTheLight.setPositionY(5*Math.sin(localTime*5)); 
+    //this.mTheLight2.setPositionX(5*Math.cos(localTime* Math.sqrt(10*Math.cos(localTime))));
+    //this.mTheLight2.setPositionY(5*Math.sin(localTime* Math.sqrt(10*Math.cos(localTime)))); 
 };
 SimpleGame.prototype.draw = function () {
     this.camera.refreshViewport();

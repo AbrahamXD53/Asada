@@ -114,7 +114,7 @@ LightShader.prototype.activateShader = function (color, transform, vpMatrix) {
         numLight++;
     }
 	twgl.setUniforms(this.mCompiledShader, this.mUniforms);
-	this.gl = gEngine.Core.getGL();
+	
 };
 
 function IllumShader(vertex,fragment){
@@ -127,4 +127,27 @@ gEngine.Core.inheritPrototype(IllumShader,LightShader);
 IllumShader.prototype.activateShader = function(color,transform,camera){
     LightShader.prototype.activateShader.call(this,color,transform,camera);
     this.gl.uniform1i(this.mNormalSamplerRef, 1);
+};
+
+function PhongShader(vertex,fragment){
+    IllumShader.call(this,vertex,fragment);
+    this.mMaterial = null;
+    this.mMaterialLoader = new ShaderMaterial(this.mCompiledShader.program);
+
+    this.mCameraPos = null; // points to a vec3
+    this.mCameraPosRef = this.gl.getUniformLocation(this.mCompiledShader.program, "u_cameraPosition");
+    console.log(this);
+}
+
+gEngine.Core.inheritPrototype(PhongShader,IllumShader);
+
+PhongShader.prototype.activateShader = function (color, transform, vpMatrix) {
+    IllumShader.prototype.activateShader.call(this, color, transform, vpMatrix);
+    this.mMaterialLoader.loadToShader(this.mMaterial);
+    this.gl.uniform3fv(this.mCameraPosRef, this.mCameraPos);
+};
+
+PhongShader.prototype.setMaterialAndCameraPos = function(m, p) {
+    this.mMaterial = m;
+    this.mCameraPos = p;
 };

@@ -4,10 +4,11 @@ function GameObject() {
     if (arguments.length > 0) {
         if (arguments.length > 1) {
             if (typeof arguments[1] === 'string' || arguments[1] instanceof String) {
-                this.addComponent(new IllumRenderer(arguments[0], arguments[1]), ComponetType.renderer);
+                this.addComponent(new PhongRenderer(arguments[0], arguments[1]), ComponetType.renderer);
             }
             else {
                 this.addComponent(new LightRenderer(arguments[0]), ComponetType.renderer);
+                
             }
         }
         else {

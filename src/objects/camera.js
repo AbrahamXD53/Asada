@@ -2,6 +2,7 @@ function PerRenderCache() {
 	this.mWorldToPixelRatio = 1;
 	this.mCameraOriginX = 1;
 	this.mCameraOriginY = 1;
+	this.mCameraPosInPixelSpace = [0.0, 0.0, 0.0];
 }
 
 function CameraState(center, width) {
@@ -44,6 +45,7 @@ function Camera(center, width, viewportArray, bound) {
 	this.mProjMatrix = twgl.m4.identity();
 	this.mVPMatrix = twgl.m4.identity();
 	this.mBgColor = [0, 0, 0, 1.0];
+	this.kCameraZ = 10;
 }
 
 Camera.prototype.getBackgroundColor = function () { return this.mBgColor; };
@@ -175,6 +177,8 @@ Camera.prototype.setupViewProjection = function () {
 	this.mRenderCache.mWorldToPixelRatio = this.mViewport[2] / this.getWidth();
 	this.mRenderCache.mCameraOriginX = this.getCenter()[0] - this.getWidth() *0.5;
 	this.mRenderCache.mCameraOriginY = this.getCenter()[1] - this.getHeight() *0.5;
+	let p = this.worldToPixel(this.getCenter());
+	this.mRenderCache.mCameraPosInPixelSpace = [p[0],p[1],this.fakeZInPixelSpace(this.kCameraZ)];
 
 	gl.viewport(this.mViewport[0], this.mViewport[1], this.mViewport[2], this.mViewport[3]);
 	gl.clearColor(0, 0, 0, 0);
@@ -205,6 +209,9 @@ Camera.prototype.fakeZInPixelSpace = function (z) {
 	return z * this.mRenderCache.mWorldToPixelRatio;
 };
 
+Camera.prototype.getPosInPixelSpace = function () {
+	return this.mRenderCache.mCameraPosInPixelSpace; 
+};
 Camera.prototype.worldToPixel = function (p) {
 	let x = this.mViewport[0] + (p[0] - this.mRenderCache.mCameraOriginX) * this.mRenderCache.mWorldToPixelRatio + 0.5;
 	let y = this.mViewport[1] + (p[1] - this.mRenderCache.mCameraOriginY) * this.mRenderCache.mWorldToPixelRatio + 0.5;
