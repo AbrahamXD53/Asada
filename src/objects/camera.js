@@ -70,6 +70,13 @@ Camera.prototype.getViewportScale = function () {
 	];
 };
 
+Camera.prototype.dirToPixel = function (d) {
+	var x = d[0] * this.mRenderCache.mWorldToPixelRatio;
+	var y = d[1] * this.mRenderCache.mWorldToPixelRatio;
+	var z = d[2];
+	return [x, y, z];
+};
+
 Camera.prototype.setBackgroundColor = function (color) { this.mBgColor = color; };
 Camera.prototype.setWidth = function (width) { this.mCameraState.setWidth(width); };
 Camera.prototype.setCenter = function (xPos, yPos) {

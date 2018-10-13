@@ -83,16 +83,34 @@ LightShader.prototype.setLights = function (l) {
 LightShader.prototype.getLightOff = function (collection, index) {
     collection['u_lights[' + index + '].' + 'IsOn'] = false;
 };
-
+/**
+ * 
+ * @param {*} collection 
+ * @param Camera camera 
+ * @param {*} index 
+ */
 LightShader.prototype.getLightInfo = function (collection, camera, index) {
     if (this.mLights[index].getLightStatus()) {
         let p = camera.worldToPixel(this.mLights[index].getPosition());
-        collection['u_lights[' + index + '].Position'] = [p[0], p[1], p[2], 1.0];
         collection['u_lights[' + index + '].Color'] = this.mLights[index].getColor();
+        collection['u_lights[' + index + '].Position'] = [p[0], p[1], p[2], 1.0];
         collection['u_lights[' + index + '].Near'] = camera.sizeToPixel(this.mLights[index].getNear());
         collection['u_lights[' + index + '].Far'] = camera.sizeToPixel(this.mLights[index].getFar());
         collection['u_lights[' + index + '].Intensity'] = this.mLights[index].getIntensity();
+        collection['u_lights[' + index + '].LightType'] = this.mLights[index].getLightType();
         collection['u_lights[' + index + '].IsOn'] = true;
+
+        if(this.mLights[index].getLightType()===Light.LightType.Point){
+            collection['u_lights[' + index + '].Direction'] = [0,0,0,0];
+        }else{
+            let d =  camera.dirToPixel(this.mLights[index].getDirection());
+            collection['u_lights[' + index + '].Direction'] = [d[0],d[1],d[2],0.0];
+            if(this.mLights[index].getLightType()===Light.LightType.Spot){
+                collection['u_lights[' + index + '].CosInner'] =  Math.cos(0.5 * this.mLights[index].getInner());
+                collection['u_lights[' + index + '].CosOuter'] =  Math.cos(0.5 * this.mLights[index].getOuter());
+                collection['u_lights[' + index + '].DropOff'] = this.mLights[index].getDropOff();
+            }
+        }
     }
     else {
         this.getLightOff(collection,index);

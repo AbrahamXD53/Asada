@@ -1,6 +1,6 @@
 function Material(){
     this.mKa = [0.0, 0.0, 0.0, 0.0];
-    this.mKs = [1.0, 1.0, 1.0, 0.0];
+    this.mKs = [0.0, 0.0, 0.0, 0.0];
     this.mKd = [1.0, 1.0, 1.0, 1.0];
     this.mShininess = 10;
 }

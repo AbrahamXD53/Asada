@@ -62,34 +62,71 @@ gEngine.DefaultResources = (function () {
 	var kLightFS = {
 		name: 'lightFS', program: `precision mediump float;
 	#define kGLSLuLightArraySize 4
+
+	#define ePointLight 0
+	#define eDirectionalLight 1
+	#define eSpotLight 2
+	
 	struct Light {
-		vec4 Position; 
+		vec4 Position;
+		vec4 Direction; 
 		vec4 Color;
 		float Near; 
-		float Far; 
+		float Far;
+		float CosInner;
+		float CosOuter; 
 		float Intensity;
+		float DropOff;
 		bool IsOn;
+		int LightType;
 	};
+
 	uniform sampler2D u_texture;
 	uniform vec4 u_color;
 	uniform vec4 u_globalAmbientColor;
 	uniform float u_globalAmbientIntensity;
 	uniform Light u_lights[kGLSLuLightArraySize];
 	varying vec2 texCoord;
-	vec3 LightEffect(Light lgt) {
-		vec4 result = vec4(0);
+
+	float AngularDropOff(Light lgt, vec3 lgtDir, vec3 L) {
 		float atten = 0.0;
-		float dist = length(lgt.Position.xyz - gl_FragCoord.xyz);
-		if (dist <= lgt.Far) {
-			if (dist <= lgt.Near)
+		float cosL = dot(lgtDir, L);
+		float num = cosL - lgt.CosOuter;
+		if (num > 0.0) {
+			if (cosL > lgt.CosInner) 
 				atten = 1.0;
 			else {
-				float n = dist - lgt.Near;
-				float d = lgt.Far - lgt.Near;
-				atten = smoothstep(0.0, 1.0, 1.0-(n*n)/(d*d)); 
+				float denom = lgt.CosInner - lgt.CosOuter;
+				atten = smoothstep(0.0, 1.0, pow(num/denom, lgt.DropOff));
 			}
 		}
-		result = atten * lgt.Intensity * lgt.Color;
+		return atten;
+	}
+
+	vec3 LightEffect(Light lgt) {
+		vec4 result = vec4(0);
+		float atten = 0.0, dAtten = 1.0;
+		float dist = length(lgt.Position.xyz - gl_FragCoord.xyz);
+
+		if (lgt.LightType == eSpotLight) {
+			vec3 L = lgt.Position.xyz - gl_FragCoord.xyz;			
+			vec3 lgtDir = -normalize(lgt.Direction.xyz);		
+			dAtten = AngularDropOff(lgt,lgtDir,L);
+		}
+		if(lgt.LightType == eDirectionalLight)
+			atten = 1.0;
+		else
+			if (dist <= lgt.Far) {
+				if (dist <= lgt.Near)
+					atten = 1.0;
+				else {
+					float n = dist - lgt.Near;
+					float d = lgt.Far - lgt.Near;
+					atten = smoothstep(0.0, 1.0, 1.0-(n*n)/(d*d)); 
+				}
+			}
+	
+		result = atten * dAtten * lgt.Intensity * lgt.Color;
 		return result.rgb;
 	}
 	void main(void){
@@ -109,14 +146,25 @@ gEngine.DefaultResources = (function () {
 	var kIllumFS = {
 		name: 'illumFS', program: `precision mediump float;
 	#define kGLSLuLightArraySize 4
+
+	#define ePointLight 0
+	#define eDirectionalLight 1
+	#define eSpotLight 2
+	
 	struct Light {
-		vec4 Position; 
+		vec4 Position;
+		vec4 Direction; 
 		vec4 Color;
 		float Near; 
-		float Far; 
+		float Far;
+		float CosInner;
+		float CosOuter; 
 		float Intensity;
+		float DropOff;
 		bool IsOn;
+		int LightType;
 	};
+
 	uniform sampler2D u_texture;
 	uniform sampler2D u_normal;
 	uniform vec4 u_color;
@@ -124,24 +172,48 @@ gEngine.DefaultResources = (function () {
 	uniform float u_globalAmbientIntensity;
 	uniform Light u_lights[kGLSLuLightArraySize];
 	varying vec2 texCoord;
-	vec3 LightEffect(Light lgt,vec3 N) {
-		vec4 result = vec4(0);
+
+	float AngularDropOff(Light lgt, vec3 lgtDir, vec3 L) {
 		float atten = 0.0;
-		vec3 L = lgt.Position.xyz - gl_FragCoord.xyz;
-		float dist = length(L);
-		if (dist <= lgt.Far) {
-			if (dist <= lgt.Near)
+		float cosL = dot(lgtDir, L);
+		float num = cosL - lgt.CosOuter;
+		if (num > 0.0) {
+			if (cosL > lgt.CosInner) 
 				atten = 1.0;
 			else {
-				float n = dist - lgt.Near;
-				float d = lgt.Far - lgt.Near;
-				atten = smoothstep(0.0, 1.0, 1.0-(n*n)/(d*d)); 
+				float denom = lgt.CosInner - lgt.CosOuter;
+				atten = smoothstep(0.0, 1.0, pow(num/denom, lgt.DropOff));
 			}
-			L= L/dist;
-			float NdotL = max(0.0,dot(N,L));
-			atten *= NdotL;
 		}
-		result = atten * lgt.Intensity * lgt.Color;
+		return atten;
+	}
+
+	vec3 LightEffect(Light lgt,vec3 N) {
+		vec4 result = vec4(0);
+		float atten = 0.0, dAtten = 1.0;
+		vec3 L = lgt.Position.xyz - gl_FragCoord.xyz;
+		float dist = length(L);
+
+		if (lgt.LightType == eSpotLight) {
+			vec3 lgtDir = -normalize(lgt.Direction.xyz);		
+			dAtten = AngularDropOff(lgt,lgtDir,L);
+		}
+		if(lgt.LightType == eDirectionalLight)
+			atten = 1.0;
+		else
+			if (dist <= lgt.Far) {
+				if (dist <= lgt.Near)
+					atten = 1.0;
+				else {
+					float n = dist - lgt.Near;
+					float d = lgt.Far - lgt.Near;
+					atten = smoothstep(0.0, 1.0, 1.0-(n*n)/(d*d)); 
+				}
+				L= L/dist;
+				float NdotL = max(0.0,dot(N,L));
+				atten *= NdotL;
+			}
+		result = atten * dAtten * lgt.Intensity * lgt.Color;
 		return result.rgb;
 	}
 	void main(void){
@@ -163,14 +235,25 @@ gEngine.DefaultResources = (function () {
 	var kPhongFS = {
 		name: 'phongFS', program: `precision mediump float;
 	#define kGLSLuLightArraySize 4
+
+	#define ePointLight 0
+	#define eDirectionalLight 1
+	#define eSpotLight 2
+	
 	struct Light {
-		vec4 Position; 
+		vec4 Position;
+		vec4 Direction; 
 		vec4 Color;
 		float Near; 
-		float Far; 
+		float Far;
+		float CosInner;
+		float CosOuter; 
 		float Intensity;
+		float DropOff;
 		bool IsOn;
+		int LightType;
 	};
+	
 	struct Material{
 		vec4 Ka;
 		vec4 Kd;
@@ -189,16 +272,31 @@ gEngine.DefaultResources = (function () {
 	
 	varying vec2 texCoord;
 
-	float LightAttenuation(Light lgt,float dist){
+	float AngularDropOff(Light lgt, vec3 lgtDir, vec3 L) {
 		float atten = 0.0;
-		if(dist <= lgt.Far){
-			if(dist <= lgt.Near)
+		float cosL = dot(lgtDir, L);
+		float num = cosL - lgt.CosOuter;
+		if (num > 0.0) {
+			if (cosL > lgt.CosInner) 
 				atten = 1.0;
-			else{
+			else {
+				float denom = lgt.CosInner - lgt.CosOuter;
+				atten = smoothstep(0.0, 1.0, pow(num/denom, lgt.DropOff));
+			}
+		}
+		return atten;
+	}
+	
+	float DistanceDropOff(Light lgt, float dist) {
+		float atten = 0.0;
+		if (dist <= lgt.Far) {
+			if (dist <= lgt.Near)
+				atten = 1.0;  
+			else {
 				float n = dist - lgt.Near;
 				float d = lgt.Far - lgt.Near;
-				atten = smoothstep(0.0, 1.0, 1.0 - (n*n)/(d*d));
-			}
+				atten = smoothstep(0.0, 1.0, 1.0-(n*n)/(d*d)); 
+			}   
 		}
 		return atten;
 	}
@@ -213,13 +311,26 @@ gEngine.DefaultResources = (function () {
 	}
 
 	vec4 ShadedResult(Light lgt, vec3 N, vec4 textureMapColor) {
-		vec3 L = lgt.Position.xyz - gl_FragCoord.xyz;
-		float dist = length(L);
-		L = L / dist;
-		float atten = LightAttenuation(lgt, dist);
-		vec4 diffuse = DiffuseResult(N, L, textureMapColor);
-		vec4 specular = SpecularResult(N, L);
-		vec4 result = atten * lgt.Intensity * lgt.Color * (diffuse + specular);
+		float aAtten = 1.0, dAtten = 1.0;
+		vec3 lgtDir = -normalize(lgt.Direction.xyz);
+		vec3 L; 
+		float dist; 
+		if (lgt.LightType == eDirectionalLight) {
+			L = lgtDir;
+		} else {
+			L = lgt.Position.xyz - gl_FragCoord.xyz;
+			dist = length(L);
+			L = L / dist;
+		}
+		if (lgt.LightType == eSpotLight) {
+			aAtten = AngularDropOff(lgt, lgtDir, L);
+		}
+		if (lgt.LightType != eDirectionalLight) {
+			dAtten = DistanceDropOff(lgt, dist);
+		}
+		vec4  diffuse = DiffuseResult(N, L, textureMapColor);
+		vec4  specular = SpecularResult(N, L);
+		vec4 result = aAtten * dAtten * lgt.Intensity * lgt.Color * (diffuse + specular);
 		return result;
 	}
 
@@ -237,7 +348,7 @@ gEngine.DefaultResources = (function () {
 		vec4 shadedResult = u_material.Ka + (textureMapColor * u_globalAmbientColor * u_globalAmbientIntensity);
 		// now decide if we should illuminate by the light
 		if (textureMapColor.a > 0.0) {
-			for (int i=0; i<4; i++) {
+			for (int i=0; i<kGLSLuLightArraySize; i++) {
 				if (u_lights[i].IsOn) {
 					shadedResult += ShadedResult(u_lights[i], N, textureMapColor);
 				}
@@ -294,13 +405,13 @@ gEngine.DefaultResources = (function () {
 
 	var createShaders = function (callbackFunction) {
 		mColorShader = new SimpleShader(kSimpleVS.name, kSimpleFS.name);
-		mTextureShader = new TextureShader(kTextureVS.name, kTextureFS.name);
-		mSpriteShader = new SpriteShader(kTextureVS.name, kTextureFS.name);
-		mFontShader = new SpriteShader(kTextureVS.name, kFontFS.name);
-		mLightShader = new LightShader(kTextureVS.name, kLightFS.name);
-		mIllumShader = new IllumShader(kTextureVS.name,kIllumFS.name);
+		mTextureShader = new TextureShader(kPixelSnapVS.name, kTextureFS.name);
+		mSpriteShader = new SpriteShader(kPixelSnapVS.name, kTextureFS.name);
+		mFontShader = new SpriteShader(kPixelSnapVS.name, kFontFS.name);
+		mLightShader = new LightShader(kPixelSnapVS.name, kLightFS.name);
+		mIllumShader = new IllumShader(kPixelSnapVS.name,kIllumFS.name);
 		mParticleShader = new TextureShader(kTextureVS.name,kParticleFS.name);
-		mPhongShader = new PhongShader(kTextureVS.name,kPhongFS.name);
+		mPhongShader = new PhongShader(kPixelSnapVS.name,kPhongFS.name);
 		callbackFunction();
 	};
 
