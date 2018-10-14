@@ -42,6 +42,7 @@ gEngine.Core = (function () {
 		gEngine.Input.initialize();
 		gEngine.Audio.initialize();
 		gEngine.Physics.initialize();
+		gEngine.LayerManager.initialize();
 
 		myGame.loadScene.call(myGame);
 
@@ -68,6 +69,7 @@ gEngine.Core = (function () {
 	var cleanUp = function () {
 		gEngine.VertexBuffer.cleanUp();
 		gEngine.DefaultResources.cleanUp();
+		gEngine.LayerManager.cleanUp();
 	};
 
 	var mPublic = {

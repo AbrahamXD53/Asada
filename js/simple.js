@@ -52,18 +52,24 @@ SimpleGame.prototype.loadScene = function () {
     this.mMap.load();
 };
 
-SimpleGame.prototype.initialize = function () {
+SimpleGame.prototype.initialize = function () 
+{
+    let layers = gEngine.LayerManager.getLayers();
+
     this.camera = new Camera([0, 0,0], 30);
     this.camera2 = new Camera([0, 0,0], 10, [.5, 0, .5, 1]);
 
     this.mBackground = new ParallaxGameObject(this.camera,4,this.mBg,this.mBgNormal);
     this.mBackground.transform.scale([19,19,1]);
+    gEngine.LayerManager.addToLayer(layers.Background,this.mBackground);
+    
     this.mBackgroundUp = new ParallaxGameObject(this.camera,3,this.mBgUp,this.mBgUpNormal);
     this.mBackgroundUp.transform.scale([19,19,1]);
+    gEngine.LayerManager.addToLayer(layers.Background,this.mBackgroundUp);
     //this.mBackground.setComponent(ComponetType.renderer,new SpriteRenderer(this.mBg));
 
     this.mTheLight = new Light();
-    //this.mTheLight.setLightType(Light.LightType.Spot);
+    this.mTheLight.setLightType(Light.LightType.Directional);
     this.mTheLight.setPositionZ(2);
     this.mTheLight.setPositionX(0);
     this.mTheLight.setNear(10);
@@ -89,6 +95,7 @@ SimpleGame.prototype.initialize = function () {
     this.mTheLight3.setColor([0.0, 1.0, 0, 1]);
 
     this.square = new GameObject(this.kCollector,true);
+    gEngine.LayerManager.addToLayer(layers.Actors,this.square);
 
     //this.particle= new ParticleGameObject(this.kDefaultParticle,0,0,1000);
 
@@ -102,6 +109,7 @@ SimpleGame.prototype.initialize = function () {
     Matter.Body.setInertia(this.square.physics.getBody(), Infinity);
     this.squareBlue = new GameObject();
     this.squareBlue.getComponent(ComponetType.transform).setScale([1, 2, 2]);
+    gEngine.LayerManager.addToLayer(layers.Actors,this.squareBlue);
 
     this.squareBlue.transform.setPosition(twgl.v3.create(-5.9, 25.5));
     this.squareBlue.transform.setRotationDeg(45);
@@ -115,8 +123,11 @@ SimpleGame.prototype.initialize = function () {
     this.squareFloor.transform.setScale([8, 1, 1]);
     this.squareFloor.renderer.setColor([1, 0, 0, 1]);
     this.squareFloor.addComponent(new Physics({ isStatic: true }));
+    gEngine.LayerManager.addToLayer(layers.Front,this.squareFloor);
 
-	this.mCollector = new GameObject(this.kMinion, this.kMinionNormal);
+    this.mCollector = new GameObject(this.kMinion, this.kMinionNormal);
+    gEngine.LayerManager.addToLayer(layers.Foreground,this.mCollector);
+    
     //this.mCollector.setComponent('Renderer', new IllumRenderer(this.kMinion,this.kMinionNormal));
     this.mCollector.addComponent(new Animator({
         frame: { width: 204, height: 160, count: 10 },
@@ -146,8 +157,9 @@ SimpleGame.prototype.initialize = function () {
     this.mCollector.renderer.addLight(this.mTheLight2);
     this.mCollector.renderer.addLight(this.mTheLight3);
 
-
     this.mCollector2 = new GameObject(this.kMinion,this.kMinionNormal);
+    gEngine.LayerManager.addToLayer(layers.Foreground,this.mCollector2);
+    
     // this.mCollector2.setComponent(ComponetType.renderer, new IllumRenderer(this.kMinion,this.kMinionNormal));
     this.mCollector2.addComponent(new Animator({
         frame: { width: 204, height: 160, count: 10 },
@@ -186,6 +198,7 @@ SimpleGame.prototype.initialize = function () {
     this.mBackgroundUp.renderer.addLight(this.mTheLight3);
 
     this.mTextSysFont = new FontRenderable("Asada Engine Fierro!");
+    gEngine.LayerManager.addToLayer(layers.HUD,this.mTextSysFont);
     this.mTextSysFont.setColor([1, .8, .8, 1]);
     this.mTextSysFont.getTransform().setPosition([-10, 5, 0]);
     this.mTextSysFont.setTextHeight(1);
@@ -215,6 +228,7 @@ SimpleGame.prototype.initialize = function () {
         startScale:[2,2,0],
         lifeTime:[10,15]
     }));
+    
 };
 var localTime=0;
 SimpleGame.prototype.update = function (delta = 1) {
@@ -285,37 +299,42 @@ SimpleGame.prototype.update = function (delta = 1) {
 		if (this.mJumping<26 && this.mJumping%5===0)
             this.square.physics.applyForce({ x: 0, y: 20 });
     }
-    this.mCollector2.update(delta);
-    this.mCollector.update(delta);
 
-    this.squareFloor.update(delta);
-    this.square.update(delta);
-    this.squareBlue.update(delta);
+    //this.mCollector2.update(delta);
+    //this.mCollector.update(delta);
+
+    //this.squareFloor.update(delta);
+    //this.square.update(delta);
+    //this.squareBlue.update(delta);
     this.mMap.setCollision(this.square.transform.getPosition());
     this.camera.setCenter(this.square.transform.getPositionX(),3.5+this.square.transform.getPositionY());
     
-    this.mBackground.update(delta);
-    this.mBackgroundUp.update(delta);
+    //this.mBackground.update(delta);
+    //this.mBackgroundUp.update(delta);
     this.camera.update();
     this.camera2.update();
     localTime+=delta*.1;
     //this.particleEmiter.transform.translate([Math.cos(localTime),Math.sin(localTime),0]);
     this.particleEmiter.update(delta);
+    gEngine.LayerManager.updateAllLayers(localTime);
+    
 };
 SimpleGame.prototype.draw = function () {
     this.camera.refreshViewport();
     //this.camera2.refreshViewport();
     this.camera.setupViewProjection();
-    this.mBackground.draw(this.camera);
-    this.mBackgroundUp.draw(this.camera);
 
-    this.mMap.draw(this.camera);
-    this.squareBlue.draw(this.camera);
-    this.squareFloor.draw(this.camera);
-    this.square.draw(this.camera);
-    this.mCollector2.draw(this.camera);
-    this.mCollector.draw(this.camera);
-	this.mTextSysFont.draw(this.camera);
+    gEngine.LayerManager.drawAllLayers(this.camera);
+    // this.mBackground.draw(this.camera);
+    // this.mBackgroundUp.draw(this.camera);
+
+    // this.mMap.draw(this.camera);
+    // this.squareBlue.draw(this.camera);
+    // this.squareFloor.draw(this.camera);
+    // this.square.draw(this.camera);
+    // this.mCollector2.draw(this.camera);
+    // this.mCollector.draw(this.camera);
+	// this.mTextSysFont.draw(this.camera);
 
 	this.particleEmiter.draw(this.camera);
     

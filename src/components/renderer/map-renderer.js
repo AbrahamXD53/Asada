@@ -35,7 +35,7 @@ Tileset.prototype.getTexture = function () {
 	return this.mTexture;
 };
 
-function MapLayer(data, tilesets, shader) {
+function MapLayer(data, tilesets, shader, parent) {
 	this.mShader = shader || gEngine.DefaultResources.getSpriteShader();
 	this.mTilesets = tilesets;
 	this.mData = data;
@@ -65,22 +65,26 @@ function MapLayer(data, tilesets, shader) {
 				realIndex += 4;
 			}
 		}
-	var gl = gEngine.Core.getGL();
-	this.mBufferInfo = twgl.createBufferInfoFromArrays(gl, this.mArrays);
+	this.mTransform = parent;
+	this.mGl = gEngine.Core.getGL();
+	this.mBufferInfo = twgl.createBufferInfoFromArrays(this.mGl, this.mArrays);
 }
 
 MapLayer.prototype.setShader = function (s) {
 	this.mShader = s;
 };
 
-MapLayer.prototype.draw = function (transform, vpMatrix, lights) {
-	let gl = gEngine.Core.getGL();
+MapLayer.prototype.setLights = function(lights){
 	if (this.mShader.setLights)
 		this.mShader.setLights(lights);
+};
+
+MapLayer.prototype.draw = function (vpMatrix) {
+	
 	gEngine.Textures.activateTexture(this.mTilesets[0].mTexture);
-	this.mShader.activateShader(this.mTint, transform, vpMatrix);
-	twgl.setBuffersAndAttributes(gl, this.mShader.getShader(), this.mBufferInfo);
-	twgl.drawBufferInfo(gl, this.mBufferInfo);
+	this.mShader.activateShader(this.mTint, this.mTransform.getMatrix(), vpMatrix);
+	twgl.setBuffersAndAttributes(this.mGl, this.mShader.getShader(), this.mBufferInfo);
+	twgl.drawBufferInfo(this.mGl, this.mBufferInfo);
 };
 
 function MapRenderer(filePath) {
@@ -143,10 +147,13 @@ MapRenderer.prototype.createBody = function (data) {
 };
 MapRenderer.prototype.initialize = function () {
 	if (this.mData) {
+		console.log(this.mData);
 		for (let i in this.mData.layers) {
 			if (this.mData.layers[i].data) {
-				let layer = new MapLayer(this.mData.layers[i], this.mTilesets, this.mShader);
+				let layer = new MapLayer(this.mData.layers[i], this.mTilesets, this.mShader,this.mTransform);
 				this.mLayers.push(layer);
+				let layerNumber = gEngine.LayerManager.getLayers()[this.mData.layers[i].name] || gEngine.LayerManager.getLayers().Background;
+				gEngine.LayerManager.addToLayer(layerNumber,layer);
 			}
 			else {
 				this.createBody(this.mData.layers[i]);
@@ -157,7 +164,7 @@ MapRenderer.prototype.initialize = function () {
 
 MapRenderer.prototype.draw = function (vpMatrix) {
 	for (let index = 0; index < this.mLayers.length; index++) {
-		this.mLayers[index].draw(this.mTransform.getMatrix(), vpMatrix, this.mLights);
+		this.mLayers[index].draw(vpMatrix);
 	}
 };
 
@@ -178,6 +185,9 @@ MapRenderer.prototype.getLightAt = function (index) {
 };
 MapRenderer.prototype.addLight = function (l) {
 	this.mLights.push(l);
+	for (let index = 0; index < this.mLayers.length; index++) {
+		this.mLayers[index].setLights(this.mLights);
+	}
 };
 
 MapRenderer.prototype.cleanUp = function () {
