@@ -19,7 +19,6 @@ gEngine.LayerManager = (function () {
         mLayers[defaultLayers.Actors] = new GameObjectSet();
         mLayers[defaultLayers.Front] = new GameObjectSet();
         mLayers[defaultLayers.HUD] = new GameObjectSet();
-        console.log(mLayers);
     };
 
     var addLayer = function (name, id) {

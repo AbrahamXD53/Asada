@@ -121,7 +121,6 @@ MapRenderer.prototype.createBody = function (data) {
 			let w = data.objects[i].width / this.mData.tilewidth, h = data.objects[i].height / this.mData.tileheight,
 				x = data.objects[i].x / this.mData.tilewidth + w * 0.5,
 				y = this.mData.height - data.objects[i].y / this.mData.tileheight - h * 0.5;
-			console.log(x, y);
 			body = Matter.Bodies.rectangle(x, y, w, h, { friction: 0.5, frictionDynamic: 0, isStatic: true, properties: data.objects[i].properties || {} });
 			body.collisionFilter.group = 0;
 			body.collisionFilter.category = 0b00000001;
@@ -147,7 +146,6 @@ MapRenderer.prototype.createBody = function (data) {
 };
 MapRenderer.prototype.initialize = function () {
 	if (this.mData) {
-		console.log(this.mData);
 		for (let i in this.mData.layers) {
 			if (this.mData.layers[i].data) {
 				let layer = new MapLayer(this.mData.layers[i], this.mTilesets, this.mShader,this.mTransform);

@@ -1,7 +1,6 @@
 function ParallaxGameObject(camera, scale, texture, normal = null) {
     this.mRefCamera = camera;
     this.mCameraCenterRef = this.mRefCamera.getCenter();
-    console.log(this.mRefCamera, this.mCameraCenterRef);
     this.mParallaxScale = 1;
 	this.setParallaxScale(scale);
 	if (normal)

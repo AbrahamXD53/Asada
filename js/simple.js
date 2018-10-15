@@ -116,7 +116,6 @@ SimpleGame.prototype.initialize = function ()
 
     this.squareBlue.renderer.setColor([1, 1, 1, 1]);
     this.squareBlue.addComponent(new Physics({density:1}));
-    this.squareBlue.getAllComponents();
 
     this.squareFloor = new GameObject();
     this.squareFloor.transform.setPosition(twgl.v3.create(-7, -5, 0));
@@ -133,7 +132,7 @@ SimpleGame.prototype.initialize = function ()
         frame: { width: 204, height: 160, count: 10 },
         animations: [
             new AnimationDescription({ frames: [0], time: 300, loops: -1 }),
-            new AnimationDescription({ start: 1, count: 9, time: 100, loops: -1 })
+            new AnimationDescription({ start: 1, count: 9, time: 10, loops: -1 })
         ],
         defaultAnimation: 1,
         params: { X: 0 },
@@ -144,7 +143,6 @@ SimpleGame.prototype.initialize = function ()
     material.setShininess(100);
     material.setDiffuse([0.5,0.5,0.5,0]);
     material.setSpecular([0,0,0,0]);
-    console.log(material);
     
     this.mCollector.transform.setPosition([0, 0, 0]);
     this.mCollector.transform.setScale([5, 5, 1]);
@@ -165,7 +163,7 @@ SimpleGame.prototype.initialize = function ()
         frame: { width: 204, height: 160, count: 10 },
         animations: [
             new AnimationDescription({ frames: [0], time: 300, loops: -1 }),
-            new AnimationDescription({ start: 1, count: 9, time: 200, loops: -1 })
+            new AnimationDescription({ start: 1, count: 9, time: 5, loops: -1 })
         ],
         defaultAnimation: 0,
         params: { X: 0 },
@@ -183,7 +181,6 @@ SimpleGame.prototype.initialize = function ()
             ]
         ]
     }));
-    this.mCollector.getAllComponents();
     this.mCollector2.renderer.setColor([1, 1, 1, 1]);
     this.mCollector2.transform.setPosition([2, 0, 0]);
     this.mCollector2.transform.setScale([1, 1, 1]);
@@ -261,6 +258,7 @@ SimpleGame.prototype.update = function (delta = 1) {
             this.mCollector2.animator.setParamValue('X', 2);
             this.mCollector2.transform.setScale([-8, 8, 1]);
         } else {
+            this.mCollector2.animator.setParamValue('X', 0);
             this.squareFloor.renderer.setColor([0, 0, 1, 1]);
         }
     }
