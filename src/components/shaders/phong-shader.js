@@ -3,7 +3,7 @@ function PhongShader(vertex,fragment){
     this.mMaterial = null;
     this.mMaterialLoader = new ShaderMaterial(this.mCompiledShader.program);
 
-    this.mCameraPos = null; // points to a vec3
+    this.mCameraPos = null; 
     this.mCameraPosRef = this.gl.getUniformLocation(this.mCompiledShader.program, "u_cameraPosition");
 }
 

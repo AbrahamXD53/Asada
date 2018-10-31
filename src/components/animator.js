@@ -1,5 +1,4 @@
 function Animator(options) {
-    //let textureInfo = gEngine.Textures.getTextureInfo(texture);
     this.mAnimationController = null;
     this.mFrames = null;
     this.mFrameInfo = null;

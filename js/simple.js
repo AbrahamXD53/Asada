@@ -1,4 +1,5 @@
 'use strict';
+var localTime=0;
 function SimpleGame() {
 
     this.square = null;
@@ -31,11 +32,11 @@ SimpleGame.prototype.fullScreen = function () {
     var elem = document.getElementById('full-screen-container');
     if (elem.requestFullscreen) {
         elem.requestFullscreen();
-    } else if (elem.mozRequestFullScreen) { /* Firefox */
+    } else if (elem.mozRequestFullScreen) { 
         elem.mozRequestFullScreen();
-    } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+    } else if (elem.webkitRequestFullscreen) { 
         elem.webkitRequestFullscreen();
-    } else if (elem.msRequestFullscreen) { /* IE/Edge */
+    } else if (elem.msRequestFullscreen) { 
         elem.msRequestFullscreen();
     }
 };
@@ -66,7 +67,6 @@ SimpleGame.prototype.initialize = function ()
     this.mBackgroundUp = new ParallaxGameObject(this.camera,3,this.mBgUp,this.mBgUpNormal);
     this.mBackgroundUp.transform.scale([19,19,1]);
     gEngine.LayerManager.addToLayer(layers.Background,this.mBackgroundUp);
-    //this.mBackground.setComponent(ComponetType.renderer,new SpriteRenderer(this.mBg));
 
     this.mTheLight = new Light();
     this.mTheLight.setLightType(Light.LightType.Directional);
@@ -74,14 +74,14 @@ SimpleGame.prototype.initialize = function ()
     this.mTheLight.setPositionX(0);
     this.mTheLight.setNear(10);
     this.mTheLight.setFar(15);
-    this.mTheLight.setPositionY(5);  // Position above LMinion
+    this.mTheLight.setPositionY(5);  
     this.mTheLight.setColor([0, 0,1, 1]);
 
 
     this.mTheLight2 = new Light();
     this.mTheLight2.setPositionZ(2);
     this.mTheLight2.setPositionX(-10);
-    this.mTheLight2.setPositionY(-1);  // Position above LMinion
+    this.mTheLight2.setPositionY(-1);  
     this.mTheLight2.setNear(8);
     this.mTheLight2.setFar(9);
     this.mTheLight2.setColor([1.0, 0.0, 0.0, 1]);
@@ -89,7 +89,7 @@ SimpleGame.prototype.initialize = function ()
     this.mTheLight3 = new Light();
     this.mTheLight3.setPositionZ(2);
     this.mTheLight3.setPositionX(0);
-    this.mTheLight3.setPositionY(-5);  // Position above LMinion
+    this.mTheLight3.setPositionY(-5);  
     this.mTheLight3.setNear(8);
     this.mTheLight3.setFar(9);
     this.mTheLight3.setColor([0.0, 1.0, 0, 1]);
@@ -97,13 +97,9 @@ SimpleGame.prototype.initialize = function ()
     this.square = new GameObject(this.kCollector,true);
     gEngine.LayerManager.addToLayer(layers.Actors,this.square);
 
-    //this.particle= new ParticleGameObject(this.kDefaultParticle,0,0,1000);
 
-    //this.square.transform.setRotation(Math.PI / 4);
     this.square.getComponent(ComponetType.transform).setScale([2, 2, 1]);
     this.square.getComponent(ComponetType.transform).setPosition(twgl.v3.create(0, -2.8));
-    //this.square.setComponent('Renderer', new SpriteRenderer(this.kCollector));
-    // this.square.transform.setRotationDeg(45);
 
     this.square.addComponent(new Physics({ density: 1,friction:0, frictionStatic: 0.0, frictionAir: 0.1, inertia: Infinity,offsetX:0.2 }));
     Matter.Body.setInertia(this.square.physics.getBody(), Infinity);
@@ -127,7 +123,6 @@ SimpleGame.prototype.initialize = function ()
     this.mCollector = new GameObject(this.kMinion, this.kMinionNormal);
     gEngine.LayerManager.addToLayer(layers.Foreground,this.mCollector);
     
-    //this.mCollector.setComponent('Renderer', new IllumRenderer(this.kMinion,this.kMinionNormal));
     this.mCollector.addComponent(new Animator({
         frame: { width: 204, height: 160, count: 10 },
         animations: [
@@ -139,6 +134,7 @@ SimpleGame.prototype.initialize = function ()
         transitions: [
         ]
     }));
+
     let material = this.mCollector.renderer.getMaterial();
     material.setShininess(100);
     material.setDiffuse([0.5,0.5,0.5,0]);
@@ -158,7 +154,6 @@ SimpleGame.prototype.initialize = function ()
     this.mCollector2 = new GameObject(this.kMinion,this.kMinionNormal);
     gEngine.LayerManager.addToLayer(layers.Foreground,this.mCollector2);
     
-    // this.mCollector2.setComponent(ComponetType.renderer, new IllumRenderer(this.kMinion,this.kMinionNormal));
     this.mCollector2.addComponent(new Animator({
         frame: { width: 204, height: 160, count: 10 },
         animations: [
@@ -203,8 +198,6 @@ SimpleGame.prototype.initialize = function ()
     gEngine.Audio.playBackgroundAudio(this.kBgClip);
 
     this.mMap.initialize();
-    //this.mMap.getTransform().setPosition([0, 0, 0]);
-    //this.mMap.getTransform().setScale([1, 1, 1]);
     this.mMap.setShader(gEngine.DefaultResources.getLightShader());
     this.mMap.addLight(this.mTheLight);
     this.mMap.addLight(this.mTheLight2);
@@ -227,10 +220,9 @@ SimpleGame.prototype.initialize = function ()
     }));
     
 };
-var localTime=0;
 SimpleGame.prototype.update = function (delta = 1) {
 
-    //this.particle.update();
+    localTime+=delta*.1;
     var touches = gEngine.Input.getTouches();
     if (gEngine.Input.getTouchCount() > 0) {
         let coords = this.camera.screenToSpace([touches[0].clientX, touches[0].clientY]);
@@ -298,51 +290,21 @@ SimpleGame.prototype.update = function (delta = 1) {
             this.square.physics.applyForce({ x: 0, y: 20 });
     }
 
-    //this.mCollector2.update(delta);
-    //this.mCollector.update(delta);
-
-    //this.squareFloor.update(delta);
-    //this.square.update(delta);
-    //this.squareBlue.update(delta);
     this.mMap.setCollision(this.square.transform.getPosition());
     this.camera.setCenter(this.square.transform.getPositionX(),3.5+this.square.transform.getPositionY());
     
-    //this.mBackground.update(delta);
-    //this.mBackgroundUp.update(delta);
     this.camera.update();
     this.camera2.update();
-    localTime+=delta*.1;
-    //this.particleEmiter.transform.translate([Math.cos(localTime),Math.sin(localTime),0]);
     this.particleEmiter.update(delta);
     gEngine.LayerManager.updateAllLayers(localTime);
     
 };
 SimpleGame.prototype.draw = function () {
     this.camera.refreshViewport();
-    //this.camera2.refreshViewport();
     this.camera.setupViewProjection();
 
     gEngine.LayerManager.drawAllLayers(this.camera);
-    // this.mBackground.draw(this.camera);
-    // this.mBackgroundUp.draw(this.camera);
-
-    // this.mMap.draw(this.camera);
-    // this.squareBlue.draw(this.camera);
-    // this.squareFloor.draw(this.camera);
-    // this.square.draw(this.camera);
-    // this.mCollector2.draw(this.camera);
-    // this.mCollector.draw(this.camera);
-	// this.mTextSysFont.draw(this.camera);
 
 	this.particleEmiter.draw(this.camera);
-    
-    //this.camera2.setupViewProjection();
-    //this.mMap.draw(this.camera2);
-    // this.squareBlue.draw(this.camera2);
-    // this.squareFloor.draw(this.camera2);
-    // this.square.draw(this.camera2);
-    //this.mCollector.draw(this.camera2);
-    //this.mCollector2.draw(this.camera2);
-    // this.mTextSysFont.draw(this.camera2);
 };
 

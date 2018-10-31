@@ -335,18 +335,13 @@ gEngine.DefaultResources = (function () {
 	}
 
 	void main(void) {
-		// simple tint based on uPixelColor setting
 		vec4 textureMapColor = texture2D(u_texture, texCoord);
 		vec4 normal = texture2D(u_normal, texCoord);
 		vec4 normalMap = (2.0 * normal) - 1.0;
 	   
-		// normalMap.y = -normalMap.y; // flip Y
-		// depending on the normal map you work with, this may or may not be flipped
-		//
 		vec3 N = normalize(normalMap.xyz);
 	   
 		vec4 shadedResult = u_material.Ka + (textureMapColor * u_globalAmbientColor * u_globalAmbientIntensity);
-		// now decide if we should illuminate by the light
 		if (textureMapColor.a > 0.0) {
 			for (int i=0; i<kGLSLuLightArraySize; i++) {
 				if (u_lights[i].IsOn) {
@@ -354,10 +349,6 @@ gEngine.DefaultResources = (function () {
 				}
 			}
 		}
-		// tint the textured area, and leave transparent area as defined by the texture
-		//vec3 tintResult = vec3(shadedResult) * (1.0-u_color.a) + vec3(u_color) * u_color.a;
-		//vec4 result = vec4(tintResult, shadedResult.a);
-		//gl_FragColor = result;
 		gl_FragColor = shadedResult * u_color;
 	}
 	`};
@@ -442,16 +433,6 @@ gEngine.DefaultResources = (function () {
 		mLightShader.cleanUp();
 		mIllumShader.cleanUp();
 		mParticleShader.cleanUp();
-
-		/* gEngine.TextFileLoader.unloadTextFile(kSimpleVS);
-		gEngine.TextFileLoader.unloadTextFile(kSimpleFS);
-
-		gEngine.TextFileLoader.unloadTextFile(kTextureVS);
-		gEngine.TextFileLoader.unloadTextFile(kTextureFS);
-		gEngine.TextFileLoader.unloadTextFile(kPixelSnapVS);
-		gEngine.TextFileLoader.unloadTextFile(kLightFS);
-
-		gEngine.Fonts.unloadFont(kDefaultFont.name); */
 	};
 	var mPublic = {
 		initialize: initialize,

@@ -7,9 +7,11 @@ function TiledGameObject(texture, normal = null) {
     this.mShouldTile = true;
     this.mTiledType = TiledType.All;
 }
+
 gEngine.Core.inheritPrototype(TiledGameObject, GameObject);
 TiledGameObject.prototype.setIsTiled = function (t) { this.mShouldTile = t; };
 TiledGameObject.prototype.shouldTile = function () { return this.mShouldTile; };
+
 /**
  * @param {Camera} camera Camera used to render
  */

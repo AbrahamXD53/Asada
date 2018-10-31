@@ -1,4 +1,4 @@
-function ParticleEmiter(options = {}) { //New component
+function ParticleEmiter(options = {}) { 
     this.mParticles = [];
     this.mMaxParticles = 50;
     this.mNextParticle = Math.random();
